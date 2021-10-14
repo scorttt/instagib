@@ -1,0 +1,342 @@
+import "../main.del";
+
+import "wallbang.del";
+import "ricochet.del";
+import "buckshot.del";
+import "prism.del";
+import "ballista.del";
+import "electro.del";
+import "spark.del";
+import "arc.del";
+import "daybreak.del";
+
+globalvar num[] S_BUFF_CD;
+globalvar num[] S_BUFF_AMMO;
+globalvar num[] buff_cd;
+globalvar bool[] buff_timer;
+globalvar bool[] s_spawn_buff;
+globalvar str[] buff_txt;
+globalvar bool s_buffs_enabled;
+globalvar bool s_rand_buff_pos;
+globalvar bool s_dbg_buff_fastspawn;
+globalvar bool valid_map;
+globalvar vec[] buff_pos;
+globalvar bool s_cd_ip_timer;
+globalvar num buff_i;
+globalvar color buff_color;
+globalvar color[] color_arr;
+globalvar any[] collected_buff_effect;
+globalvar bool[] can_pickup_buff;
+playervar bool has_buff;
+playervar bool[] buff_enabled;
+playervar num[] buff_ammo;
+playervar str buff_str;
+
+disabled rule: "---------------- Buff ----------------"{}
+
+rule: "[Buff] :: Remove Current Buff"
+Event.OngoingPlayer
+if (IsInteractHeld())
+if (has_buff)
+{
+    WaitIfTrue(1);
+    for (num i = 0; i < buff_pos.Length; i++) // this isnt the best way of doing this. oh well
+    {
+        DestroyEffect(collected_buff_effect[i]);
+        buff_ammo[i] = 0;
+        buff_enabled[i] = false;
+    }
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.White, PositionOf() + Up(), 1);
+    has_buff = false;
+}
+
+void CollectBuff() playervar "[Sub] :: Buff Collection"
+{
+    can_pickup_buff[buff_i] = false;
+    buff_color = color_arr[buff_i];
+    BigMessage(player, buff_str);
+    LogToInspector(<"<0> Enabled for <1>", buff_str, player>);
+
+    if (!has_buff)
+    {
+        buff_enabled[buff_i] = true;
+        has_buff = true;
+
+        CreateEffect(IsAlive() ? all : null, Effect.GoodAura, buff_color, player, 0.5, EffectRev.VisibleToPositionAndRadius);
+        collected_buff_effect[buff_i] = LastCreatedEntity();
+    }
+
+    if (buff_ammo[buff_i] < 0)
+        buff_ammo[buff_i] = 0;
+
+    buff_ammo[buff_i] += S_BUFF_AMMO[buff_i];
+
+    // pickup effects
+    PlayEffect(all, PlayEffect.GoodPickupEffect, buff_color, buff_pos[buff_i], 1);
+    PlayEffect(all, PlayEffect.BuffExplosionSound, buff_color, buff_pos[buff_i], 200);
+
+    buff_cd[buff_i] = S_BUFF_CD[buff_i];
+    BuffCooldown();
+
+    buff_i = -1;
+    buff_color = null;
+}
+
+void BuffCooldown() "[Sub] :: Start Buff Timer"
+{
+    if (s_spawn_buff[buff_i] && buff_cd[buff_i] == S_BUFF_CD[buff_i])
+    {
+        buff_timer[buff_i] = true; // start timer
+
+        switch (buff_i) // progress bar control
+        {
+            case (0):
+                LogToInspector("Wallbang cooldown started");
+                wallbang_pb = 0;
+                ChaseVariableOverTime(wallbang_pb, 100, S_BUFF_CD[0], TimeChaseReevaluation.None);
+
+                break;
+            case (1):
+                LogToInspector("Ricochet cooldown started");
+                ricochet_pb = 0;
+                ChaseVariableOverTime(ricochet_pb, 100, S_BUFF_CD[1], TimeChaseReevaluation.None);
+
+                break;
+            case (2):
+                LogToInspector("Buckshot cooldown started");
+                buckshot_pb = 0;
+                ChaseVariableOverTime(buckshot_pb, 100, S_BUFF_CD[2], TimeChaseReevaluation.None);
+
+                break;
+            case (3):
+                LogToInspector("Prism cooldown started");
+                prism_pb = 0;
+                ChaseVariableOverTime(prism_pb, 100, S_BUFF_CD[3], TimeChaseReevaluation.None);
+
+                break;
+            case (4):
+                LogToInspector("Ballista cooldown started");
+                bal_pb = 0;
+                ChaseVariableOverTime(bal_pb, 100, S_BUFF_CD[4], TimeChaseReevaluation.None);
+            
+                break;
+            case (5):
+                LogToInspector("Electro cooldown started");
+                electro_pb = 0;
+                ChaseVariableOverTime(electro_pb, 100, S_BUFF_CD[5], TimeChaseReevaluation.None);
+            
+                break;
+            case (6):
+                LogToInspector("Spark cooldown started");
+                spark_pb = 0;
+                ChaseVariableOverTime(spark_pb, 100, S_BUFF_CD[6], TimeChaseReevaluation.None);
+
+                break;
+            case (7):
+                LogToInspector("Arc cooldown started");
+                arc_pb = 0;
+                ChaseVariableOverTime(arc_pb, 100, S_BUFF_CD[7], TimeChaseReevaluation.None);
+
+                break;
+            case (8):
+                LogToInspector("Daybreak cooldown started");
+                dayb_pb = 0;
+                ChaseVariableOverTime(dayb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
+
+                break;
+        }
+    }
+}
+
+void CreateOrb() "[Sub] :: Create Orb"
+{
+    can_pickup_buff[buff_i] = true;
+    buff_timer[buff_i] = false;
+    PlayEffect(all, PlayEffect.GoodPickupEffect, color_arr[buff_i], buff_pos[buff_i], 1);
+
+    PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i], 3);
+    PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i] + Vector(0, -0.5, 0), 2);
+    PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i] + Vector(0, -1, 0), 1);
+
+    switch (buff_i)
+    {
+        case (0):
+            LogToInspector("Wallbang Orb Created");
+            StopChasingVariable(wallbang_pb);
+            break;
+        case (1):
+            LogToInspector("Ricochet Orb Created"); 
+            StopChasingVariable(ricochet_pb);
+            break;
+        case (2):
+            LogToInspector("Buckshot Orb Created");
+            StopChasingVariable(buckshot_pb);
+            break;
+        case (3):
+            LogToInspector("Prism Orb Created");
+            StopChasingVariable(prism_pb);
+            break;
+        case (4):
+            LogToInspector("Ballista Orb Created");
+            StopChasingVariable(bal_pb);
+            break;
+        case (5):
+            LogToInspector("Electro Orb Created");
+            StopChasingVariable(electro_pb);
+            break;
+        case (6):
+            LogToInspector("Spark Orb Created");
+            StopChasingVariable(spark_pb);
+            break;
+        case (7):
+            LogToInspector("Arc Orb Created");
+            StopChasingVariable(arc_pb);
+            break;
+        case (8):
+            LogToInspector("Daybreak Orb Created");
+            StopChasingVariable(dayb_pb);
+            break;
+    }
+}
+
+// buff_timer: bool
+// buff_cd: integer
+// buff_txt: string
+// rule: "[Buff] :: Buff Timer"
+// if (IsTrueForAny(buff_timer, Curr())) // if any timer is running
+// {
+//     // todo: optimize. unsure if i will keep this
+//     for (num i = 0; i < CountOf(FilteredArray(buff_timer, true)); i++) // i < count of what buff_timers are running
+//     {
+//         if (buff_timer[i]) // decrement only if the indexed timer is running
+//         {
+//             buff_cd[i]--;
+
+//             // update string
+//             buff_txt[i] = buff_cd[i] % 60 >= 10
+//                             ? <"<0>:<1>", Floor(buff_cd[i] / 60), Floor(buff_cd[i] % 60)> 
+//                             : <"<0>:0<1>", Floor(buff_cd[i] / 60), Floor(buff_cd[i] % 60)>;
+//         }
+//     }
+
+//     Wait(1);
+//     LoopIfConditionIsTrue();
+// }
+
+rule: "[Buff] :: Wallbang Timer"
+if (buff_timer[0])
+{
+    buff_cd[0]--;
+
+    buff_txt[0] = buff_cd[0] % 60 >= 10
+                    ? <"<0>:<1>", RoundToInteger(buff_cd[0] / 60, Rounding.Down), RoundToInteger(buff_cd[0] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[0] / 60, Rounding.Down), RoundToInteger(buff_cd[0] % 60, Rounding.Down)>;
+
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Ricochet Timer"
+if (buff_timer[1])
+{
+    buff_cd[1]--;
+
+    buff_txt[1] = buff_cd[1] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[1] / 60, Rounding.Down), RoundToInteger(buff_cd[1] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[1] / 60, Rounding.Down), RoundToInteger(buff_cd[1] % 60, Rounding.Down)>;
+
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Buckshot Timer"
+if (buff_timer[2])
+{
+    buff_cd[2]--;
+
+    buff_txt[2] = buff_cd[2] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[2] / 60, Rounding.Down), RoundToInteger(buff_cd[2] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[2] / 60, Rounding.Down), RoundToInteger(buff_cd[2] % 60, Rounding.Down)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Prism Timer"
+if (buff_timer[3])
+{
+    buff_cd[3]--;
+
+    buff_txt[3] = buff_cd[3] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[3] / 60, Rounding.Down), RoundToInteger(buff_cd[3] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[3] / 60, Rounding.Down), RoundToInteger(buff_cd[3] % 60, Rounding.Down)>;
+
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Ballista Timer"
+if (buff_timer[4])
+{
+    buff_cd[4]--;
+
+    buff_txt[4] = buff_cd[4] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[4] / 60, Rounding.Down), RoundToInteger(buff_cd[4] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[4] / 60, Rounding.Down), RoundToInteger(buff_cd[4] % 60, Rounding.Down)>;
+
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Electro Timer"
+if (buff_timer[5])
+{
+    buff_cd[5]--;
+
+    buff_txt[5] = buff_cd[5] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[5] / 60, Rounding.Down), RoundToInteger(buff_cd[5] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[5] / 60, Rounding.Down), RoundToInteger(buff_cd[5] % 60, Rounding.Down)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Spark Timer"
+if (buff_timer[6])
+{
+    buff_cd[6]--;
+
+    buff_txt[6] = buff_cd[6] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[6] / 60, Rounding.Down), RoundToInteger(buff_cd[6] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[6] / 60, Rounding.Down), RoundToInteger(buff_cd[6] % 60, Rounding.Down)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Arc Timer"
+if (buff_timer[7])
+{
+    buff_cd[7]--;
+
+    buff_txt[7] = buff_cd[7] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[7] / 60, Rounding.Down), RoundToInteger(buff_cd[7] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[7] / 60, Rounding.Down), RoundToInteger(buff_cd[7] % 60, Rounding.Down)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Daybreak Timer"
+if (buff_timer[8])
+{
+    buff_cd[8]--;
+
+    buff_txt[8] = buff_cd[8] % 60 >= 10
+                    ? <"<0>:<1>",  RoundToInteger(buff_cd[8] / 60, Rounding.Down), RoundToInteger(buff_cd[8] % 60, Rounding.Down)> 
+                    : <"<0>:0<1>", RoundToInteger(buff_cd[8] / 60, Rounding.Down), RoundToInteger(buff_cd[8] % 60, Rounding.Down)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}

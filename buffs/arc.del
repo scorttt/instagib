@@ -1,0 +1,114 @@
+import "../main.del";
+import ".bmain.del";
+
+globalvar num arc_pb;
+globalvar num S_ARC_MOD;
+
+disabled rule: "---------------- Arc ----------------"{}
+
+rule: "[Buff] :: Arc : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[7])
+if (arc_pb == 100)
+{
+    buff_i = 7;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Arc : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[7])
+if (can_pickup_buff[7])
+if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+{
+    DisallowButton(player, Button.PrimaryFire);
+    buff_str = "Arc";
+    buff_i = 7;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Arc : Remove"
+Event.OngoingPlayer
+if (buff_enabled[7])
+if (buff_ammo[7] <= 0)
+{
+    LogToInspector(<"Arc Disabled for <0>", player>);
+
+    // destroy hud timer and player effect
+    DestroyEffect(collected_buff_effect[7]);
+
+    buff_enabled[7] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Arc : Action - Fire"
+Event.OngoingPlayer
+if (buff_enabled[7])
+if (IsPrimaryHeld())
+{
+    // // THIS SHIT BROCKEN
+    // vec eye_pos = weapon_muzzle(EyePosition(), Facing());
+    // vec facing = Facing();
+    // num dist = 100;
+
+    // vec[] normals;
+    // vec[] hp;
+    // vec[] hp_ricochets;
+    // any[] ricochets;
+    // any[] hp_player;
+    // any[] hp_player_ricochets;
+    // any[] effects;
+
+    // for (num i = 0; i < 16; i++)
+    // {
+    //     CreateBeamEffect(all, BeamType.BadBeam, eye_pos, facing, color_arr[7], EffectRev.PositionAndRadius);
+    //     effects[i] = LastCreatedEntity();
+    // }
+
+    // while (IsInteractHeld())
+    // {
+    //     buff_ammo[7]--;
+    //     eye_pos = EyePosition();
+    //     facing = Facing();
+    //     normals = [];
+    //     hp = [];
+    //     hp_ricochets = [];
+    //     ricochets = [];
+    //     hp_player = [];
+    //     hp_player_ricochets = [];
+
+    //     for (num i = 0; i < 16; i++)
+    //     {
+    //         if (i > 0)
+    //         {
+    //             eye_pos = hp[i - 1];
+    //             facing = ricochets[i - 1];
+
+    //             dist = dist / 4;
+    //         }
+
+    //         hp[i] =                  RayCastHitPosition(eye_pos, eye_pos + facing * dist, null, player, true);
+    //         normals[i] =             RayCastHitNormal  (eye_pos, eye_pos + facing * dist, null, player, true);
+    //         hp_player[i] =           RayCastHitPlayer  (eye_pos, eye_pos + facing * dist, AllLivingPlayers(), player, true);
+
+    //         ricochets[i] =           facing - (2 * (normals[i] * DotProduct(facing, normals[i])));
+
+    //         hp_ricochets[i] =        RayCastHitPosition(hp[i], hp[i] + ricochets[i] * dist, null, player, true);
+    //         hp_player_ricochets[i] = RayCastHitPlayer  (hp[i], hp[i] + ricochets[i] * dist, AllLivingPlayers(), player, true);
+
+    //         PlayEffect(all, PlayEffect.GoodExplosion, Color.White, hp[i], 0.2); // last ricochet
+    //         PlayEffect(all, PlayEffect.GoodExplosion, Color.White, hp_ricochets[i], 0.2); // ricochets
+
+    //         if (DistanceBetween(eye_pos, facing) > dist - 1)
+    //             break;
+    //     }
+
+    //     MinWait();
+    // }
+
+    // Wait(0.25);
+    // DestroyEffect(effects);
+}

@@ -1,0 +1,38 @@
+import "main.del";
+
+globalvar num S_DODGE_FORCE;
+globalvar bool s_dodge_enabled;
+playervar vec throttle_of;
+playervar num dodges;
+
+disabled rule: "---------------- Dodge ----------------"{}
+
+rule: "[Dodge] :: Action"
+Event.OngoingPlayer
+if (s_dodge_enabled)
+if (dodges > 0)
+if (IsInAir())
+if (IsButtonHeld(player, Button.Ability1))
+{
+    throttle_of = ThrottleOf() + Vector(0, 0.6, 0);
+
+    if (throttle_of == Vector(0, 0.6, 0))
+        throttle_of = Vector(0, 0.6, 1);
+
+    if (bhop_speed < 120)
+        bhop_speed += S_BHOP_SPEED_RATE * 3;
+
+    ApplyImpulse(player, throttle_of, S_DODGE_FORCE, Relative.ToPlayer, ContraryMotion.Cancel);
+    PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf(), 1);
+    PlayEffect(all, PlayEffect.RingExplosion, Color.Gray, PositionOf(), 2);
+
+    dodges--;
+}
+
+rule: "[Dodge] :: On Ground"
+Event.OngoingPlayer
+if (IsOnGround())
+if (dodges < 2)
+{
+    dodges = 2;
+}

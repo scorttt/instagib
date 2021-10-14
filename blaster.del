@@ -1,0 +1,59 @@
+import "main.del";
+
+globalvar num S_SEC_PSPEED;
+globalvar num S_SEC_RADIUS;
+globalvar bool s_sec_enabled;
+playervar vec sec_eyepos;
+playervar any sec_orb;
+playervar vec sec_rc_start;
+playervar vec sec_rc_end;
+disabled rule: "---------------- Secondary Fire ----------------"{}
+
+rule: "[Secondary Fire] :: Projectile"
+Event.OngoingPlayer
+if (s_sec_enabled)
+if (IsButtonHeld(player, Button.SecondaryFire))
+if (IsAlive())
+{
+    sec_rc_start = EyePosition();
+    sec_rc_end = EyePosition() + Facing() * 100;
+
+    PlayEffect(all, PlayEffect.RingExplosionSound, Color.White, player, 50);
+
+    DestroyEffect(sec_orb[0]);
+    DestroyEffect(sec_orb[1]);
+
+    sec_eyepos = EyePosition();
+
+    CreateEffect(all, Effect.Orb, Color.Red, sec_eyepos, 0.25);
+    sec_orb[0] = LastCreatedEntity();
+    CreateEffect(all, Effect.BadAura, Color.Red, sec_eyepos, 0.5);
+    sec_orb[1] = LastCreatedEntity();
+
+    ChaseVariableAtRate(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, EnemyPlayers(), player), S_SEC_PSPEED, RateChaseReevaluation.DestinationAndRate);
+
+    Wait(0.75);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Secondary Fire] :: Projectile Impulse"
+Event.OngoingPlayer
+if (DistanceBetween(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, EnemyPlayers(), player)) < 0.1)
+{
+    // sec_in_air = false;
+    StopChasingVariable(sec_eyepos);
+
+    any[] players = FilteredArray(AllLivingPlayers(), DistanceBetween(Curr(), sec_eyepos) <= S_SEC_RADIUS);
+
+    for (num i = 0; i < players.Length; i++)
+    {
+        ApplyImpulse(players[i], DirectionTowards(sec_eyepos, players[i] + Vector(0, 2, 0)), 15, Relative.ToWorld, ContraryMotion.Incorporate);
+    }
+
+    PlayEffect(all, PlayEffect.GoodExplosion, Color.Red, sec_eyepos, S_SEC_RADIUS);
+
+    DestroyEffect(sec_orb[0]);
+    DestroyEffect(sec_orb[1]);
+
+    sec_eyepos = Vector(-10000, -10000, -10000);
+}

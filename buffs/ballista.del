@@ -1,0 +1,77 @@
+import "../main.del";
+import ".bmain.del";
+
+globalvar num bal_pb;
+playervar num bal_chrg;
+globalvar num S_BAL_CRATE;
+globalvar num S_BAL_MAXSIZE;
+
+disabled rule: "---------------- Ballista ----------------" {}
+
+rule: "[Buff] :: Ballista : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[4])
+if (bal_pb == 100)
+{
+    buff_i = 4;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Ballista : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[4])
+if (can_pickup_buff[4])
+if (DistanceBetween(buff_pos[4], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+{
+    DisallowButton(player, Button.PrimaryFire);
+    buff_str = "Ballista";
+    buff_i = 4;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Ballista : Remove"
+Event.OngoingPlayer
+if (buff_enabled[4])
+if (buff_ammo[4] <= 0)
+{
+    LogToInspector(<"Ballista Disabled for <0>", player>);
+
+    // destroy hud timer and player effect
+    DestroyEffect(collected_buff_effect[4]);
+
+    buff_enabled[4] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Ballista : Action"
+Event.OngoingPlayer
+if (buff_enabled[4])
+if (IsPrimaryHeld())
+{
+    bal_chrg = 0;
+    ChaseVariableOverTime(bal_chrg, 110, S_BAL_CRATE, TimeChaseReevaluation.None);
+    WaitUntil(!IsPrimaryHeld() || IsReloadHeld(), 99999);
+
+    // cancel
+    if (IsReloadHeld())
+    {
+        StopChasingVariable(bal_chrg);
+        bal_chrg = 0;
+        Abort();
+    }
+
+    // fire
+    AllowButton(player, Button.PrimaryFire);
+    PressButton(player, Button.PrimaryFire);
+    MinWait();
+    DisallowButton(player, Button.PrimaryFire);
+
+    if (IsFiringPrimary() && bal_chrg > 10)
+        buff_ammo[4]--;
+
+    StopChasingVariable(bal_chrg);
+    bal_chrg = 0;
+}

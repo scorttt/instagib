@@ -1,0 +1,56 @@
+import "../main.del";
+import ".bmain.del";
+
+globalvar num prism_pb;
+
+disabled rule: "---------------- Prism ----------------"{}
+
+rule: "[Buff] :: Prism : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[3])
+if (prism_pb == 100)
+{
+    buff_i = 3;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Prism : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[3])
+if (can_pickup_buff[3])
+if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+{
+    buff_str = "Prism";
+    buff_i = 3;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Prism : Remove"
+Event.OngoingPlayer
+if (buff_enabled[3])
+if (buff_ammo[3] <= 0)
+{
+    LogToInspector(<"Prism Disabled for <0>", player>);
+    DestroyEffect(collected_buff_effect[3]);
+
+    buff_enabled[3] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Prism : Fire Action"
+Event.OngoingPlayer
+if (buff_enabled[3])
+if (IsFiringPrimary())
+{
+    vec prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.2);
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, prism_hit, color_arr[3], EffectRev.None);
+    any prism_beam = LastCreatedEntity();
+
+    Wait(0.25);
+    DestroyEffect(prism_beam);
+}

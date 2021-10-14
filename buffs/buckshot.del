@@ -1,0 +1,589 @@
+import "../main.del";
+import ".bmain.del";
+
+globalvar num buckshot_pb;
+globalvar num S_BUCKSHOT_SPREAD;
+globalvar num S_BUCKSHOT_CHARGE_SPD;
+globalvar str[] charge_arr;
+playervar num charge_lvl;
+playervar str charge_str;
+playervar str hascharge_str;
+playervar str nocharge_str;
+
+disabled rule: "---------------- Buckshot ----------------"{}
+
+rule: "[Buff] :: Buckshot : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[2])
+if (buckshot_pb == 100)
+{
+    buff_i = 2;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Buckshot : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[2])
+if (can_pickup_buff[2])
+if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+{
+    buff_str = "Buckshot";
+    buff_i = 2;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Buckshot : Remove"
+Event.OngoingPlayer
+if (buff_enabled[2])
+if (buff_ammo[2] <= 0)
+{
+    LogToInspector(<"Buckshot Disabled for <0>", player>);
+
+    DestroyEffect(collected_buff_effect[2]);
+
+    buff_enabled[2] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Buckshot : Charge"
+Event.OngoingPlayer
+if (buff_enabled[2])
+if (buff_ammo[2] > 1)
+if (charge_lvl < 5)
+if (IsAlive())
+if (IsReloadHeld())
+{
+    WaitIfTrue(S_BUCKSHOT_CHARGE_SPD);
+    PlayEffect(all, PlayEffect.GoodPickupEffect, color_arr[2], PositionOf(), 1);
+    PlayEffect(player, PlayEffect.BuffImpactSound, Color.White, player, 50);
+    charge_lvl++;
+    
+    buff_ammo[2]--;
+
+    hascharge_str = StringSlice(charge_arr[0], 0, charge_lvl * 2);
+    nocharge_str = StringSlice(charge_arr[1], 0, 10 - charge_lvl * 2);
+
+    charge_str = hascharge_str + nocharge_str;
+
+    LoopIfConditionIsTrue();
+}
+
+// i hate looking at this rule
+rule: "[Buff] :: Buckshot : Fire Action - Welcome to hell"
+Event.OngoingPlayer
+if (buff_enabled[2])
+if (buff_ammo[2] > 0)
+if (IsFiringPrimary())
+{
+    buff_ammo[2]--;
+
+    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
+    vec[] buckshot_hp = [];
+    player[] buckshot_hp_player = [];
+    any[] buckshot_beam = [];
+    any center_beam;
+
+    num[] bs_spread;
+    bs_spread[0] = S_BUCKSHOT_SPREAD; // horizontal and verticle spread
+    bs_spread[1] = PercSub(S_BUCKSHOT_SPREAD, 33); // diagonal spread
+
+    // center
+    vec buckshot_center = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+
+    // lower left 1
+    buckshot_hp[0] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // upper left 1
+    buckshot_hp[1] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // lower right 1
+    buckshot_hp[2] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // upper right 1
+    buckshot_hp[3] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // mid left 1
+    buckshot_hp[4] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+    * 100, EnemyPlayers(), player, false);
+
+    // mid right 1
+    buckshot_hp[5] = RayCastHitPosition(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+    * 100, EnemyPlayers(), player, false);
+
+    ////////////
+    // player //
+    ////////////
+
+    // lower left 1
+    buckshot_hp_player[0] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // upper left 1
+    buckshot_hp_player[1] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // lower right 1
+    buckshot_hp_player[2] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // upper right 1
+    buckshot_hp_player[3] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1]) 
+    * 100, EnemyPlayers(), player, false);
+
+    // mid left 1
+    buckshot_hp_player[4] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+    * 100, EnemyPlayers(), player, false);
+
+    // mid right 1
+    buckshot_hp_player[5] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+    WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0]) * 100, 0, 0), player) + 
+    DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+    * 100, EnemyPlayers(), player, false);
+
+    if (charge_lvl >= 1)
+    {
+        // lower left 2
+        buckshot_hp[6] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 2
+        buckshot_hp[7] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 2
+        buckshot_hp[8] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 2
+        buckshot_hp[9] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 2
+        buckshot_hp[10] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 2
+        buckshot_hp[11] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        ////////////
+        // player //
+        ////////////
+
+        // lower left 2
+        buckshot_hp_player[6] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 2
+        buckshot_hp_player[7] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 2
+        buckshot_hp_player[8] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 2
+        buckshot_hp_player[9] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 2) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 2
+        buckshot_hp_player[10] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 2
+        buckshot_hp_player[11] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 2) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+    }
+
+    if (charge_lvl >= 2)
+    {
+        // lower left 3
+        buckshot_hp[12] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 3
+        buckshot_hp[13] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 3
+        buckshot_hp[14] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 3
+        buckshot_hp[15] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 3
+        buckshot_hp[16] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 3
+        buckshot_hp[17] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        ////////////
+        // player //
+        ////////////
+
+        // lower left 3
+        buckshot_hp_player[12] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 3
+        buckshot_hp_player[13] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 3
+        buckshot_hp_player[14] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 3
+        buckshot_hp_player[15] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 3) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 3
+        buckshot_hp_player[16] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 3
+        buckshot_hp_player[17] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 3) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+    }
+
+    if (charge_lvl >= 3)
+    {
+        // lower left 4
+        buckshot_hp[18] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 4
+        buckshot_hp[19] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 4
+        buckshot_hp[20] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 4
+        buckshot_hp[21] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 4
+        buckshot_hp[22] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 4
+        buckshot_hp[23] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        ////////////
+        // player //
+        ////////////
+
+        // lower left 4
+        buckshot_hp_player[18] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 4
+        buckshot_hp_player[19] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 4
+        buckshot_hp_player[20] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 4
+        buckshot_hp_player[21] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 4) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 4
+        buckshot_hp_player[22] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 4
+        buckshot_hp_player[23] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 4) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+    }
+
+    if (charge_lvl >= 4)
+    {
+        // lower left 5
+        buckshot_hp[24] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 5
+        buckshot_hp[25] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 5
+        buckshot_hp[26] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 5
+        buckshot_hp[27] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 5
+        buckshot_hp[28] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 5
+        buckshot_hp[29] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        ////////////
+        // player //
+        ////////////
+
+        // lower left 5
+        buckshot_hp_player[24] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 5
+        buckshot_hp_player[25] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 5
+        buckshot_hp_player[26] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 5
+        buckshot_hp_player[27] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 5) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 5
+        buckshot_hp_player[28] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 5
+        buckshot_hp_player[29] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 5) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+    }
+
+    if (charge_lvl >= 5)
+    {
+        // lower left 6
+        buckshot_hp[30] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 6
+        buckshot_hp[31] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 6
+        buckshot_hp[32] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 6
+        buckshot_hp[33] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 6
+        buckshot_hp[34] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 6
+        buckshot_hp[35] = RayCastHitPosition(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        ////////////
+        // player //
+        ////////////
+
+        // lower left 6
+        buckshot_hp_player[30] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper left 6
+        buckshot_hp_player[31] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // lower right 6
+        buckshot_hp_player[32] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // upper right 6
+        buckshot_hp_player[33] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[1] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * 6) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid left 6
+        buckshot_hp_player[34] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[0] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+
+        // mid right 6
+        buckshot_hp_player[35] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(-bs_spread[0] * 6) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf()) 
+        * 100, EnemyPlayers(), player, false);
+    }
+
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.2);
+
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_center, color_arr[2], EffectRev.None);
+    center_beam = LastCreatedEntity();
+
+    for (num p = 0; p < buckshot_hp.Length; p++)
+    {
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[p], 0.2);
+
+        CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_hp[p], color_arr[2], EffectRev.None);
+        buckshot_beam[p] = LastCreatedEntity();
+    }
+
+    Kill(buckshot_hp_player, player);
+
+    Wait(0.25);
+    DestroyEffect(center_beam);
+
+    DestroyEffect(buckshot_beam);
+
+    charge_lvl = 0;
+    charge_str = "○ ○ ○ ○ ○ ";
+}

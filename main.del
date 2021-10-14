@@ -1,0 +1,1016 @@
+import "../overwatch-scripts/macros.del";
+import "settings.json";
+
+import "bhop.del";
+import "blaster.del";
+import "dodge.del";
+import "killspree.del";
+
+import "buffs/.bmain.del";
+import "buffs/wallbang.del";
+import "buffs/ricochet.del";
+import "buffs/buckshot.del";
+import "buffs/prism.del";
+import "buffs/ballista.del";
+import "buffs/electro.del";
+import "buffs/spark.del";
+import "buffs/arc.del";
+import "buffs/daybreak.del";
+
+import "../overwatch-scripts/ruler.del";
+
+globalvar num S_MATCH_TIME_LIMIT;
+globalvar num S_PICKUP_RAD;
+globalvar bool match_started;
+playervar bool bhopping;
+playervar bool info;
+playervar bool pri_override;
+globalvar bool s_debug;
+globalvar bool[] buff_debug;
+any weapon_muzzle(vec start_pos, vec dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
+
+disabled rule: "---------------- Main ----------------"{}
+
+rule: "[Main] :: Initial Global"
+{
+    // DisableInspectorRecording();
+    DisableCompletion();
+    DisableAnnouncer();
+
+    CreateHudText(all, null, MatchTime() % 60 >= 10 
+                             ? <"<0>:<1>", RoundToInteger(MatchTime() / 60, Rounding.Down), RoundToInteger(MatchTime() % 60, Rounding.Down)> 
+                             : <"<0>:0<1>", RoundToInteger(MatchTime() / 60, Rounding.Down), RoundToInteger(MatchTime() % 60, Rounding.Down)>, " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", Location.Top, 0.2);
+
+    SetMatchTime(1);
+
+    charge_arr = ["● ● ● ● ● ", "○ ○ ○ ○ ○ "];
+
+    match_started = false;
+
+    S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",              "​Match Time (Minutes) (20)", 20, 8, 60, 1) * 60;
+
+    s_buffs_enabled = WorkshopSettingToggle("Buffs",                    "​​Enable Buffs (On)", true, 1);
+    s_cd_ip_timer = WorkshopSettingToggle("Buffs",                      "Show buff cooldown visuals and timer (On)", true, 2);
+    s_rand_buff_pos = WorkshopSettingToggle("Buffs",                    "Randomize Buff Locations (On)", true, 2);
+    S_PICKUP_RAD = WorkshopSettingReal("Buffs",                         "Buff Collection Radius (1.25)", 1.25, 0.5, 3, 3);
+
+    s_sec_enabled = WorkshopSettingToggle("Secondary Fire",             "Enable Secondary (On)", true, 1);
+    S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                "​​​Projectile Speed (90)", 90, 1, 500, 3);
+    S_SEC_RADIUS = WorkshopSettingReal("Secondary Fire",                "​​​Explosion Radius (2.5)", 2.5, 1, 20, 4);
+
+    s_dodge_enabled = WorkshopSettingToggle("Dodge",                    "Enable Dodge (On)", true, 1);
+    S_DODGE_FORCE = WorkshopSettingReal("Dodge",                        "Dodge ​​​​​Force (14)", 14, 1, 100, 2);
+
+    s_bhop_enabled = WorkshopSettingToggle("Bunny Hopping",             "Enable Bunny Hopping (On)", true, 1);
+    S_BHOP_MAX_SPEED = WorkshopSettingInteger("Bunny Hopping",          "​Maximum Speed Multiplier From Bunny Hopping (10000)", 10000, 110, 10000, 2);
+    S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",            "​​Speed gain rate (10.0)", 10.0, 1, 100, 3);
+
+    s_spawn_buff[0] = WorkshopSettingToggle("Wallbang",                 "​​​​Spawn Wallbang (On)", true, 1);
+    S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang",                   "​​Wallbang Spawn Time (75)", 75, 5, 600, 2);
+    S_BUFF_AMMO[0] = WorkshopSettingInteger("Wallbang",                 "Wallbang Ammo (20)", 20, 1, 1000, 3);
+    S_NUM_WALLBANGS = WorkshopSettingInteger("Wallbang",                "​Wallbang Maximum Amount Of Surfaces (4)", 4, 1, 16, 4);
+
+    s_spawn_buff[1] = WorkshopSettingToggle("Ricochet",                 "Spawn Ricochet (On)", true, 1);
+    S_BUFF_CD[1] = WorkshopSettingInteger("Ricochet",                   "Ricochet ​Spawn Time (75)", 75, 5, 600, 2);
+    S_BUFF_AMMO[1] = WorkshopSettingInteger("Ricochet",                 "Ricochet Ammo (15)", 15, 1, 1000, 3);
+    S_NUM_RICOCHETS = WorkshopSettingInteger("Ricochet",                "​​​Ricochet Amount (8)", 8, 1, 16, 4);
+
+    s_spawn_buff[5] = WorkshopSettingToggle("Electro",                  "​​​​​Spawn Electro (On)", true, 1);
+    S_BUFF_CD[5] = WorkshopSettingInteger("Electro",                    "Electro ​Spawn Time (100)", 100, 5, 600, 2);
+    S_BUFF_AMMO[5] = WorkshopSettingInteger("Electro",                  "Electro Ammo (16)", 16, 1, 1000, 3);
+    S_ELECTRO_ESIZE = WorkshopSettingReal("Electro",                    "Electro Primary Explosion Size (1.5)", 1.5, 1, 500, 4);
+    S_ELECTRO_MESIZE = WorkshopSettingReal("Electro",                   "Electro Mine Explosion Size (7.5)", 7.5, 1, 500, 5);
+    S_ELECTRO_DELAY = WorkshopSettingReal("Electro",                    "Electro Mine Idle Explosion Time (5)", 5, 1, 500, 6);
+    S_ELECTRO_PSPEED = WorkshopSettingReal("Electro",                   "Electro Mine Projectile Speed (70)", 70, 1, 500, 7);
+
+    s_spawn_buff[6] = WorkshopSettingToggle("Spark",                    "​​​​​Spawn Spark (On)", true, 1);
+    S_BUFF_CD[6] = WorkshopSettingInteger("Spark",                      "Spark ​Spawn Time (125)", 125, 5, 600, 2);
+    S_BUFF_AMMO[6] = WorkshopSettingInteger("Spark",                    "Spark Ammo (10)", 10, 1, 1000, 3);
+    S_SPARK_ESIZE = WorkshopSettingReal("Spark",                        "Spark Primary Explosion Size (1.5)", 1.5, 1, 500, 5);
+    S_SPARK_PSPEED = WorkshopSettingReal("Spark",                       "Spark Projectile Speed (20)", 20, 1, 500, 4);
+    S_SPARK_PESIZE = WorkshopSettingReal("Spark",                       "Spark Projectile Explosion Size (3)", 3, 1, 500, 5);
+    S_SPARK_HIT_PESIZE = WorkshopSettingReal("Spark",                   "Spark Hit Explosion Size (10)", 10, 1, 50, 6);
+    S_SPARK_HITBOX_SIZE = WorkshopSettingReal("Spark",                  "Spark Projectile Hitbox Size (0.75)", 0.75, 0.5, 10, 7);
+
+    s_spawn_buff[7] = WorkshopSettingToggle("Arc",                      "​​​​​Spawn Arc (On)", true, 1);
+    S_BUFF_CD[7] = WorkshopSettingInteger("Arc",                        "Arc ​Spawn Time (125)", 125, 5, 600, 2);
+    S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc",                      "Arc Ammo (140)", 380, 1, 10000, 3);
+    S_ARC_MOD = WorkshopSettingReal("Arc",                              "Arc Reflect Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
+
+    s_spawn_buff[8] = WorkshopSettingToggle("Daybreak",                 "​​​​​Spawn Daybreak (On)", true, 1);
+    S_BUFF_CD[8] = WorkshopSettingInteger("Daybreak",                   "Daybreak ​Spawn Time (125)", 125, 5, 600, 2);
+    S_BUFF_AMMO[8] = WorkshopSettingInteger("Daybreak",                 "Daybreak Ammo (10)", 10, 1, 1000, 3);
+    S_DAYB_RADIUS = WorkshopSettingReal("Daybreak",                     "Daybreak Explosion Radius (7)", 7, 1, 50, 4);
+    S_DAYB_TIME = WorkshopSettingReal("Daybreak",                       "Daybreak Explosion Time (0.75)", 0.75, 0.1, 5, 4);
+
+    // ------------------------------------------- supers ------------------------------------------- //
+
+    s_spawn_buff[4] = WorkshopSettingToggle("Ballista",                 "​​​​​Spawn Ballista (On)", true, 1);
+    S_BUFF_CD[4] = WorkshopSettingInteger("Ballista",                   "Ballista Spawn Time (220)", 220, 5, 600, 2);
+    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
+    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
+    S_BAL_CRATE = WorkshopSettingReal("Ballista",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
+
+    s_spawn_buff[2] = WorkshopSettingToggle("Buckshot",                 "​​​​​Spawn Buckshot (On)", true, 1);
+    S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot",                   "Buckshot ​Spawn Time (200)", 200, 5, 600, 2);
+    S_BUFF_AMMO[2] = WorkshopSettingInteger("Buckshot",                 "​​Buckshot Ammo (30)", 30, 1, 1000, 3);
+    S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot",                 "​​​Buckshot Spread (Lower is Tighter) (1.45)", 1.45, 0.1, 20, 4);
+    S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot",             "​​​Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
+
+    s_spawn_buff[3] = WorkshopSettingToggle("Prism",                    "​​Spawn Prism (On)", true, 1);
+    S_BUFF_CD[3] = WorkshopSettingInteger("Prism",                      "​Prism Spawn Time (180)", 180, 5, 600, 2);
+    S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism",                    "​​​Prism Ammo (10)", 10, 1, 1000, 3);
+
+    // ---------------------------------------------------------------------------------------------- //
+
+    s_debug = WorkshopSettingToggle("Debug",                            "Debug Text", false, 1);
+    s_dbg_buff_fastspawn = WorkshopSettingToggle("Debug",               "​Fast Buff Spawn", false, 2);
+    buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 3);
+    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give ​​​​​​​​​​Ricochet", false, 4);
+    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 5);
+    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 6);
+    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 7);
+    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 8);
+    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 9);
+    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 10);
+    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Daybreak", false, 11);
+
+    color_arr[0] = CustomColor(255, 255, 0,   255);
+    color_arr[1] = CustomColor(100, 50,  255, 255);
+    color_arr[2] = CustomColor(0,   255, 0,   255);
+    color_arr[3] = CustomColor(22,  96,  255, 255);
+    color_arr[4] = CustomColor(255, 50,  145, 255);
+    color_arr[5] = CustomColor(80,  185, 255, 255);
+    color_arr[6] = CustomColor(161, 73,  197, 255);
+    color_arr[7] = CustomColor(255, 255, 255, 255);
+    color_arr[8] = CustomColor(0, 230, 150, 255);
+
+    if (!s_buffs_enabled)
+        for (num i = 0; i < s_spawn_buff.Length; i++)
+            s_spawn_buff[i] = false;
+
+    // [0]: wallbang
+    // [1]: ricochet
+    // [5]: electro
+    // [6]: spark
+    // [7]: arc
+    // [8]: daybreak
+
+    // supers
+    // [2]: buckshot
+    // [3]: prism
+    // [4]: ballista
+
+    vec[] positions = [];
+    switch (true)
+    {
+        case (IsMap(Map.Workshop_Chamber) || IsMap(Map.Workshop_Expanse) || IsMap(Map.Workshop_Expanse_Night) || IsMap(Map.Workshop_Island) || IsMap(Map.Workshop_Island_Night)):
+            valid_map = true;
+            positions = [Vector(8, 1, -10),
+                        Vector(8, 1, -6),
+                        Vector(-8, 1, 4),
+                        Vector(-8, 1, 0),
+                        Vector(-8, 1, -4),
+                        Vector(8, 1, -2),
+                        Vector(8, 1, 2),
+                        Vector(8, 1, 6),
+                        Vector(8, 1, 10)];
+
+            break;
+        case (IsMap(Map.Black_Forest) || IsMap(Map.Black_Forest_Winter)):
+            valid_map = true;
+            positions = [Vector(16.79, 12.44, 29.48),
+                        Vector(16.18, 12.36, -20.11),
+                        Vector(4.66, 18.28, 5.00),
+                        Vector(-25.49, 13.09, 5.00),
+                        Vector(21.00, 10.00, 5.00),
+                        Vector(-5.15, 14.05, 5.25),
+                        Vector(27.75, 18, 12.5),
+                        Vector(27.75, 18, -2.5),
+                        Vector(4.92, 13.27, 5.00)];
+
+            break;
+        case (IsMap(Map.Blizzard_World) || IsMap(Map.Blizzard_World_Winter)):
+            valid_map = true;
+            positions = [Vector(-30.07, 1.00, 58.22),
+                        Vector(-77.28, 5.88, 66.15),
+                        Vector(-54.50, 0.61, 110.20),
+                        Vector(-67.55, 1.75, 138.74),
+                        Vector(-25.04, 1.29, 109.95),
+                        Vector(-37.28, -1.25, 146.63),
+                        Vector(-77.28, 1.25, 66.15),
+                        Vector(-90.76, 1.75, 94.02),
+                        Vector(-77.32, 7.58, 98.32)];
+
+            break;
+        case (IsMap(Map.Castillo)):
+            valid_map = true;
+            positions = [Vector(-106.18, 40.56, 43.20),
+                        Vector(-100.35, 40.56, 73.75),
+                        Vector(-115.85, 39.57, 60.92),
+                        Vector(-74.82, 33.00, 52.93),
+                        Vector(-108.10, 34.29, 59.24),
+                        Vector(-124.27, 35.43, 61.14),
+                        Vector(-96.77, 33.20, 33.82),
+                        Vector(-86.58, 33.56, 84.14),
+                        Vector(-85.65, 39.64, 55.00)];
+
+            break;
+        case (IsMap(Map.Chateau_Guillard) || IsMap(Map.Chateau_Guillard_Halloween)):
+            valid_map = true;
+            positions = [Vector(206.21, 10.03, 92.43),
+                        Vector(196.33, 17.50, 47.12),
+                        Vector(169.25, 6, 80.97),
+                        Vector(206.19, 1, 77.96),
+                        Vector(193.26, 10, 116.66),
+                        Vector(236.85, 3, 91.89),
+                        Vector(206.20, 16.50, 87.00),
+                        Vector(182.25, 10, 102.00),
+                        Vector(229.25, 10, 78.85)];
+
+            break;
+        case (IsMap(Map.Dorado)):
+            valid_map = true;
+            positions = [Vector(115.66, 8.73, -7.08),
+                         Vector(85.30, 13.75, 29.84),
+                         Vector(98.04, 19.01, 15.26),
+                         Vector(131.27, 12.05, 26.12),
+                         Vector(76.87, 9.00, 7.34),
+                         Vector(134.33, 12.01, 47.79),
+                         Vector(141.62, 11, 3.08),
+                         Vector(129.02, 10, -24.67),
+                         Vector(110.58, 19, -0.95)];
+
+            break;
+        case (IsMap(Map.Ecopoint_Antarctica) || IsMap(Map.Ecopoint_Antarctica_Winter)):
+            valid_map = true;
+            positions = [Vector(1.66, 12.63, -25.00),
+                        Vector(1.66, 12.63, 25.00),
+                        Vector(-19.50, 13.00, 0.00),
+                        Vector(20.50, 10.00, 0.00),
+                        Vector(28.90, 4.00, 0.00),
+                        Vector(-10.30, 9.53, -0.32),
+                        Vector(20.54, 7.02, -17.00),
+                        Vector(20.54, 7.01, 17.00),
+                        Vector(10.76, 5.13, 0)];
+
+            break;
+        case (IsMap(Map.Eichenwalde) || IsMap(Map.Eichenwalde_Halloween)):
+            valid_map = true;
+            positions = [Vector(55.70, 22.00, -67.84),
+                        Vector(58.33, 5.72, -90.39),
+                        Vector(76.03, 11.69, -109.66),
+                        Vector(88.13, 13.67, -67.39),
+                        Vector(30.76, 15.00, -81.88),
+                        Vector(55.99, 18.72, -109.98),
+                        Vector(54.76, 11.72, -118.74),
+                        Vector(38.31, 5.81, -65.01),
+                        Vector(103.32, 10.60, -90.16)];
+
+            break;
+        case (IsMap(Map.Havana)):
+            valid_map = true;
+            positions = [Vector(9.50, 7.00, -79.23),
+                        Vector(37.64, 11.00, -94.23),
+                        Vector(27.92, 13.00, -61.96),
+                        Vector(65.14, 12.97, -83.35),
+                        Vector(40.74, 6.82, -83.33),
+                        Vector(63.36, 5, -65.32),
+                        Vector(9.38, 13, -79.20),
+                        Vector(32.42, 5, -96.74),
+                        Vector(34.06, 7, -61.74)];
+
+            break;
+        case (IsMap(Map.Hollywood) || IsMap(Map.Hollywood_Halloween)):
+            valid_map = true;
+            positions = [Vector(-11.91, 2.73, -74.64),
+                        Vector(-4.09, 2.60, -15.87),
+                        Vector(20.67, 2.60, -51.82),
+                        Vector(7.87, 13.90, -48.38),
+                        Vector(18.51, 5.69, -28.41),
+                        Vector(28.64, 7.80, -77.49),
+                        Vector(50.05, 3.75, -56.09),
+                        Vector(-25.46, 6.75, -41.37),
+                        Vector(31.07, 2.86, -78.21)];
+            
+            break;
+        case (IsMap(Map.Kanezaka)):
+            valid_map = true;
+            positions = [Vector(-0.96, 10, -46.32),
+                        Vector(-16.00, 12.15, 16.83),
+                        Vector(-29.03, 5.00, 43.08),
+                        Vector(-44.00, 14, -0.79),
+                        Vector(-11.38, 6.86, 3.78),
+                        Vector(-30.66, 11.89, -9.75),
+                        Vector(5.21, 10, 1.60),
+                        Vector(-52.52, 9, 24.24),
+                        Vector(-61.47, 13, -27.51)];
+            
+            break;
+        case (IsMap(Map.Kings_Row) || IsMap(Map.Kings_Row_Winter)):
+            valid_map = true;
+            positions = [Vector(-49.46, 1.00, 2.69),
+                        Vector(-31.19, 10.00, -13.40),
+                        Vector(-93.67, 8.50, -29.38),
+                        Vector(-48.85, 10.12, -37.62),
+                        Vector(-92.15, 2.10, 7.65),
+                        Vector(-34.90, 1.14, -24.66),
+                        Vector(-68.40, 5.50, -35.08),
+                        Vector(-65.62, 0.67, -21.24),
+                        Vector(-95.44, -1.50, -46.52)];
+            
+            break;
+        case (IsMap(Map.Lijiang_Control_Center) || IsMap(Map.Lijiang_Control_Center_Lunar)):
+            valid_map = true;
+            positions = [Vector(-26.80, 268.00, 308.00),
+                        Vector(26.80, 268.00, 308.00),
+                        Vector(0.00, 271.00, 323.00),
+                        Vector(0.00, 271.00, 260.65),
+                        Vector(0.00, 279.00, 291.85),
+                        Vector(0, 273.43, 280),
+                        Vector(20.25, 270.95, 337.10),
+                        Vector(-20.25, 270.95, 337.10),
+                        Vector(0.00, 279.00, 323.00)];
+            
+            break;
+        case (IsMap(Map.Lijiang_Garden) || IsMap(Map.Lijiang_Garden_Lunar)):
+            valid_map = true;
+            positions = [Vector(46.85, 96.04, 150),
+                        Vector(-46.85, 96.04, 150),
+                        Vector(0, 95, 143.35),
+                        Vector(0, 95, 185.00),
+                        Vector(0, 97, 108.00),
+                        Vector(0, 96.00, 125.85),
+                        Vector(-17.69, 95, 173.97),
+                        Vector(17.69, 95, 173.97),
+                        Vector(0, 95, 156.63)];
+            
+            break;
+        case (IsMap(Map.Malevento)):
+            valid_map = true;
+            positions = [Vector(-17.54, 6.00, 15.23),
+                        Vector(32.76, 8.49, 21.99),
+                        Vector(2.73, -2.51, -34.71),
+                        Vector(0, 8.50, 3.31),
+                        Vector(18.91, 10, 34.24),
+                        Vector(0, 3.67, 46.66),
+                        Vector(32.30, 6, -11.11),
+                        Vector(1.41, 6, -30.27),
+                        Vector(-19.21, -2, -10.65)];
+
+            break;
+        case (IsMap(Map.Necropolis)):
+            valid_map = true;
+            positions = [Vector(4.48, 11.01, 21.75),
+                        Vector(4.48, 11.01, -21.75),
+                        Vector(-21.05, 13.71, 0),
+                        Vector(8.50, 2.01, 0.00),
+                        Vector(28.75, 2, 0.00),
+                        Vector(-31.13, 3, 0),
+                        Vector(1.15, 4, 22.91),
+                        Vector(1.15, 4, -22.91),
+                        Vector(-47.83, 6, 0)];
+
+            break;
+        case (IsMap(Map.Paris)):
+            valid_map = true;
+            positions = [Vector(-57.19, 14.00, -82.00),
+                        Vector(-109.18, 11.00, -60.60),
+                        Vector(-85.93, 13.00, -64.09),
+                        Vector(-73.39, 11.02, -38.23),
+                        Vector(-104.10, 16.00, -100.65),
+                        Vector(-103.36, 11.76, -37.17),
+                        Vector(-81.38, 14, -103.85),
+                        Vector(-52.17, 10.08, -46.28),
+                        Vector(-121.04, 14, -88.76)];
+        
+            break;
+        case (IsMap(Map.Petra)):
+            valid_map = true;
+            positions = [Vector(1.99, -10, 23.00),
+                        Vector(-29.99, -6.01, 0),
+                        Vector(2.00, 2, -8.64),
+                        Vector(-9.24, -5.37, 43.78),
+                        Vector(2.00, -8.98, 9.00),
+                        Vector(2.07, 0, 33.79),
+                        Vector(1.96, -5, -13.11),
+                        Vector(35.86, -8.98, 28.09),
+                        Vector(1.96, 1.5, 7.32)];
+            
+            break;
+        case (IsMap(Map.Oasis_City_Center)):
+            valid_map = true;
+            positions = [Vector(164.76, 5, 226.22),
+                        Vector(122.22, 5, 268.75),
+                        Vector(154.48, 12.52, 258.48),
+                        Vector(118.01, 2, 221.96),
+                        Vector(143.48, 3.15, 247.50),
+                        Vector(158.69, 5, 262.68),
+                        Vector(125.12, 2.85, 291.32),
+                        Vector(187.39, 2.85, 229.09),
+                        Vector(128.29, 5, 232.29)];
+            
+            break; 
+        case (IsMap(Map.Oasis_University)):
+            valid_map = true;
+            positions = [Vector(-188, 16, -38),
+                        Vector(-188, 16, 38),
+                        Vector(-172, 18, 0),
+                        Vector(-188, 17, 0),
+                        Vector(-217.72, 20, 0),
+                        Vector(-188, 10.40, 0),
+                        Vector(-188, 17, 18),
+                        Vector(-188, 17, -18),
+                        Vector(-207.92, 20, 0)];
+
+            break; 
+        case (IsMap(Map.Oasis_Gardens)):
+            valid_map = true;
+            positions = [Vector(115.06, 8.50, -273.62),
+                        Vector(167.40, 8.50, -221.28),
+                        Vector(107.79, 5.50, -214.08),
+                        Vector(152.05, 8.54, -258.26),
+                        Vector(121.35, 12.50, -227.56),
+                        Vector(87.4, 3.50, -248.25),
+                        Vector(142, 3.50, -193.60),
+                        Vector(141.35, 8.38, -247.59),
+                        Vector(126.23, 6.50, -232.46)];
+            
+            break;
+        default: 
+            valid_map = false;
+            break;
+    }
+
+    num length = positions.Length;
+    if (valid_map && s_buffs_enabled)
+    {
+        for (num i = 0; i < length; i++)
+        {
+            vec chosen_position;
+
+            if (s_rand_buff_pos)
+                chosen_position = positions.Random(); 
+            else 
+                chosen_position = positions.First; 
+
+            positions -= chosen_position; 
+            buff_pos[i] = chosen_position;
+
+            if (s_dbg_buff_fastspawn)
+                S_BUFF_CD[i] = 5;
+
+            buff_cd[i] = S_BUFF_CD[i];
+        }
+    }
+
+    CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
+    CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
+}
+
+rule: "[Main] :: Start Match"
+if (!match_started)
+if (IsGameInProgress())
+if (all_living.Length >= 1)
+{
+    LogToInspector("Match Started");
+    SetMatchTime(S_MATCH_TIME_LIMIT);
+    match_started = true;
+
+    if (valid_map && s_buffs_enabled)
+    {
+        for (num i = 0; i < S_BUFF_CD.Length; i++)
+        {
+            buff_i = i;
+            BuffCooldown();
+        }
+
+        CreateHudText(FilteredArray(all, !Curr().info), null, <" \nHold <0> for help", InputBindingString(Button.Melee)>, null, Location.Left, 20);
+        CreateHudText(FilteredArray(all, Curr().info), null, 
+        <" \nHold <0> to hide (Chat is Disabled)\nHold <1> to remove your currently held buff", 
+        InputBindingString(Button.Melee), InputBindingString(Button.Interact)>, null, Location.Left, 20);
+
+        if (s_spawn_buff[0])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Baptiste, Button.Ultimate), 
+            <"Wallbang  |  <0>", wallbang_pb != 100 
+                                    ? buff_txt[0] 
+                                    : IconString(Icon.Checkmark)>, 
+            "Pierce through surfaces", Location.Left, 1, color_arr[0], color_arr[0]);
+
+            CreateHudText(local.buff_enabled[0] ? local : null, null, null, 
+            <" <0> Wallbang Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Baptiste, Button.Ultimate), local.buff_ammo[0], S_BUFF_AMMO[0]>, 
+            Location.Top, 1, TextColor: color_arr[0]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Baptiste, Button.Ultimate), null,
+            wallbang_pb != 100 ? buff_txt[0] : IconString(Icon.Checkmark),
+            Location.Left, 1, color_arr[0], color_arr[0]);
+
+            CreateEffect(wallbang_pb == 100 ? all : null, Effect.Orb, color_arr[0], buff_pos[0], 2, EffectRev.VisibleTo);
+            CreateInWorldText(wallbang_pb == 100 ? all : null, AbilityIconString(Hero.Baptiste, Button.Ultimate), buff_pos[0] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+            
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(wallbang_pb == 100 ? all : null, Effect.LightShaft, color_arr[0], buff_pos[0], 0.035, EffectRev.VisibleTo);
+                CreateEffect(wallbang_pb != 100 ? all : null, Effect.Sphere, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(wallbang_pb != 100 ? all : null, wallbang_pb, null, buff_pos[0] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[0], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[1])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Winston, Button.Ability1), 
+            <"Ricochet  |  <0>", ricochet_pb != 100 
+                                    ? buff_txt[1] 
+                                    : IconString(Icon.Checkmark)>, 
+            "Ricochets off surfaces", Location.Left, 2, color_arr[1], color_arr[1]);
+
+            CreateHudText(local.buff_enabled[1] ? local : null, null, null, 
+            <" <0> Ricochet Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Winston, Button.Ability1), local.buff_ammo[1], S_BUFF_AMMO[1]>, 
+            Location.Top, 1, TextColor: color_arr[1]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Winston, Button.Ability1), null,
+            ricochet_pb != 100 ? buff_txt[1] : IconString(Icon.Checkmark),
+            Location.Left, 2, color_arr[1], color_arr[1]);
+
+            CreateEffect(ricochet_pb == 100 ? all : null, Effect.Orb, color_arr[1], buff_pos[1], 2, EffectRev.VisibleTo);
+            CreateInWorldText(ricochet_pb == 100 ? all : null, AbilityIconString(Hero.Winston, Button.Ability1), buff_pos[1] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+    
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(ricochet_pb == 100 ? all : null, Effect.LightShaft, color_arr[1], buff_pos[1], 0.035, EffectRev.VisibleTo);
+                CreateEffect(ricochet_pb != 100 ? all : null, Effect.Sphere, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(ricochet_pb != 100 ? all : null, ricochet_pb, null, buff_pos[1] + Vector(0, ricochet_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[1], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[2])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Ashe, Button.Ability1), 
+            <"Buckshot  |  <0>", buckshot_pb != 100 
+                                    ? buff_txt[2] 
+                                    : IconString(Icon.Checkmark)>, 
+            <"Shotgun that fires in a large spread, Hold <0> to charge your shots for more bullets", InputBindingString(Button.Reload)>, Location.Left, 9, color_arr[2], color_arr[2]);
+
+            CreateHudText(local.buff_enabled[2] ? local : null, null, null, 
+            <" <0> Buckshot Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Ashe, Button.Ability1), local.buff_ammo[2], S_BUFF_AMMO[2]>, 
+            Location.Top, 1, TextColor: color_arr[2]);
+            CreateHudText(local.buff_enabled[2] ? local : null, null, null, 
+            <" Hold <0> to charge shots", InputBindingString(Button.Reload)>, 
+            Location.Top, 1.1, TextColor: color_arr[2]);
+            CreateHudText(local.buff_enabled[2] ? local : null, null, null, 
+            <" [ Charges: <0>]", local.charge_str>, 
+            Location.Top, 1.2, TextColor: color_arr[2]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Ashe, Button.Ability1), null,
+            buckshot_pb != 100 ? buff_txt[2] : IconString(Icon.Checkmark),
+            Location.Left, 10, color_arr[2], color_arr[2]);
+
+            CreateEffect(buckshot_pb == 100 ? all : null, Effect.Orb, color_arr[2], buff_pos[2], 2, EffectRev.VisibleTo);
+            CreateInWorldText(buckshot_pb == 100 ? all : null, AbilityIconString(Hero.Ashe, Button.Ability1), buff_pos[2] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+            
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(buckshot_pb == 100 ? all : null, Effect.LightShaft, color_arr[2], buff_pos[2], 0.035, EffectRev.VisibleTo);
+                CreateEffect(buckshot_pb != 100 ? all : null, Effect.Sphere, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(buckshot_pb != 100 ? all : null, buckshot_pb, null, buff_pos[2] + Vector(0, buckshot_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[2], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[3])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Moira, Button.Ultimate), 
+            <"Prism  |  <0>", prism_pb != 100 
+                                ? buff_txt[3] 
+                                : IconString(Icon.Checkmark)>, 
+            <"Shotgun that bounces off surfaces, Press <0> to launch a projectile that kills any enemies in view of the projectile once shot", InputBindingString(Button.Reload)>, Location.Left, 10, color_arr[3], color_arr[3]);
+
+            CreateHudText(local.buff_enabled[3] ? local : null, null, null,
+            <" <0> Prism Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Moira, Button.Ultimate), local.buff_ammo[3], S_BUFF_AMMO[3]>, 
+            Location.Top, 1, TextColor: color_arr[3]);
+
+            CreateHudText(local.buff_enabled[3] ? local : null, null, null,
+            <" Press <0> for alternate fire", InputBindingString(Button.Reload)>, 
+            Location.Top, 1.1, TextColor: color_arr[3]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Moira, Button.Ultimate), null,
+            prism_pb != 100 ? buff_txt[3] : IconString(Icon.Checkmark),
+            Location.Left, 11, color_arr[3], color_arr[3]);
+
+            CreateEffect(prism_pb == 100 ? all : null, Effect.Orb, color_arr[3], buff_pos[3], 2, EffectRev.VisibleTo);
+            CreateInWorldText(prism_pb == 100 ? all : null, AbilityIconString(Hero.Moira, Button.Ultimate), buff_pos[3] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+            
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(prism_pb == 100 ? all : null, Effect.LightShaft, color_arr[3], buff_pos[3], 0.035, EffectRev.VisibleTo);
+                CreateEffect(prism_pb != 100 ? all : null, Effect.Sphere, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(prism_pb != 100 ? all : null, prism_pb, null, buff_pos[3] + Vector(0, prism_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[3], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[4])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Symmetra, Button.Ultimate), 
+            <"Ballista  |  <0>", bal_pb != 100 
+                                    ? buff_txt[4] 
+                                    : IconString(Icon.Checkmark)>, 
+            <"Large laser that goes through everything in front and behind the player, charge shots with <0> and release to fire",  InputBindingString(Button.PrimaryFire)>, Location.Left, 8, color_arr[4], color_arr[4]);
+
+            CreateHudText(local.buff_enabled[4] ? local : null, null, null,
+            <" <0> Ballista Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Symmetra, Button.Ultimate), local.buff_ammo[4], S_BUFF_AMMO[4]>, 
+            Location.Top, 1, TextColor: color_arr[4]);
+
+            // really ugly. dont care!
+            CreateProgressBarHudText(local.buff_enabled[4] ? local : null, 
+            local.bal_chrg - 10, 
+            <"<0>%", local.bal_chrg < 10 
+                        ? "0" 
+                        : Ceiling(local.bal_chrg - 10)>,
+            Location.Top, 1.2, 
+            // color
+            local.bal_chrg == 110 
+                ? ColorPulse(255, 50, 145, 1000, 35) 
+                : color_arr[4], 
+            local.bal_chrg == 110 
+                ? ColorPulse(255, 50, 145, 1000, 35) 
+                : color_arr[4]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Symmetra, Button.Ultimate), null,
+            bal_pb != 100 ? buff_txt[4] : IconString(Icon.Checkmark),
+            Location.Left, 9, color_arr[4], color_arr[4]);
+
+            CreateEffect(bal_pb == 100 ? all : null, Effect.Orb, color_arr[4], buff_pos[4], 2, EffectRev.VisibleTo);
+            CreateInWorldText(bal_pb == 100 ? all : null, AbilityIconString(Hero.Symmetra, Button.Ultimate), buff_pos[4] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+            
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(bal_pb == 100 ? all : null, Effect.LightShaft, color_arr[4], buff_pos[4], 0.035, EffectRev.VisibleTo);
+                CreateEffect(bal_pb != 100 ? all : null, Effect.Sphere, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(bal_pb != 100 ? all : null, bal_pb, null, buff_pos[4] + Vector(0, bal_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[4], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[5])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Echo, Button.SecondaryFire), 
+            <"Electro  |  <0>", electro_pb != 100 
+                                    ? buff_txt[5] 
+                                    : IconString(Icon.Checkmark)>, 
+            <"Explosive shots, Press <0> to launch 3 explosive projectiles that detonate when shot", InputBindingString(Button.Reload)>, Location.Left, 3, color_arr[5], color_arr[5]);
+
+            CreateHudText(local.buff_enabled[5] ? local : null, null, null, 
+            <" <0> Electro Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Echo, Button.SecondaryFire), local.buff_ammo[5], S_BUFF_AMMO[5]>,
+            Location.Top, 1, TextColor: color_arr[5]);
+            CreateHudText(local.buff_enabled[5] ? local : null, null, null, 
+            <" Press <0> for alternate fire", InputBindingString(Button.Reload)>,
+            Location.Top, 1.1, TextColor: color_arr[5]);
+            CreateHudText(local.mines_placed ? local : null, null, null, 
+            AltFont(<" [ Automatic Detonation in: <0> ]", Ceiling(local.mine_det)>),
+            Location.Top, 1.2, TextColor: color_arr[5]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Echo, Button.SecondaryFire), null,
+            electro_pb != 100 ? buff_txt[5] : IconString(Icon.Checkmark),
+            Location.Left, 3, color_arr[5], color_arr[5]);
+
+            CreateEffect(electro_pb == 100 ? all : null, Effect.Orb, color_arr[5], buff_pos[5], 2, EffectRev.VisibleTo);
+            CreateInWorldText(electro_pb == 100 ? all : null, AbilityIconString(Hero.Echo, Button.SecondaryFire), buff_pos[5] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+        
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(electro_pb == 100 ? all : null, Effect.LightShaft, color_arr[5], buff_pos[5], 0.035, EffectRev.VisibleTo);
+                CreateEffect(electro_pb != 100 ? all : null, Effect.Sphere, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(electro_pb != 100 ? all : null, electro_pb, null, buff_pos[5] + Vector(0, electro_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[5], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[6])
+        {
+            CreateHudText(FilteredArray(all, Curr().info),
+            AbilityIconString(Hero.Sigma, Button.Ability1), 
+            <"Spark  |  <0>", spark_pb != 100 
+                                ? buff_txt[6] 
+                                : IconString(Icon.Checkmark)>, 
+            <"Explosive shots, Press <0> to launch an explosive projectile that detonates with a large radius when shot", InputBindingString(Button.Reload)>, Location.Left, 4, color_arr[6], color_arr[6]);
+
+            CreateHudText(local.buff_enabled[6] ? local : null, null, null,
+            <" <0> Spark Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Sigma, Button.Ability1), local.buff_ammo[6], S_BUFF_AMMO[6]>,
+            Location.Top, 1, TextColor: color_arr[6]);
+            CreateHudText(local.buff_enabled[6] ? local : null, null, null,
+            <" Press <0> for alternate fire", InputBindingString(Button.Reload)>, 
+            Location.Top, 1.1, TextColor: color_arr[6]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Sigma, Button.Ability1), null,
+            spark_pb != 100 ? buff_txt[6] : IconString(Icon.Checkmark),
+            Location.Left, 4, color_arr[6], color_arr[6]);
+
+            CreateEffect(spark_pb == 100 ? all : null, Effect.Orb, color_arr[6], buff_pos[6], 2, EffectRev.VisibleTo);
+            CreateInWorldText(spark_pb == 100 ? all : null, AbilityIconString(Hero.Sigma, Button.Ability1), buff_pos[6] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+            
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(spark_pb == 100 ? all : null, Effect.LightShaft, color_arr[6], buff_pos[6], 0.035, EffectRev.VisibleTo);
+                CreateEffect(spark_pb != 100 ? all : null, Effect.Sphere, color_arr[6], buff_pos[6], spark_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[6], buff_pos[6], spark_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[6], buff_pos[6], spark_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(spark_pb != 100 ? all : null, spark_pb, null, buff_pos[6] + Vector(0, spark_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[6], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[7])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.Echo, Button.Ability2), 
+            <"Arc  |  <0>", arc_pb != 100 
+                                    ? buff_txt[7] 
+                                    : IconString(Icon.Checkmark)>, 
+            "Reflective laser that bounces on surfaces decreasing in distance each bounce", Location.Left, 5, color_arr[7], color_arr[7]);
+
+            CreateHudText(local.buff_enabled[7] ? local : null, null, null, 
+            <" <0> Arc Ammo: <1> / <2>", 
+            AbilityIconString(Hero.Echo, Button.Ability2), local.buff_ammo[7], S_BUFF_AMMO[7]>, 
+            Location.Top, 1, TextColor: color_arr[7]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Echo, Button.Ability2), null,
+            arc_pb != 100 ? buff_txt[7] : IconString(Icon.Checkmark),
+            Location.Left, 5, color_arr[7], color_arr[7]);
+
+            CreateEffect(arc_pb == 100 ? all : null, Effect.Orb, color_arr[7], buff_pos[7], 2, EffectRev.VisibleTo);
+            CreateInWorldText(arc_pb == 100 ? all : null, AbilityIconString(Hero.Echo, Button.Ability2), buff_pos[7] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+        
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(arc_pb == 100 ? all : null, Effect.LightShaft, color_arr[7], buff_pos[7], 0.035, EffectRev.VisibleTo);
+                CreateEffect(arc_pb != 100 ? all : null, Effect.Sphere, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(arc_pb != 100 ? all : null, arc_pb, null, buff_pos[7] + Vector(0, arc_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[7], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+
+        if (s_spawn_buff[8])
+        {
+            CreateHudText(FilteredArray(all, Curr().info), 
+            AbilityIconString(Hero.WreckingBall, Button.Ability2), 
+            <"Daybreak  |  <0>", dayb_pb != 100 
+                                    ? buff_txt[8] 
+                                    : IconString(Icon.Checkmark)>,
+            "Delayed cylinder shaped explosion that ignores surfaces", Location.Left, 6, color_arr[8], color_arr[8]);
+
+            CreateHudText(local.buff_enabled[8] ? local : null, null, null, 
+            <" <0> Daybreak Ammo: <1> / <2>", 
+            AbilityIconString(Hero.WreckingBall, Button.Ability2), local.buff_ammo[8], S_BUFF_AMMO[8]>, 
+            Location.Top, 1, TextColor: color_arr[8]);
+
+            CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.WreckingBall, Button.Ability2), null,
+            dayb_pb != 100 ? buff_txt[8] : IconString(Icon.Checkmark),
+            Location.Left, 6, color_arr[8], color_arr[8]);
+
+            CreateEffect(dayb_pb == 100 ? all : null, Effect.Orb, color_arr[8], buff_pos[8], 2, EffectRev.VisibleTo);
+            CreateInWorldText(dayb_pb == 100 ? all : null, AbilityIconString(Hero.WreckingBall, Button.Ability2), buff_pos[8] + Vector(0, 0.4, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
+        
+            if (s_cd_ip_timer)
+            {
+                CreateEffect(dayb_pb == 100 ? all : null, Effect.LightShaft, color_arr[8], buff_pos[8], 0.035, EffectRev.VisibleTo);
+                CreateEffect(dayb_pb != 100 ? all : null, Effect.Sphere, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.GoodAura, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateEffect(all, Effect.Sparkles, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+                CreateProgressBarInWorldText(dayb_pb != 100 ? all : null, dayb_pb, null, buff_pos[8] + Vector(0, dayb_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[8], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            }
+        }
+    }
+
+    if (s_sec_enabled || s_bhop_enabled || s_dodge_enabled)
+        CreateHudText(FilteredArray(all, Curr().info), null, " \nMovement", null, Location.Left, 15);
+
+    if (s_bhop_enabled)
+    {
+        CreateHudText(FilteredArray(all, Curr().info), 
+        AbilityIconString(Hero.Baptiste, Button.Crouch), 
+        "Bunny Hopping", 
+        <"Holding down <0> while moving will allow you to gain speed", InputBindingString(Button.Jump)>, Location.Left, 16, Color.Aqua, Color.Aqua);
+    }
+
+    if (s_sec_enabled)
+    {
+        CreateHudText(FilteredArray(all, Curr().info), 
+        AbilityIconString(Hero.Pharah, Button.Ability2), 
+        "Blaster", 
+        <"Press <0> to fire a projectile that pushes you and other players away", InputBindingString(Button.SecondaryFire)>, Location.Left, 17, Color.Red, Color.Red);
+    }
+
+    if (s_dodge_enabled)
+    {
+        CreateHudText(FilteredArray(all, Curr().info), 
+        AbilityIconString(Hero.Soldier76, Button.Ability1), 
+        "Dodge", 
+        <"Press <0> while in air to dodge in any direction", InputBindingString(Button.Ability1)>, Location.Left, 18, Color.Gray, Color.Gray);
+    }
+
+    if (s_debug)
+    {
+        for (num i = 0; i < buff_pos.Length; i++)
+        {
+            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
+
+            Once(i), 
+            buff_cd[Once(i)],
+            Once(buff_pos[i]), 
+            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
+            Once(buff_pos[i]), 
+
+            1, Clipping.DoNotClip);
+        }
+
+        CreateHudText(host, null, null, <"Pos: <0>\nFacing: <1>\nThrottle: <2>\nHori Speed: <3>\nbhop_speed: <4>\nbhopping: <5>\nvalid_map: <6>\nhas_buff: <7>", 
+        PositionOf(host), 
+        FacingDirectionOf(host), 
+        ThrottleOf(host), 
+        HorizontalSpeedOf(host),
+        host.bhop_speed,
+        host.bhopping, 
+        valid_map,
+        host.has_buff
+
+        >, Location.Right, 0.3);
+
+        CreateHudText(host, null, <"Cur: <0>%", RoundToInteger(ServerLoad() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.32, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Avg: <0>%", RoundToInteger(ServerLoadAverage() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.33, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 6)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+    }
+}
+
+rule: "[Main] :: Player Join"
+Event.OnPlayerJoin
+{
+    if (IsDummyBot())
+        SetRespawnMaxTime(player, 1);
+
+    DisableGameModeHud();
+
+    DisallowButton(player, Button.PrimaryFire);
+    DisallowButton(player, Button.Ability1);
+    DisallowButton(player, Button.Ability2);
+
+    for (num i = 0; i < buff_debug.Length; i++)
+    {
+        if (buff_debug[i])
+        {
+            has_buff = true;
+            buff_enabled[i] = true;
+            buff_ammo[i] = 999999;
+            DisallowButton(player, Button.PrimaryFire);
+        }
+    }
+
+    charge_str = "○ ○ ○ ○ ○ ";
+    sec_eyepos = Vector(-10000, -10000, -10000);
+    sprk_eyepos = Vector(-10000, -10000, -10000);
+    electro_eyepos1 = Vector(-10000, -10000, -10000);
+    electro_eyepos2 = Vector(-10000, -10000, -10000);
+    electro_eyepos3 = Vector(-10000, -10000, -10000);
+    bhop_speed = 100;
+}
+
+rule: "[Main] :: Server Fire and Delay"
+Event.OngoingPlayer
+if (!pri_override)
+if (IsPrimaryHeld())
+{
+    AllowButton(player, Button.PrimaryFire);
+    PressButton(player, Button.PrimaryFire);
+    MinWait();
+    DisallowButton(player, Button.PrimaryFire);
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Main] :: Info Toggle"
+Event.OngoingPlayer
+if (IsMeleeHeld())
+{
+    WaitIfTrue(0.5);
+
+    info = !info;
+    if (info)
+        DisableTextChat(player);
+    else
+        EnableTextChat(player);
+}
+
+rule: "[Main] :: Player Spawned"
+Event.OngoingPlayer
+if (HasSpawned())
+{
+    CreateEffect(bhopping ? all : null, Effect.Soldier76SprintingEffect, Color.White, player, 1);
+}
+
+rule: "[Main] :: Automatically Force McCree"
+Event.OngoingPlayer
+if (!HasSpawned())
+{
+    ForcePlayerHero(player, Hero.Mccree);
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Main] :: End Game"
+if (match_started)
+if (MatchTime() <= 0)
+{
+    EnableCompletion();
+}
+
+rule: "[Main] :: Start Primary Override"
+Event.OngoingPlayer
+if (buff_enabled[4] || buff_enabled[7])
+{
+    pri_override = true;
+}
+
+rule: "[Main] :: Start Primary Override"
+Event.OngoingPlayer
+if (!buff_enabled[4] && !buff_enabled[7])
+{
+    pri_override = false;
+}
+
+// rule: "[Debug] :: Kill"
+//     Event.OngoingPlayer
+//     if (player == host && IsInteractHeld())
+//     {
+//         Kill();
+//     }
+
+rule: "[Debug] :: Bots"
+if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
+{
+    CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null, true), Facing(host) * -1);
+}
+rule: "[Debug] :: Destroy Bots"
+if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
+{
+    DestroyAllDummyBots();
+}
+
+// rule: "[Debug] :: Show OW Spawn Points"
+// if (match_started)
+// {
+//     for (num i = 0; i < CountOf(SpawnPoints(Team.All)); i++)
+//     {
+//         CreateEffect(all, Effect.Ring, Color.White, SpawnPoints(Team.All)[i], 1, EffectRev.None);
+//     }
+// }
+
+// rule: "[Debug] :: Bots Hold Left Click"
+// Event.OngoingPlayer
+// if (IsDummyBot())
+// {
+//     StartHoldingButton(player, Button.PrimaryFire);
+// }
+
+// rule: "[Debug] :: Walls"
+// Event.OngoingPlayer
+// if (DistanceBetween(player, host) < 20 && IsAlive())
+// {
+//     StartForcingPlayerOutlines(player != host ? player : null, host, true, Color.Orange, OutlineType.Always);
+// }
+
+// rule: "[Debug] :: Remove Walls"
+// Event.OngoingPlayer
+// if (DistanceBetween(player, host) > 20 || IsDead())
+// {
+//     StopForcingPlayerOutlines(player, host);
+// }
+
+// rule: "[Debug] :: Show start_pos"
+// Event.OngoingPlayer
+// {
+//     CreateEffect(player, Effect.Sphere, Color.Aqua, weapon_muzzle, 0.05);
+// }

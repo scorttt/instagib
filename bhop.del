@@ -1,0 +1,71 @@
+import "main.del";
+
+globalvar num S_BHOP_MAX_SPEED;
+globalvar num S_BHOP_SPEED_RATE;
+globalvar bool s_bhop_enabled;
+playervar num bhop_speed;
+playervar bool is_chasing;
+
+disabled rule: "---------------- Bhop ----------------"{}
+
+void ResetSpeed() playervar "[Bhop] :: Reset Speed"
+{
+    StopChasingVariable(bhop_speed);
+    is_chasing = false;
+    bhopping = false;
+    bhop_speed = 100;
+    SetMoveSpeed(player, bhop_speed);
+}
+
+rule: "[Bhop] :: Auto Hop"
+Event.OngoingPlayer
+if (s_bhop_enabled)
+if (IsOnGround())
+if (IsButtonHeld(player, Button.Jump))
+{
+    DisallowButton(player, Button.Jump);
+    MinWait();
+    AllowButton(player, Button.Jump);
+}
+
+rule: "[Bhop] :: Airborne"
+Event.OngoingPlayer
+if (s_bhop_enabled)
+if (IsInAir() && HorizontalSpeedOf() > 5.14)
+{
+    ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, S_BHOP_SPEED_RATE, RateChaseReevaluation.None);
+    is_chasing = true;
+    bhopping = true;
+}
+
+rule: "[Bhop] :: Update Speed"
+Event.OngoingPlayer
+if (is_chasing)
+{
+    SetMoveSpeed(player, bhop_speed);
+    Wait(0.064);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Bhop] :: Update is_chasing"
+Event.OngoingPlayer
+if (is_chasing && bhop_speed == S_BHOP_MAX_SPEED || bhop_speed == 100)
+{
+    StopChasingVariable(bhop_speed);
+    is_chasing = false;
+}
+
+rule: "[Bhop] :: Stop chasing"
+Event.OngoingPlayer
+if ((is_chasing || bhop_speed == S_BHOP_MAX_SPEED) && HorizontalSpeedOf() < 5.14)
+{
+    ResetSpeed();
+}
+
+rule: "[Bhop] :: Stop if player is on ground"
+Event.OngoingPlayer
+if ((IsOnGround()) && (bhop_speed > 100))
+{
+    WaitIfTrue(0.25);
+    ResetSpeed();
+}

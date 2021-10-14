@@ -1,0 +1,64 @@
+import "main.del";
+playervar num life_kills;
+playervar any spree_effect;
+playervar any spree_hud;
+playervar color streak_color;
+playervar str streak_str;
+
+disabled rule: "---------------- Killing Spree Notifs ----------------"{}
+
+rule: "[Killspree] :: Record Kills"
+Event.OnFinalBlow
+{
+    life_kills++;
+
+    switch (life_kills)
+    {
+        case (5):
+            CreateEffect(all, Effect.Sparkles, streak_color != null ? streak_color : RainbowColor(), player, 1, EffectRev.PositionRadiusAndColor);
+            spree_effect = LastCreatedEntity();
+
+            CreateHudText(player, null, <" \n<0> Kill Streak", life_kills>, streak_str, Location.Left, 100, Color.White, Color.White, streak_color != null ? streak_color : RainbowColor(), HudTextRev.StringAndColor);
+            spree_hud = LastTextID();
+
+            streak_str = "Killing Spree";
+            streak_color = Color.White;
+            break;
+        case (7):
+            streak_str = "Rampage";
+            streak_color = Color.LimeGreen;
+            break;
+        case (9):
+            streak_str = "Dominating";
+            streak_color = Color.SkyBlue;
+            break;
+        case (11):
+            streak_str = "Unstoppable";
+            streak_color = Color.Purple;
+            break;
+        case (13):
+            streak_str = "Godlike";
+            streak_color = Color.Yellow;
+            break;
+        case (15):
+            streak_str = "Divine";
+            streak_color = Color.Orange;
+            break;
+        case (17):
+            streak_str = "Empyreal";
+            streak_color = null;
+            break;
+    }
+}
+
+rule: "[Killspree] :: Reset Kills on death"
+Event.OnDeath
+{
+    if (life_kills >= 5)
+    {
+        DestroyEffect(spree_effect);
+        DestroyHudText(spree_hud);
+    }
+
+    life_kills = 0;
+}
