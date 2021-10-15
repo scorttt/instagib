@@ -43,7 +43,7 @@ if (buff_ammo[0] <= 0)
     has_buff = false;
 }
 
-playervar any dbg_eff;
+// playervar any dbg_eff;
 rule: "[Buff] :: Wallbang : Action"
 Event.OngoingPlayer
 if (buff_enabled[0])
