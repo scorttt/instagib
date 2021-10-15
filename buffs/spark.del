@@ -52,27 +52,32 @@ if (buff_ammo[6] <= 0)
     has_buff = false;
 }
 
-rule: "[Buff] :: Spark : Fire Action"
+num sprk_check: DistanceBetween(sprk_eyepos, RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos))) <= S_SPARK_HITBOX_SIZE;
+rule: "[Buff] :: Spark : Fire"
 Event.OngoingPlayer
 if (buff_enabled[6])
 if (IsFiringPrimary())
-{
-    if (!sprk_inair)
+{   
+    if (!sprk_check)
+    {
         spark_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
-    else 
+
+        player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), spark_hit) <= S_SPARK_ESIZE && IsInLineOfSight(spark_hit, Curr()));
+        for (num i = 0; i < players.Length; i++)
+        {
+            Kill(players[i], player);
+        }
+
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], spark_hit, S_SPARK_ESIZE);
+    }
+    else
+    {
         spark_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), EnemyPlayers(), player);
+    }
 
     vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, spark_hit, color_arr[6], EffectRev.None);
     any spark_beam = LastCreatedEntity();
-
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], spark_hit, S_SPARK_ESIZE);
-
-    player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), spark_hit) <= S_SPARK_ESIZE && IsInLineOfSight(spark_hit, Curr()));
-    for (num i = 0; i < players.Length; i++)
-    {
-        Kill(players[i], player);
-    }
 
     Wait(0.25);
     DestroyEffect(spark_beam);
@@ -129,7 +134,7 @@ if (DistanceBetween(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, 
 rule: "[Buff] :: Spark : Action - Shot Projectile"
 Event.OngoingPlayer
 if (buff_enabled[6])
-if (DistanceBetween(sprk_eyepos, RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos))) <= S_SPARK_HITBOX_SIZE) // sphere "hitbox"
+if (sprk_check) // projectile hitbox
 if (sprk_inair)
 if (IsFiringPrimary())
 {
