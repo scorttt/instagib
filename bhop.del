@@ -31,7 +31,8 @@ if (IsButtonHeld(player, Button.Jump))
 rule: "[Bhop] :: Airborne"
 Event.OngoingPlayer
 if (s_bhop_enabled)
-if (IsInAir() && HorizontalSpeedOf() > 5.14)
+if (IsInAir())
+if (HorizontalSpeedOf() > 5.14)
 {
     ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, S_BHOP_SPEED_RATE, RateChaseReevaluation.None);
     is_chasing = true;
@@ -57,14 +58,16 @@ if (is_chasing && bhop_speed == S_BHOP_MAX_SPEED || bhop_speed == 100)
 
 rule: "[Bhop] :: Stop chasing"
 Event.OngoingPlayer
-if ((is_chasing || bhop_speed == S_BHOP_MAX_SPEED) && HorizontalSpeedOf() < 5.14)
+if (is_chasing || bhop_speed == S_BHOP_MAX_SPEED) 
+if (HorizontalSpeedOf() < 5.14)
 {
     ResetSpeed();
 }
 
 rule: "[Bhop] :: Stop if player is on ground"
 Event.OngoingPlayer
-if ((IsOnGround()) && (bhop_speed > 100))
+if (IsOnGround())
+if (bhop_speed > 100)
 {
     WaitIfTrue(0.25);
     ResetSpeed();
