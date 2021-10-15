@@ -1,6 +1,5 @@
 import "main.del";
 playervar num life_kills;
-playervar any spree_effect;
 playervar any spree_hud;
 playervar color streak_color;
 playervar str streak_str;
@@ -15,9 +14,6 @@ Event.OnFinalBlow
     switch (life_kills)
     {
         case (5):
-            CreateEffect(all, Effect.Sparkles, streak_color != null ? streak_color : RainbowColor(), player, 1, EffectRev.PositionRadiusAndColor);
-            spree_effect = LastCreatedEntity();
-
             CreateHudText(player, null, <" \n<0> Kill Streak", life_kills>, streak_str, Location.Left, 100, Color.White, Color.White, streak_color != null ? streak_color : RainbowColor(), HudTextRev.StringAndColor);
             spree_hud = LastTextID();
 
@@ -55,10 +51,7 @@ rule: "[Killspree] :: Reset Kills on death"
 Event.OnDeath
 {
     if (life_kills >= 5)
-    {
-        DestroyEffect(spree_effect);
         DestroyHudText(spree_hud);
-    }
 
     life_kills = 0;
 }
