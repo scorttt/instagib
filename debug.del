@@ -1,0 +1,57 @@
+import "main.del";
+
+disabled rule: "---------------- Debug ----------------"{}
+
+// rule: "[Debug] :: Kill"
+//     Event.OngoingPlayer
+//     if (player == host && IsInteractHeld())
+//     {
+//         Kill();
+//     }
+
+rule: "[Debug] :: Bots"
+if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
+{
+    CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null, true), Facing(host) * -1);
+}
+rule: "[Debug] :: Destroy Bots"
+if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
+{
+    DestroyAllDummyBots();
+}
+
+// rule: "[Debug] :: Show OW Spawn Points"
+// if (match_started)
+// {
+//     for (num i = 0; i < CountOf(SpawnPoints(Team.All)); i++)
+//     {
+//         CreateEffect(all, Effect.Ring, Color.White, SpawnPoints(Team.All)[i], 1, EffectRev.None);
+//     }
+// }
+
+// rule: "[Debug] :: Bots Hold Left Click"
+// Event.OngoingPlayer
+// if (IsDummyBot())
+// {
+//     StartHoldingButton(player, Button.PrimaryFire);
+// }
+
+// rule: "[Debug] :: Walls"
+// Event.OngoingPlayer
+// if (DistanceBetween(player, host) < 20 && IsAlive())
+// {
+//     StartForcingPlayerOutlines(player != host ? player : null, host, true, Color.Orange, OutlineType.Always);
+// }
+
+// rule: "[Debug] :: Remove Walls"
+// Event.OngoingPlayer
+// if (DistanceBetween(player, host) > 20 || IsDead())
+// {
+//     StopForcingPlayerOutlines(player, host);
+// }
+
+// rule: "[Debug] :: Show start_pos"
+// Event.OngoingPlayer
+// {
+//     CreateEffect(player, Effect.Sphere, Color.Aqua, weapon_muzzle, 0.05);
+// }
