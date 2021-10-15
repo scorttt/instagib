@@ -63,15 +63,16 @@ if (IsPrimaryHeld())
         Abort();
     }
 
+    // fire
+    AllowButton(player, Button.PrimaryFire);
+    PressButton(player, Button.PrimaryFire);
+
     if (IsFiringPrimary() && bal_chrg > 10)
         buff_ammo[4]--;
 
     StopChasingVariable(bal_chrg);
     bal_chrg = 0;
 
-    // fire
-    AllowButton(player, Button.PrimaryFire);
-    PressButton(player, Button.PrimaryFire);
     MinWait();
     DisallowButton(player, Button.PrimaryFire);
     Wait(1);
