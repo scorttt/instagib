@@ -34,23 +34,6 @@ playervar str buff_str;
 
 disabled rule: "---------------- Buff ----------------"{}
 
-rule: "[Buff] :: Remove Current Buff"
-Event.OngoingPlayer
-if (IsInteractHeld())
-if (has_buff)
-{
-    WaitIfTrue(1);
-    for (num i = 0; i < buff_pos.Length; i++) // this isnt the best way of doing this. oh well
-    {
-        DestroyEffect(collected_buff_effect[i]);
-        buff_ammo[i] = 0;
-        buff_enabled[i] = false;
-    }
-
-    PlayEffect(all, PlayEffect.BadPickupEffect, Color.White, PositionOf() + Up(), 1);
-    has_buff = false;
-}
-
 void CollectBuff() playervar "[Sub] :: Buff Collection"
 {
     can_pickup_buff[buff_i] = false;
@@ -199,6 +182,24 @@ void CreateOrb() "[Sub] :: Create Orb"
             break;
     }
 }
+
+rule: "[Buff] :: Remove Current Buff"
+Event.OngoingPlayer
+if (IsInteractHeld())
+if (has_buff)
+{
+    WaitIfTrue(1);
+    for (num i = 0; i < 9; i++) // this isnt the best way of doing this. oh well
+    {
+        DestroyEffect(collected_buff_effect[i]);
+        buff_ammo[i] = 0;
+        buff_enabled[i] = false;
+    }
+
+    has_buff = false;
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.White, PositionOf() + Vector(0, 1, 0.3), 1);
+}
+
 
 // buff_timer: bool
 // buff_cd: integer
