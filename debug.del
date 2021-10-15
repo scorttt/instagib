@@ -1,6 +1,71 @@
 import "main.del";
+globalvar bool s_debug;
+globalvar bool[] buff_debug;
 
 disabled rule: "---------------- Debug ----------------"{}
+
+void DbgGlobal() "[Debug] :: Global"
+{
+    s_debug = WorkshopSettingToggle("Debug",                            "Debug Text", false, 1);
+    s_dbg_buff_fastspawn = WorkshopSettingToggle("Debug",               "​Fast Buff Spawn", false, 2);
+    buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 3);
+    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give ​​​​​​​​​​Ricochet", false, 4);
+    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 5);
+    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 6);
+    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 7);
+    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 8);
+    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 9);
+    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 10);
+    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Daybreak", false, 11);
+
+    if (s_debug)
+    {
+        for (num i = 0; i < buff_pos.Length; i++)
+        {
+            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
+
+            Once(i), 
+            buff_cd[Once(i)],
+            Once(buff_pos[i]), 
+            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
+            Once(buff_pos[i]), 
+
+            1, Clipping.DoNotClip);
+        }
+
+        CreateHudText(host, null, null, <"Pos: <0>\nFacing: <1>\nThrottle: <2>\nHori Speed: <3>\nbhop_speed: <4>\nbhopping: <5>\nvalid_map: <6>\nhas_buff: <7>", 
+        PositionOf(host), 
+        FacingDirectionOf(host), 
+        ThrottleOf(host), 
+        HorizontalSpeedOf(host),
+        host.bhop_speed,
+        host.bhopping, 
+        valid_map,
+        host.has_buff
+
+        >, Location.Right, 0.3);
+
+        CreateHudText(host, null, <"Cur: <0>%", RoundToInteger(ServerLoad() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.32, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Avg: <0>%", RoundToInteger(ServerLoadAverage() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.33, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 6)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+    }
+}
+
+void DbgPlayer() playervar "[Debug] :: Player"
+{
+    for (num i = 0; i < buff_debug.Length; i++)
+    {
+        if (buff_debug[i])
+        {
+            has_buff = true;
+            buff_enabled[i] = true;
+            buff_ammo[i] = 999999;
+            DisallowButton(player, Button.PrimaryFire);
+        }
+    }
+}
 
 // rule: "[Debug] :: Kill"
 //     Event.OngoingPlayer
