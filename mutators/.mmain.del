@@ -1,2 +1,116 @@
 import "../main.del";
 
+globalvar bool s_spawn_m;
+globalvar bool s_rand_mcd;
+globalvar num S_M_CD;
+globalvar vec[] m_loc;
+globalvar num[] m_in;
+globalvar color m_color;
+globalvar num m_choice;
+globalvar bool m_rare;
+globalvar vec m_pos;
+globalvar num mut_pb;
+globalvar bool can_pickup_m;
+globalvar bool m_in_timer;
+globalvar bool m_wo_timer;
+globalvar num m_cd;
+globalvar str m_str;
+
+disabled rule: "---------------- Mutator ----------------"{}
+
+
+rule: "[Mutator] :: Create Collectable"
+if (match_started)
+if (valid_map)
+if (s_spawn_m)
+if (m_cd == 0)
+if (m_in.Length > 0)
+{
+    m_in_timer = false;
+    m_wo_timer = true;
+
+    // get a random position from the m_pos array
+    vec chosen_m_pos = m_loc.Random(); 
+    m_pos = chosen_m_pos;
+
+    // chance to spawn a rainbow mutator
+    num chance = RandomReal(0, 99);
+    if (!m_rare || chance > 5) // if chance fails, spawn a normal mutator, otherwise spawn a rare mutator
+    {
+        // get a random mutator type and remove it
+        num chosen_mut = m_in.Random();
+        m_choice = chosen_mut;
+        m_in -= chosen_mut; 
+
+        switch (m_choice)
+        {
+            case (0):
+                m_color = Color.SkyBlue;
+                m_str = IconString(Icon.Eye);
+                break;
+            case (1):
+                m_color = Color.SkyBlue;
+                m_str = AbilityIconString(Hero.Echo, Button.Ultimate);
+                break;
+            case (2):
+                m_color = Color.SkyBlue;
+                m_str = AbilityIconString(Hero.Sombra, Button.Ability1);
+                break;
+            case (3):
+                m_color = Color.Red;
+                m_str = IconString(Icon.Poison);
+                break;
+            case (4):
+                m_color = Color.Red;
+                m_str = AbilityIconString(Hero.Reaper, Button.Ultimate);
+                break;
+            case (5):
+                m_color = Color.Red;
+                m_str = AbilityIconString(Hero.Moira, Button.SecondaryFire);
+                break;
+            case (6):
+                m_color = Color.Purple;
+                m_str = AbilityIconString(Hero.Baptiste, Button.Ability2);
+                break;
+            case (7):
+                m_color = Color.Purple;
+                m_str = AbilityIconString(Hero.Mercy, Button.Ultimate);
+                break;
+            case (8):
+                m_color = Color.Purple;
+                m_str = IconString(Icon.Skull);
+                break;
+        }
+    }
+    else 
+    {
+        m_rare = false;
+        m_str = AbilityIconString(Hero.Zenyatta, Button.Ultimate);
+        m_color = Color.White;
+    }
+
+    ChaseVariableOverTime(mut_pb, 100, 15, TimeChaseReevaluation.DestinationAndDuration);
+
+    WaitUntil(mut_pb == 100, 999999);
+
+    can_pickup_m = true;
+
+    // ugly but it works
+    PlayEffect(all, PlayEffect.GoodPickupEffect, m_color, m_pos, 1);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1.5, 0), 1);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1, 0), 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 0.5, 0), 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos, 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -0.5, 0), 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1, 0), 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1.5, 0), 1);
+}
+
+rule: "[Mutator] :: Mutator Internal Timer"
+if (m_in_timer)
+{
+    m_cd--;
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
