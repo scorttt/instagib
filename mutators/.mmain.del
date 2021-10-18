@@ -26,6 +26,7 @@ if (s_spawn_m)
 if (m_cd == 0)
 if (m_in.Length > 0)
 {
+    BigMessage(all, "A mutator is spawning...");
     m_in_timer = false;
     m_wo_timer = true;
 
@@ -100,7 +101,7 @@ if (m_in.Length > 0)
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1.5, 0), 1);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1, 0), 2);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 0.5, 0), 3);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos, 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos, 3.5);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -0.5, 0), 3);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1, 0), 2);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1.5, 0), 1);
