@@ -18,7 +18,6 @@ globalvar bool[] s_spawn_buff;
 globalvar str[] buff_txt;
 globalvar bool s_buffs_enabled;
 globalvar bool s_rand_buff_pos;
-globalvar bool s_dbg_buff_fastspawn;
 globalvar bool valid_map;
 globalvar vec[] buff_pos;
 globalvar bool s_cd_ip_timer;
