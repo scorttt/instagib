@@ -3,6 +3,7 @@ import "main.del";
 globalvar num S_BHOP_MAX_SPEED;
 globalvar num S_BHOP_SPEED_RATE;
 globalvar bool s_bhop_enabled;
+playervar bool bhopping;
 playervar num bhop_speed;
 playervar bool is_chasing;
 
