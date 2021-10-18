@@ -61,11 +61,11 @@ rule: "[Main] :: Initial Global"
     match_started = false;
 
     S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "​Match Time (Minutes) (20)", 20, 8, 60, 1) * 60;
+    S_PICKUP_RAD = WorkshopSettingReal("General",                              "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 2);
      
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "​​Enable Buffs (On)", true, 1);
     s_cd_ip_timer = WorkshopSettingToggle("Buffs",                           "Show buff cooldown visuals and timer (On)", true, 2);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
-    S_PICKUP_RAD = WorkshopSettingReal("Buffs",                              "Buff Collection Radius (1.25)", 1.25, 0.5, 3, 3);
      
     s_sec_enabled = WorkshopSettingToggle("Secondary Fire",                  "Enable Secondary (On)", true, 1);
     S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                     "​​​Projectile Speed (90)", 90, 1, 500, 3);
@@ -404,23 +404,37 @@ rule: "[Main] :: Initial Global"
                     Vector(0.00, 271.00, 323.00),
                     Vector(0.00, 271.00, 260.65),
                     Vector(0.00, 279.00, 291.85),
-                    Vector(0, 273.43, 280),
+                    Vector(-11.53, 268.17, 281.72),
                     Vector(20.25, 270.95, 337.10),
                     Vector(-20.25, 270.95, 337.10),
-                    Vector(0.00, 279.00, 323.00)];
+                    Vector(11.53, 268, 281.72),
+                    Vector(0, 279, 323)];
+
+            m_loc = [Vector(0, 271, 328.32), 
+                    Vector(0, 271, 267.62),
+                    Vector(0, 271, 301.47),
+                    Vector(38.33, 268, 295.14),
+                    Vector(-38.33, 268, 295.14)];
             
             break;
         case (IsMap(Map.Lijiang_Garden) || IsMap(Map.Lijiang_Garden_Lunar)):
             valid_map = true;
             b_loc = [Vector(46.85, 96.04, 150),
                     Vector(-46.85, 96.04, 150),
-                    Vector(0, 95, 143.35),
+                    Vector(-20.61, 97, 134.47),
                     Vector(0, 95, 185.00),
                     Vector(0, 97, 108.00),
-                    Vector(0, 96.00, 125.85),
+                    Vector(20.61, 97, 134.47),
                     Vector(-17.69, 95, 173.97),
                     Vector(17.69, 95, 173.97),
-                    Vector(0, 95, 156.63)];
+                    Vector(0, 95, 156.63),
+                    Vector(0, 95, 143.35)];
+            
+            m_loc = [Vector(-26, 95.30, 180),
+                    Vector(26, 95.30, 180),
+                    Vector(-14.34, 96, 115.99),
+                    Vector(14.34, 96, 115.99),
+                    Vector(0, 95.18, 167.80)];
             
             break;
         case (IsMap(Map.Malevento)):
@@ -454,7 +468,14 @@ rule: "[Main] :: Initial Global"
                     Vector(-31.13, 3, 0),
                     Vector(1.15, 4, 22.91),
                     Vector(1.15, 4, -22.91),
-                    Vector(-47.83, 6, 0)];
+                    Vector(-47.83, 6, 0),
+                    Vector(-16.25, -3, 0)];
+            
+            m_loc = [Vector(27.05, 6, 25.25),
+                    Vector(27.05, 6, -25.25),
+                    Vector(-20.29, 4.03, -22.93),
+                    Vector(-20.29, 4.03, 22.93),
+                    Vector(-22.73, 4, 0)];
 
             break;
         case (IsMap(Map.Paris)):
@@ -507,7 +528,14 @@ rule: "[Main] :: Initial Global"
                     Vector(158.69, 5, 262.68),
                     Vector(125.12, 2.85, 291.32),
                     Vector(187.39, 2.85, 229.09),
-                    Vector(128.29, 5, 232.29)];
+                    Vector(128.29, 5, 232.29),
+                    Vector(168.90, 5, 273.00)];
+
+            m_loc = [Vector(177.56, 5.10, 256.48),
+                    Vector(152.48, 5.10, 281.57),
+                    Vector(137.54, 5, 231.62),
+                    Vector(127.62, 5, 241.55),
+                    Vector(143.50, 16.30, 247.50)];
             
             break; 
         case (IsMap(Map.Oasis_University)):
@@ -517,10 +545,17 @@ rule: "[Main] :: Initial Global"
                     Vector(-172, 18, 0),
                     Vector(-188, 17, 0),
                     Vector(-217.72, 20, 0),
-                    Vector(-188, 10.40, 0),
+                    Vector(-165, 17, 16),
                     Vector(-188, 17, 18),
                     Vector(-188, 17, -18),
-                    Vector(-207.92, 20, 0)];
+                    Vector(-165, 17, -16),
+                    Vector(-210, 12, 0)];
+            
+            m_loc = [Vector(-188, 16, 27.50),
+                    Vector(-188, 16, -27.50),
+                    Vector(-188, 10.40, 0),
+                    Vector(-194, 10, 24),
+                    Vector(-194, 10, -24)];
 
             break; 
         case (IsMap(Map.Oasis_Gardens)):
@@ -528,12 +563,18 @@ rule: "[Main] :: Initial Global"
             b_loc = [Vector(115.06, 8.50, -273.62),
                     Vector(167.40, 8.50, -221.28),
                     Vector(107.79, 5.50, -214.08),
-                    Vector(152.05, 8.54, -258.26),
+                    Vector(163.33, 6.5, -245.50),
                     Vector(121.35, 12.50, -227.56),
                     Vector(87.4, 3.50, -248.25),
                     Vector(142, 3.50, -193.60),
                     Vector(141.35, 8.38, -247.59),
-                    Vector(126.23, 6.50, -232.46)];
+                    Vector(139.44, 6.50, -269.37)];
+
+            m_loc = [Vector(126.23, 6.50, -269.37),
+                    Vector(82.87, 6.49, -262.63),
+                    Vector(156.45, 6.49, -189.14),
+                    Vector(113.65, 8.50, -262.97),
+                    Vector(157.22, 8.50, -219.74)];
             
             break;
         default: 
