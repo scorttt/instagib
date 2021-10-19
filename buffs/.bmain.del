@@ -33,7 +33,7 @@ playervar str buff_str;
 
 disabled rule: "---------------- Buff ----------------"{}
 
-void CollectBuff() playervar "[Sub] :: Buff Collection"
+void CollectBuff() playervar "[Buff] :: Buff Collection"
 {
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
@@ -65,7 +65,7 @@ void CollectBuff() playervar "[Sub] :: Buff Collection"
     buff_color = null;
 }
 
-void BuffCooldown() "[Sub] :: Start Buff Timer"
+void BuffCooldown() "[Buff] :: Start Buff Timer"
 {
     if (s_spawn_buff[buff_i] && buff_cd[buff_i] == S_BUFF_CD[buff_i])
     {
@@ -111,8 +111,8 @@ void BuffCooldown() "[Sub] :: Start Buff Timer"
                 break;
             case (6):
                 LogToInspector("Spark cooldown started");
-                spark_pb = 0;
-                ChaseVariableOverTime(spark_pb, 100, S_BUFF_CD[6], TimeChaseReevaluation.None);
+                sprk_pb = 0;
+                ChaseVariableOverTime(sprk_pb, 100, S_BUFF_CD[6], TimeChaseReevaluation.None);
 
                 break;
             case (7):
@@ -131,7 +131,7 @@ void BuffCooldown() "[Sub] :: Start Buff Timer"
     }
 }
 
-void CreateOrb() "[Sub] :: Create Orb"
+void CreateOrb() "[Buff] :: Create Orb"
 {
     can_pickup_buff[buff_i] = true;
     buff_timer[buff_i] = false;
@@ -169,7 +169,7 @@ void CreateOrb() "[Sub] :: Create Orb"
             break;
         case (6):
             LogToInspector("Spark Orb Created");
-            StopChasingVariable(spark_pb);
+            StopChasingVariable(sprk_pb);
             break;
         case (7):
             LogToInspector("Arc Orb Created");
