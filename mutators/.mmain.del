@@ -12,9 +12,9 @@ globalvar vec m_pos;
 globalvar num mut_pb;
 globalvar bool can_pickup_m;
 globalvar bool m_in_timer;
-globalvar bool m_wo_timer;
+globalvar bool m_inworld;
 globalvar num m_cd;
-globalvar str m_str;
+globalvar str m_ico;
 
 disabled rule: "---------------- Mutator ----------------"{}
 
@@ -24,11 +24,11 @@ if (match_started)
 if (valid_map)
 if (s_spawn_m)
 if (m_cd == 0)
-if (m_in.Length > 0)
+if (m_rare || m_in.Length > 0)
 {
     BigMessage(all, "A mutator is spawning...");
     m_in_timer = false;
-    m_wo_timer = true;
+    m_inworld = true;
 
     // get a random position from the m_pos array
     vec chosen_m_pos = m_loc.Random(); 
@@ -36,7 +36,7 @@ if (m_in.Length > 0)
 
     // chance to spawn a rainbow mutator
     num chance = RandomReal(0, 99);
-    if (!m_rare || chance > 5) // if chance fails, spawn a normal mutator, otherwise spawn a rare mutator
+    if ((chance > 15 && m_in.Length > 0) || !m_rare) // if chance fails, spawn a normal mutator, otherwise spawn a rare mutator
     {
         // get a random mutator type and remove it
         num chosen_mut = m_in.Random();
@@ -47,46 +47,46 @@ if (m_in.Length > 0)
         {
             case (0):
                 m_color = Color.SkyBlue;
-                m_str = IconString(Icon.Eye);
+                m_ico = AbilityIconString(Hero.Widowmaker, Button.Ultimate);
                 break;
             case (1):
                 m_color = Color.SkyBlue;
-                m_str = AbilityIconString(Hero.Echo, Button.Ultimate);
+                m_ico = AbilityIconString(Hero.Echo, Button.Ultimate);
                 break;
             case (2):
                 m_color = Color.SkyBlue;
-                m_str = AbilityIconString(Hero.Sombra, Button.Ability1);
+                m_ico = AbilityIconString(Hero.Sombra, Button.Ability1);
                 break;
             case (3):
                 m_color = Color.Red;
-                m_str = IconString(Icon.Poison);
+                m_ico = IconString(Icon.Poison);
                 break;
             case (4):
                 m_color = Color.Red;
-                m_str = AbilityIconString(Hero.Reaper, Button.Ultimate);
+                m_ico = AbilityIconString(Hero.Reaper, Button.Ultimate);
                 break;
             case (5):
                 m_color = Color.Red;
-                m_str = AbilityIconString(Hero.Moira, Button.SecondaryFire);
+                m_ico = AbilityIconString(Hero.Moira, Button.SecondaryFire);
                 break;
             case (6):
                 m_color = Color.Purple;
-                m_str = AbilityIconString(Hero.Baptiste, Button.Ability2);
+                m_ico = AbilityIconString(Hero.Baptiste, Button.Ability2);
                 break;
             case (7):
                 m_color = Color.Purple;
-                m_str = AbilityIconString(Hero.Mercy, Button.Ultimate);
+                m_ico = AbilityIconString(Hero.Mercy, Button.Ultimate);
                 break;
             case (8):
                 m_color = Color.Purple;
-                m_str = IconString(Icon.Skull);
+                m_ico = IconString(Icon.Skull);
                 break;
         }
     }
-    else 
+    else
     {
         m_rare = false;
-        m_str = AbilityIconString(Hero.Zenyatta, Button.Ultimate);
+        m_ico = AbilityIconString(Hero.Zenyatta, Button.Ultimate);
         m_color = Color.White;
     }
 
