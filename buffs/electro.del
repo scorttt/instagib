@@ -169,7 +169,7 @@ if (IsButtonHeld(player, Button.Reload))
     ChaseVariableOverTime(mine_det, 0, S_ELECTRO_DELAY, TimeChaseReevaluation.None);
 }
 
-void ExplodeMine() playervar "[Sub] :: Electro : Action - Explode Mines"
+void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Mines"
 {
     buff_ammo[5]--;
     mines_placed = false;
