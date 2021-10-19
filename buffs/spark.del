@@ -1,13 +1,13 @@
 import "../main.del";
 import ".bmain.del";
 
-globalvar num spark_pb;
-globalvar num S_SPARK_PSPEED;
-globalvar num S_SPARK_PESIZE;
-globalvar num S_SPARK_HIT_PESIZE;
-globalvar num S_SPARK_ESIZE;
-globalvar num S_SPARK_HITBOX_SIZE;
-playervar vec spark_hit;
+globalvar num sprk_pb;
+globalvar num S_SPRK_PSPEED;
+globalvar num S_SPRK_PESIZE;
+globalvar num S_SPRK_HIT_PESIZE;
+globalvar num S_SPRK_ESIZE;
+globalvar num S_SPRK_HITBOX_SIZE;
+playervar vec sprk_hit;
 playervar vec sprk_eyepos;
 playervar vec sprk_rc_start;
 playervar vec sprk_rc_end;
@@ -20,7 +20,7 @@ rule: "[Buff] :: Spark : Create Orb"
 if (match_started)
 if (valid_map)
 if (s_spawn_buff[6])
-if (spark_pb == 100)
+if (sprk_pb == 100)
 {
     buff_i = 6;
     CreateOrb();
@@ -52,7 +52,7 @@ if (buff_ammo[6] <= 0)
     has_buff = false;
 }
 
-num sprk_check: DistanceBetween(sprk_eyepos, RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos))) <= S_SPARK_HITBOX_SIZE;
+num sprk_check: DistanceBetween(sprk_eyepos, RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos))) <= S_SPRK_HITBOX_SIZE;
 rule: "[Buff] :: Spark : Fire"
 Event.OngoingPlayer
 if (buff_enabled[6])
@@ -60,23 +60,23 @@ if (IsFiringPrimary())
 {   
     if (!sprk_check)
     {
-        spark_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
 
-        player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), spark_hit) <= S_SPARK_ESIZE && IsInLineOfSight(spark_hit, Curr()));
+        player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_ESIZE && IsInLineOfSight(sprk_hit, Curr()));
         for (num i = 0; i < players.Length; i++)
         {
             Kill(players[i], player);
         }
 
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], spark_hit, S_SPARK_ESIZE);
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_hit, S_SPRK_ESIZE);
     }
     else
     {
-        spark_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), EnemyPlayers(), player);
+        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), EnemyPlayers(), player);
     }
 
     vec gun_pos = weapon_muzzle(EyePosition(), Facing());
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, spark_hit, color_arr[6], EffectRev.None);
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, sprk_hit, color_arr[6], EffectRev.None);
     any spark_beam = LastCreatedEntity();
 
     Wait(0.25);
@@ -99,14 +99,14 @@ if (IsButtonHeld(player, Button.Reload))
 
     CreateEffect(all, Effect.Orb, color_arr[6], sprk_eyepos, 0.25);
     sprk_orb[0] = LastCreatedEntity();
-    CreateEffect(all, Effect.GoodAura, color_arr[6], sprk_eyepos, S_SPARK_HITBOX_SIZE);
+    CreateEffect(all, Effect.GoodAura, color_arr[6], sprk_eyepos, S_SPRK_HITBOX_SIZE);
     sprk_orb[1] = LastCreatedEntity();
     CreateEffect(all, Effect.BadAura, color_arr[6], sprk_eyepos, 0.5);
     sprk_orb[2] = LastCreatedEntity();
     CreateEffect(all, Effect.Ring, color_arr[6], RayCastHitPosition(sprk_eyepos, sprk_eyepos + Down() * 100), 0.5);
     sprk_orb[3] = LastCreatedEntity();
 
-    ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, EnemyPlayers(), player), S_SPARK_PSPEED, RateChaseReevaluation.None);
+    ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, EnemyPlayers(), player), S_SPRK_PSPEED, RateChaseReevaluation.None);
 
     WaitUntil(!sprk_inair, 9999);
     Wait(0.75);
@@ -122,10 +122,10 @@ if (DistanceBetween(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, 
     sprk_inair = false;
     StopChasingVariable(sprk_eyepos);
 
-    player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= S_SPARK_PESIZE && IsInLineOfSight(Curr(), sprk_eyepos));
+    player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= S_SPRK_PESIZE && IsInLineOfSight(Curr(), sprk_eyepos));
     Kill(players, player);
 
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_eyepos, S_SPARK_PESIZE);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_eyepos, S_SPRK_PESIZE);
 
     DestroyEffect(sprk_orb);
     sprk_eyepos = Vector(-10000, -10000, -10000);
@@ -143,10 +143,10 @@ if (IsFiringPrimary())
     sprk_inair = false;
     StopChasingVariable(sprk_eyepos);
 
-    any[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= S_SPARK_HIT_PESIZE && IsInLineOfSight(Curr(), sprk_eyepos));
+    any[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= S_SPRK_HIT_PESIZE && IsInLineOfSight(Curr(), sprk_eyepos));
     Kill(players, player);
 
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_eyepos, S_SPARK_HIT_PESIZE);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_eyepos, S_SPRK_HIT_PESIZE);
 
     DestroyEffect(sprk_orb);
     sprk_eyepos = Vector(-10000, -10000, -10000);
