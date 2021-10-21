@@ -1,13 +1,14 @@
 import "../overwatch-scripts/macros.del";
-import "settings.json";
-
-import "init/pickups.del";
-import "init/hudtext.del";
+// import "settings.json";
+import "dbgsettings.json";
 
 import "movement/bhop.del";
 import "movement/blaster.del";
 import "movement/dodge.del";
 import "killspree.del";
+
+import "init/pickups.del";
+import "init/hudtext.del";
 
 import "pickups/buffs/.bmain.del";
 import "pickups/buffs/wallbang.del";
@@ -73,7 +74,7 @@ rule: "[Main] :: Initial Global"
 
     s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
-    S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 0, 600, 3);
+    S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
 
     s_spawn_buff[0] = WorkshopSettingToggle("Wallbang Buff",                 "​​​​Spawn Wallbang (On)", true, 1);
     S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang Buff",                   "​​Wallbang Spawn Time (75)", 75, 5, 600, 2);
