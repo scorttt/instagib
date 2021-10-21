@@ -15,6 +15,7 @@ globalvar bool m_in_timer;
 globalvar bool m_inworld;
 globalvar num m_cd;
 globalvar str m_ico;
+globalvar str m_str;
 
 playervar bool has_mut;
 playervar bool[] m_enabled;
@@ -25,12 +26,13 @@ rule: "[Mutator] :: Create Collectable"
 if (match_started)
 if (valid_map)
 if (s_spawn_m)
-if (m_cd == 0)
+if (m_cd <= 0)
 if (m_rare || m_in.Length > 0)
 {
     BigMessage(all, "A mutator is spawning...");
     m_in_timer = false;
     m_inworld = true;
+    can_pickup_m = false;
 
     // get a random position from the m_pos array
     vec chosen_m_pos = m_loc.Random(); 
@@ -50,38 +52,47 @@ if (m_rare || m_in.Length > 0)
             case (0):
                 m_color = Color.SkyBlue;
                 m_ico = AbilityIconString(Hero.Widowmaker, Button.Ultimate);
+                m_str = "Seer";
                 break;
             case (1):
                 m_color = Color.SkyBlue;
                 m_ico = AbilityIconString(Hero.Echo, Button.Ultimate);
+                m_str = "Decoy";
                 break;
             case (2):
                 m_color = Color.SkyBlue;
                 m_ico = AbilityIconString(Hero.Sombra, Button.Ability1);
+                m_str = "Stealth";
                 break;
             case (3):
                 m_color = Color.Red;
                 m_ico = IconString(Icon.Poison);
+                m_str = "Leech";
                 break;
             case (4):
                 m_color = Color.Red;
                 m_ico = AbilityIconString(Hero.Reaper, Button.Ultimate);
+                m_str = "Berserk";
                 break;
             case (5):
                 m_color = Color.Red;
                 m_ico = AbilityIconString(Hero.Moira, Button.SecondaryFire);
+                m_str = "Leech";
                 break;
             case (6):
                 m_color = Color.Purple;
                 m_ico = AbilityIconString(Hero.Baptiste, Button.Ability2);
+                m_str = "Denial";
                 break;
             case (7):
                 m_color = Color.Purple;
                 m_ico = AbilityIconString(Hero.Mercy, Button.Ultimate);
+                m_str = "Mobility";
                 break;
             case (8):
                 m_color = Color.Purple;
                 m_ico = IconString(Icon.Skull);
+                m_str = "Karma";
                 break;
         }
     }
@@ -90,17 +101,19 @@ if (m_rare || m_in.Length > 0)
         m_choice = 9;
         m_rare = false;
         m_ico = AbilityIconString(Hero.Zenyatta, Button.Ultimate);
+        m_str = "Empyrea";
         m_color = Color.White;
     }
 
+    mut_pb = 0;
     ChaseVariableOverTime(mut_pb, 100, 15, TimeChaseReevaluation.DestinationAndDuration);
-
     WaitUntil(mut_pb == 100, 999999);
+    StopChasingVariable(mut_pb);
 
     can_pickup_m = true;
 
     // ugly but it works
-    PlayEffect(all, PlayEffect.GoodPickupEffect, m_color, m_pos, 1);
+    PlayEffect(all, PlayEffect.BadPickupEffect, m_color, m_pos, 1);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1.5, 0), 1);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1, 0), 2);
     PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 0.5, 0), 3);
@@ -118,17 +131,31 @@ if (can_pickup_m)
 if (DistanceBetween(m_pos, PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 {
-    can_pickup_m = false;
+    // can_pickup_m = false;
     m_inworld = false;
-    has_mut = true;
-    m_enabled[m_choice] = true;
+    // has_mut = true;
+    // m_enabled[m_choice] = true;
+    StartMutatorTimer(); // todo: move this to the mutator removal rule when i stop being lazy and actually work on it
+    PlayEffect(all, PlayEffect.BadPickupEffect, m_color, m_pos, 1);
+
+}
+
+void StartMutatorTimer() "[Mutator] :: Set Mutator Time"
+{
+    num rand = RandomInteger(0, 60);
+    if (s_rand_mcd)
+        m_cd = S_M_CD + rand;
+    else 
+        m_cd = S_M_CD;
+
+    m_in_timer = true;
 }
 
 rule: "[Mutator] :: Mutator Internal Timer"
 if (m_in_timer)
+if (m_rare || m_in.Length > 0)
 {
     m_cd--;
     Wait(1);
     LoopIfConditionIsTrue();
 }
-

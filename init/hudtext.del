@@ -324,9 +324,6 @@ if (s_buffs_enabled)
 
     if (s_spawn_m)
     {
-        m_rare = true;
-        m_in_timer = true;
-
         CreateHudText(m_inworld ? all : null, null, " \n", null, Location.Left, 11.9, null, null);
         CreateHudText(m_inworld ? all : null, mut_pb != 100 ? IconString(Icon.QuestionMark) : m_ico, null, mut_pb != 100 
                                                                                                             ? "Spawning.." 
