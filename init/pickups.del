@@ -455,12 +455,13 @@ rule: "[Main] :: Pickup Init"
             break;
     }
 
+    num b_len = b_loc.Length;
     if (valid_map)
     {
         if (s_buffs_enabled)
         {
-            for (num i = 0; i < b_loc.Length; i++)
-            {   
+            for (num i = 0; i < b_len; i++)
+            {
                 vec chosen_b_pos;
 
                 if (s_rand_buff_pos)
