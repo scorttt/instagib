@@ -1,0 +1,45 @@
+{
+    "Lobby": {
+      "Allow Players Who Are In Queue": true,
+      "Map Rotation": "After A Game",
+      "Max FFA Players": 8,
+      "Max Spectators": 2,
+      "Return To Lobby": "Never"
+    },
+    "Modes": {
+      "All": {
+        "Game Mode Start": "Immediately",
+        "Hero Limit": "Off",
+        "Spawn Health Packs": "Disabled"
+      },
+      "Deathmatch": {
+        "Enabled Maps": [
+          "Workshop Chamber"
+        ]
+      }
+    },
+    "Heroes": {
+      "General": {
+        "Enabled Heroes": [
+          "Mccree"
+        ],
+        "Mccree": {
+          "Damage Dealt": 500,
+          "Damage Received": 500,
+          "No Ammunition Requirement": true,
+          "Quick Melee": false,
+          "Secondary Fire": false,
+          "Ultimate Ability (Deadeye)": false
+        }
+      }
+    },
+    "Extensions": {
+      "Play More Effects": true,
+      "Beam Effects": true,
+      "Buff Status Effects": true,
+      "Energy Explosion Effects": true,
+      "Explosion Sounds": true, 
+      "Buff and Debuff Sounds": true
+    },
+    "Description": "Instagib\nCode: APPPX\nCreated by scort#11221\nHold Melee in game for help\nv2.0 | 10/20/21"
+  }
