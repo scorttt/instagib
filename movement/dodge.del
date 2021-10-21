@@ -1,4 +1,4 @@
-import "main.del";
+import "../main.del";
 
 globalvar num S_DODGE_FORCE;
 globalvar bool s_dodge_enabled;

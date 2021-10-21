@@ -1,4 +1,4 @@
-import "main.del";
+import "../main.del";
 
 globalvar num S_BHOP_MAX_SPEED;
 globalvar num S_BHOP_SPEED_RATE;

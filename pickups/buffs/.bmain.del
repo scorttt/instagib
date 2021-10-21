@@ -1,4 +1,4 @@
-import "../main.del";
+import "../../main.del";
 
 import "wallbang.del";
 import "ricochet.del";

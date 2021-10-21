@@ -1,4 +1,4 @@
-import "main.del";
+import "../main.del";
 
 globalvar num S_SEC_PSPEED;
 globalvar num S_SEC_RADIUS;

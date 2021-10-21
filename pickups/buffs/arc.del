@@ -1,4 +1,4 @@
-import "../main.del";
+import "../../main.del";
 import ".bmain.del";
 
 globalvar num arc_pb;
