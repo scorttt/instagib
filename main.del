@@ -6,10 +6,9 @@ import "movement/bhop.del";
 import "movement/blaster.del";
 import "movement/dodge.del";
 import "killspree.del";
+import "hudtext.del";
 
-import "init/pickups.del";
-import "init/hudtext.del";
-
+import "pickups/init.del";
 import "pickups/buffs/.bmain.del";
 import "pickups/buffs/wallbang.del";
 import "pickups/buffs/ricochet.del";
@@ -20,7 +19,6 @@ import "pickups/buffs/electro.del";
 import "pickups/buffs/spark.del";
 import "pickups/buffs/arc.del";
 import "pickups/buffs/daybreak.del";
-
 import "pickups/mutators/.mmain.del";
 
 import "../overwatch-scripts/ruler.del";
@@ -32,7 +30,8 @@ playervar bool bhopping;
 playervar bool info;
 playervar bool pri_override;
 
-globalvar bool s_debug;
+globalvar bool s_dbg_player;
+globalvar bool s_dbg_world;
 globalvar bool[] s_dbg_fastspawn;
 globalvar bool[] buff_debug;
 
@@ -134,17 +133,65 @@ rule: "[Main] :: Initial Global"
         for (num i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
 
-    s_debug = WorkshopSettingToggle("Debug",                            "Debug Text", false, 1);
-    s_dbg_fastspawn = WorkshopSettingToggle("Debug",                    "​Fast Buff Spawn", false, 2);
-    buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 3);
-    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give ​​​​​​​​​​Ricochet", false, 4);
-    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 5);
-    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 6);
-    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 7);
-    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 8);
-    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 9);
-    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 10);
-    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Daybreak", false, 11);
+    // ----------------------- DEBUG STUFF ----------------------- //
+
+    s_dbg_player = WorkshopSettingToggle("Debug",                       "Player Info", false, 1);
+    s_dbg_world = WorkshopSettingToggle("Debug",                        "World Info", false, 2);
+    s_dbg_fastspawn[0] = WorkshopSettingToggle("Debug",                 "​Fast Buff Spawn", false, 3);
+    s_dbg_fastspawn[1] = WorkshopSettingToggle("Debug",                 "​Fast Mutator Spawn", false, 4);
+    buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 5);
+    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give ​​​​​​​​​​Ricochet", false, 6);
+    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 7);
+    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 8);
+    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 9);
+    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 10);
+    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
+    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
+    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Daybreak", false, 13);
+
+    if (s_dbg_fastspawn[0])
+        for (num i = 0; i < S_BUFF_CD.Length; i++)
+            S_BUFF_CD[i] = 5;
+
+    if (s_dbg_fastspawn[1])
+    {
+        s_rand_mcd = false;
+        S_M_CD = 5;
+    }
+
+    if (s_dbg_world)
+    {
+        for (num i = 0; i < buff_pos.Length; i++)
+        {
+            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
+
+            Once(i), 
+            buff_cd[Once(i)],
+            Once(buff_pos[i]), 
+            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
+            Once(buff_pos[i]), 
+
+            1, Clipping.DoNotClip);
+        }
+
+        CreateHudText(host, null, <" valid_map: <0>\nm_cd: <1>, recent mutator: <2>, m_rare: <3>\n", 
+        valid_map,
+        m_cd,
+        m_str,
+        m_rare
+
+        >, null, Location.Right, 0.2);
+
+        CreateHudText(host, null, <"Cur: <0>%", RoundToInteger(ServerLoad() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.32, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Avg: <0>%", RoundToInteger(ServerLoadAverage() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.33, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 7)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+    }
+
+    // ----------------------------------------------------------- //
+
+
 
     CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
     CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
@@ -198,43 +245,22 @@ Event.OnPlayerJoin
             has_buff = true;
             buff_enabled[i] = true;
             buff_ammo[i] = 999999;
-            DisallowButton(player, Button.PrimaryFire);
         }
     }
 
-    if (s_debug)
+    if (s_dbg_player)
     {
-        for (num i = 0; i < buff_pos.Length; i++)
-        {
-            CreateInWorldText(player, <"<0>, <1>\n<2>\n<3>", 
-
-            Once(i), 
-            buff_cd[Once(i)],
-            Once(buff_pos[i]), 
-            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
-            Once(buff_pos[i]), 
-
-            1, Clipping.DoNotClip);
-        }
-
-        CreateHudText(player, null, null, <"Pos: <0>\nFacing: <1>\nThrottle: <2>\nHori Speed: <3>\nbhop_speed: <4>\nbhopping: <5>\nvalid_map: <6>\nhas_buff: <7>", 
-        PositionOf(), 
-        FacingDirectionOf(), 
-        ThrottleOf(), 
-        HorizontalSpeedOf(),
-        bhop_speed,
+        CreateHudText(host, null, <" <0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\nrecent buff: <4>", 
+        player,
         bhopping, 
-        valid_map,
-        has_buff
+        bhop_speed,
+        dodges,
+        buff_str
 
-        >, Location.Right, 0.3);
-
-        CreateHudText(player, null, <"Cur: <0>%", RoundToInteger(ServerLoad() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.32, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(player, null, <"Avg: <0>%", RoundToInteger(ServerLoadAverage() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.33, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(player, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(player, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(player, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 6)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        >, null, Location.Right, 0.3);
     }
+
+
     // ----------------------------------------------------------- //
 }
 
@@ -313,14 +339,14 @@ if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
     DestroyAllDummyBots();
 }
 
-rule: "Show OW Spawn Points"
-if (match_started)
-{
-    for (num i = 0; i < SpawnPoints(Team.All).Length; i++)
-    {
-        CreateEffect(all, Effect.Sphere, Color.White, SpawnPoints(Team.All)[i], 0.5, EffectRev.None);
-    }
-}
+// rule: "Show OW Spawn Points"
+// if (match_started)
+// {
+//     for (num i = 0; i < SpawnPoints(Team.All).Length; i++)
+//     {
+//         CreateEffect(all, Effect.Sphere, Color.White, SpawnPoints(Team.All)[i], 0.5, EffectRev.None);
+//     }
+// }
 
 // rule: "Bots Hold Left Click"
 // Event.OngoingPlayer
