@@ -70,8 +70,8 @@ if (IsFiringPrimary())
                 eye_pos = hp[i - 1];
 
             // enter + exit raycast
-            hp[i] =        RayCastHitPosition(eye_pos + Facing(), eye_pos + Facing()                         * 100, EnemyPlayers(), player, true);
-            hp_player[i] = RayCastHitPlayer  (hp[i],              hp[i]   + Facing()                         * 100, EnemyPlayers(), player, true);
+            hp[i] =        RayCastHitPosition(eye_pos + Facing(), eye_pos + Facing()                         * 100, AllLivingPlayers(), player, true);
+            hp_player[i] = RayCastHitPlayer  (hp[i],              hp[i]   + Facing()                         * 100, AllLivingPlayers(), player, true);
             exit_hp[i] =   RayCastHitPosition(hp[i],              hp[i]   + DirectionTowards(hp[i], eye_pos) * DistanceBetween(hp[i], eye_pos), null, null, true);
 
             if (DistanceBetween(exit_hp[i], eye_pos) > 0.2)
