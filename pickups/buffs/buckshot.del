@@ -144,18 +144,6 @@ if (IsFiringPrimary())
         DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[0] * mult) 
         * 100, EnemyPlayers(), player, false);
 
-        // bottom left
-        buckshot_hp[i][0] = RayCastHitPosition(EyePosition(), EyePosition() + 
-        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * mult) * 100, 0, 0), player) + 
-        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * mult) 
-        * 100, EnemyPlayers(), player, false);
-
-        // top left
-        buckshot_hp[i][1] = RayCastHitPosition(EyePosition(), EyePosition() + 
-        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * mult) * 100, 0, 0), player) + 
-        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * mult) 
-        * 100, EnemyPlayers(), player, false);
-        
         ////////////
         // player //
         ////////////
