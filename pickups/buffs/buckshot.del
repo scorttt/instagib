@@ -185,15 +185,8 @@ if (IsFiringPrimary())
         * 100, EnemyPlayers(), player, false);
 
         mult++;
-    }
 
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.2);
-
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_center, color_arr[2], EffectRev.None);
-    center_beam = LastCreatedEntity();
-
-    for (num i = 0; i < buckshot_hp.Length; i++)
-    {
+        // TODO: OPTIMIZE :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) 
         for (num j = 0; j < 8; j++)
         {
             PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[i][j], 0.2);
@@ -202,6 +195,11 @@ if (IsFiringPrimary())
             buckshot_beam[i][j] = LastCreatedEntity();
         }
     }
+
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.2);
+
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_center, color_arr[2], EffectRev.None);
+    center_beam = LastCreatedEntity();
 
     Kill(buckshot_hp_player, player);
 
