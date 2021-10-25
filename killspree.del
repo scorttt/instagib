@@ -4,7 +4,7 @@ playervar any spree_hud;
 playervar color streak_color;
 playervar str streak_str;
 
-disabled rule: "---------------- Kill Spree  ----------------"{}
+disabled rule: "---------------- Kill Spree ----------------"{}
 
 rule: "[Killspree] :: Record Kills"
 Event.OnFinalBlow
