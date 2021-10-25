@@ -1,4 +1,3 @@
-# About
 Instagib is a fast paced one-shot deathmatch that takes heavy inspiration from the arena shooters of old. 
 
 - Movement system for the potential of gaining insane amounts of speed and mobility. 
