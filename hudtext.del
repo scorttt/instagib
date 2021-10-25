@@ -369,7 +369,7 @@ if (s_buffs_enabled)
     if (s_spawn_m)
     {
         CreateHudText(m_inworld ? all : null, null, " \n", null, Location.Left, 11.9, null, null);
-        CreateHudText(m_inworld ? all : null, mut_pb != 100 ? "     " : m_ico, null, mut_pb != 100 ? "Spawning.." : IconString(Icon.Checkmark), 
+        CreateHudText(m_inworld ? all : null, mut_pb != 100 ? IconString(Icon.QuestionMark) : m_ico, null, mut_pb != 100 ? "Spawning.." : IconString(Icon.Checkmark), 
         Location.Left, 12, m_color[0], Color.White, Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
 
         CreateProgressBarInWorldText(m_inworld && mut_pb != 100 ? all : null, mut_pb, null, m_pos + Vector(0, mut_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, m_color[0], Color.White, InWorldProgressBarEvaluation.VisibleToPositionValuesAndColor);
