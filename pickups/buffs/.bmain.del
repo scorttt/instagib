@@ -9,6 +9,7 @@ import "electro.del";
 import "spark.del";
 import "arc.del";
 import "daybreak.del";
+import "lightning.del";
 
 globalvar num[] S_BUFF_CD;
 globalvar num[] S_BUFF_AMMO;
@@ -127,6 +128,12 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
                 ChaseVariableOverTime(dayb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
 
                 break;
+            case (9):
+                LogToInspector("Lightning cooldown started");
+                li_pb = 0;
+                ChaseVariableOverTime(li_pb, 100, S_BUFF_CD[9], TimeChaseReevaluation.None);
+
+                break;
         }
     }
 }
@@ -179,6 +186,10 @@ void CreateOrb() "[Buff] :: Create Orb"
             LogToInspector("Daybreak Orb Created");
             StopChasingVariable(dayb_pb);
             break;
+        case (9):
+            LogToInspector("Lightning Orb Created");
+            StopChasingVariable(li_pb);
+            break;
     }
 }
 
@@ -230,8 +241,8 @@ if (buff_timer[0])
     buff_cd[0]--;
 
     buff_txt[0] = buff_cd[0] % 60 >= 10
-                    ? <"<0>:<1>", RoundToInteger(buff_cd[0] / 60, Rounding.Down), RoundToInteger(buff_cd[0] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[0] / 60, Rounding.Down), RoundToInteger(buff_cd[0] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[0] / 60), Floor(buff_cd[0] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[0] / 60), Floor(buff_cd[0] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -243,8 +254,8 @@ if (buff_timer[1])
     buff_cd[1]--;
 
     buff_txt[1] = buff_cd[1] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[1] / 60, Rounding.Down), RoundToInteger(buff_cd[1] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[1] / 60, Rounding.Down), RoundToInteger(buff_cd[1] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[1] / 60), Floor(buff_cd[1] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[1] / 60), Floor(buff_cd[1] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -256,8 +267,8 @@ if (buff_timer[2])
     buff_cd[2]--;
 
     buff_txt[2] = buff_cd[2] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[2] / 60, Rounding.Down), RoundToInteger(buff_cd[2] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[2] / 60, Rounding.Down), RoundToInteger(buff_cd[2] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[2] / 60), Floor(buff_cd[2] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[2] / 60), Floor(buff_cd[2] % 60)>;
     
     Wait(1);
     LoopIfConditionIsTrue();
@@ -269,8 +280,8 @@ if (buff_timer[3])
     buff_cd[3]--;
 
     buff_txt[3] = buff_cd[3] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[3] / 60, Rounding.Down), RoundToInteger(buff_cd[3] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[3] / 60, Rounding.Down), RoundToInteger(buff_cd[3] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[3] / 60), Floor(buff_cd[3] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[3] / 60), Floor(buff_cd[3] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -282,8 +293,8 @@ if (buff_timer[4])
     buff_cd[4]--;
 
     buff_txt[4] = buff_cd[4] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[4] / 60, Rounding.Down), RoundToInteger(buff_cd[4] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[4] / 60, Rounding.Down), RoundToInteger(buff_cd[4] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[4] / 60), Floor(buff_cd[4] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[4] / 60), Floor(buff_cd[4] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -295,8 +306,8 @@ if (buff_timer[5])
     buff_cd[5]--;
 
     buff_txt[5] = buff_cd[5] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[5] / 60, Rounding.Down), RoundToInteger(buff_cd[5] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[5] / 60, Rounding.Down), RoundToInteger(buff_cd[5] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[5] / 60), Floor(buff_cd[5] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[5] / 60), Floor(buff_cd[5] % 60)>;
     
     Wait(1);
     LoopIfConditionIsTrue();
@@ -308,8 +319,8 @@ if (buff_timer[6])
     buff_cd[6]--;
 
     buff_txt[6] = buff_cd[6] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[6] / 60, Rounding.Down), RoundToInteger(buff_cd[6] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[6] / 60, Rounding.Down), RoundToInteger(buff_cd[6] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[6] / 60), Floor(buff_cd[6] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[6] / 60), Floor(buff_cd[6] % 60)>;
     
     Wait(1);
     LoopIfConditionIsTrue();
@@ -321,8 +332,8 @@ if (buff_timer[7])
     buff_cd[7]--;
 
     buff_txt[7] = buff_cd[7] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[7] / 60, Rounding.Down), RoundToInteger(buff_cd[7] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[7] / 60, Rounding.Down), RoundToInteger(buff_cd[7] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[7] / 60), Floor(buff_cd[7] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[7] / 60), Floor(buff_cd[7] % 60)>;
     
     Wait(1);
     LoopIfConditionIsTrue();
@@ -334,8 +345,21 @@ if (buff_timer[8])
     buff_cd[8]--;
 
     buff_txt[8] = buff_cd[8] % 60 >= 10
-                    ? <"<0>:<1>",  RoundToInteger(buff_cd[8] / 60, Rounding.Down), RoundToInteger(buff_cd[8] % 60, Rounding.Down)> 
-                    : <"<0>:0<1>", RoundToInteger(buff_cd[8] / 60, Rounding.Down), RoundToInteger(buff_cd[8] % 60, Rounding.Down)>;
+                    ? <"<0>:<1>",  Floor(buff_cd[8] / 60), Floor(buff_cd[8] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[8] / 60), Floor(buff_cd[8] % 60)>;
+    
+    Wait(1);
+    LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Lightning Timer"
+if (buff_timer[9])
+{
+    buff_cd[9]--;
+
+    buff_txt[9] = buff_cd[9] % 60 >= 10
+                    ? <"<0>:<1>",  Floor(buff_cd[9] / 60), Floor(buff_cd[9] % 60)> 
+                    : <"<0>:0<1>", Floor(buff_cd[9] / 60), Floor(buff_cd[9] % 60)>;
     
     Wait(1);
     LoopIfConditionIsTrue();

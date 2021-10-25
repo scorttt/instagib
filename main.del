@@ -1,4 +1,5 @@
 import "../overwatch-scripts/macros.del";
+import "../overwatch-scripts/ruler.del";
 // import "settings.json";
 import "dbgsettings.json";
 
@@ -20,8 +21,6 @@ import "pickups/buffs/spark.del";
 import "pickups/buffs/arc.del";
 import "pickups/buffs/daybreak.del";
 import "pickups/mutators/.mmain.del";
-
-import "../overwatch-scripts/ruler.del";
 
 globalvar num S_MATCH_TIME_LIMIT;
 globalvar num S_PICKUP_RAD;
@@ -74,6 +73,7 @@ rule: "[Main] :: Initial Global"
     s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
     S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
+    S_M_SPAWN = WorkshopSettingInteger("Mutators",                           "Mutator Creation Time (15)", 15, 1, 600, 3);
 
     s_spawn_buff[0] = WorkshopSettingToggle("Wallbang Buff",                 "​​​​Spawn Wallbang (On)", true, 1);
     S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang Buff",                   "​​Wallbang Spawn Time (75)", 75, 5, 600, 2);
@@ -83,7 +83,7 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[1] = WorkshopSettingToggle("Ricochet Buff",                 "Spawn Ricochet (On)", true, 1);
     S_BUFF_CD[1] = WorkshopSettingInteger("Ricochet Buff",                   "Ricochet ​Spawn Time (75)", 75, 5, 600, 2);
     S_BUFF_AMMO[1] = WorkshopSettingInteger("Ricochet Buff",                 "Ricochet Ammo (15)", 15, 1, 1000, 3);
-    S_NUM_RICOCHETS = WorkshopSettingInteger("Ricochet Buff",                "​​​Ricochet Amount (8)", 8, 1, 16, 4);
+    S_NUM_RICOCHETS = WorkshopSettingInteger("Ricochet Buff",                "​​​Ricochet Amount (12)", 12, 1, 24, 4);
 
     s_spawn_buff[5] = WorkshopSettingToggle("Electro Buff",                  "​​​​​Spawn Electro (On)", true, 1);
     S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro ​Spawn Time (100)", 100, 5, 600, 2);
@@ -102,10 +102,9 @@ rule: "[Main] :: Initial Global"
     S_SPRK_HIT_PESIZE = WorkshopSettingReal("Spark Buff",                    "Spark Hit Explosion Size (7)", 7, 1, 50, 6);
     S_SPRK_HITBOX_SIZE = WorkshopSettingReal("Spark Buff",                   "Spark Projectile Hitbox Size (0.45)", 0.45, 0.5, 10, 7);
 
-    s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
-    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (125)", 125, 5, 600, 2);
-    S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc Buff",                      "Arc Ammo (140)", 380, 1, 10000, 3);
-    S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Arc Reflect Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
+    s_spawn_buff[9] = WorkshopSettingToggle("Lightning Buff",                "​​​​​Spawn Lightning (On)", true, 1);
+    S_BUFF_CD[9] = WorkshopSettingInteger("Lightning Buff",                  "Lightning ​Spawn Time (165)", 165, 5, 600, 2);
+    S_BUFF_AMMO[9] = WorkshopSettingInteger("Lightning Buff",                "Lightning Ammo (140)", 140, 1, 10000, 3);
 
     s_spawn_buff[8] = WorkshopSettingToggle("Daybreak Buff",                 "​​​​​Spawn Daybreak (On)", true, 1);
     S_BUFF_CD[8] = WorkshopSettingInteger("Daybreak Buff",                   "Daybreak ​Spawn Time (125)", 125, 5, 600, 2);
@@ -113,11 +112,14 @@ rule: "[Main] :: Initial Global"
     S_DAYB_RADIUS = WorkshopSettingReal("Daybreak Buff",                     "Daybreak Explosion Radius (7)", 7, 1, 50, 4);
     S_DAYB_TIME = WorkshopSettingReal("Daybreak Buff",                       "Daybreak Explosion Time (0.75)", 0.75, 0.1, 5, 4);
 
-    s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "​​​​​Spawn Ballista (On)", true, 1);
-    S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (220)", 220, 5, 600, 2);
-    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
-    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
-    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
+    s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
+    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (185)", 185, 5, 600, 2);
+    S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc Buff",                      "Arc Ammo (380)", 380, 1, 10000, 3);
+    S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Arc Reflect Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
+
+    s_spawn_buff[3] = WorkshopSettingToggle("Prism Buff",                    "​​Spawn Prism (On)", true, 1);
+    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "​Prism Spawn Time (185)", 185, 5, 600, 2);
+    S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism Buff",                    "​​​Prism Ammo (10)", 10, 1, 1000, 3);
 
     s_spawn_buff[2] = WorkshopSettingToggle("Buckshot Buff",                 "​​​​​Spawn Buckshot (On)", true, 1);
     S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot ​Spawn Time (200)", 200, 5, 600, 2);
@@ -125,9 +127,11 @@ rule: "[Main] :: Initial Global"
     S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "​​​Buckshot Spread (Lower is Tighter) (1.45)", 1.45, 0.1, 20, 4);
     S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot Buff",             "​​​Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
 
-    s_spawn_buff[3] = WorkshopSettingToggle("Prism Buff",                    "​​Spawn Prism (On)", true, 1);
-    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "​Prism Spawn Time (180)", 180, 5, 600, 2);
-    S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism Buff",                    "​​​Prism Ammo (10)", 10, 1, 1000, 3);
+    s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "​​​​​Spawn Ballista (On)", true, 1);
+    S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (220)", 220, 5, 600, 2);
+    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
+    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
+    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
 
     if (!s_buffs_enabled)
         for (num i = 0; i < s_spawn_buff.Length; i++)
@@ -148,6 +152,7 @@ rule: "[Main] :: Initial Global"
     buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
     buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
     buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Daybreak", false, 13);
+    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Lightning", false, 14);
 
     if (s_dbg_fastspawn[0])
         for (num i = 0; i < S_BUFF_CD.Length; i++)
@@ -161,19 +166,6 @@ rule: "[Main] :: Initial Global"
 
     if (s_dbg_world)
     {
-        for (num i = 0; i < buff_pos.Length; i++)
-        {
-            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
-
-            Once(i), 
-            buff_cd[Once(i)],
-            Once(buff_pos[i]), 
-            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
-            Once(buff_pos[i]), 
-
-            1, Clipping.DoNotClip);
-        }
-
         CreateHudText(host, null, <" valid_map: <0>\nm_cd: <1>, recent mutator: <2>, m_rare: <3>\n", 
         valid_map,
         m_cd,
@@ -187,11 +179,23 @@ rule: "[Main] :: Initial Global"
         CreateHudText(host, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
         CreateHudText(host, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
         CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 7)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+
+        WaitUntil(valid_map, 10);
+        for (num i = 0; i < buff_pos.Length; i++)
+        {
+            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
+
+            Once(i), 
+            buff_cd[Once(i)],
+            Once(buff_pos[i]), 
+            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
+            Once(buff_pos[i]), 
+
+            1, Clipping.DoNotClip);
+        }
     }
 
     // ----------------------------------------------------------- //
-
-
 
     CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
     CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
@@ -229,13 +233,14 @@ Event.OnPlayerJoin
     DisallowButton(player, Button.Ability2);
 
     CreateEffect(bhopping ? all : null, Effect.Soldier76SprintingEffect, Color.White, player, 1);
+    bhop_speed = 100;
+
     charge_str = "○ ○ ○ ○ ○ ";
     sec_eyepos = Vector(-10000, -10000, -10000);
     sprk_eyepos = Vector(-10000, -10000, -10000);
     electro_eyepos1 = Vector(-10000, -10000, -10000);
     electro_eyepos2 = Vector(-10000, -10000, -10000);
     electro_eyepos3 = Vector(-10000, -10000, -10000);
-    bhop_speed = 100;
 
     // ----------------------- DEBUG STUFF ----------------------- //
     for (num i = 0; i < buff_debug.Length; i++)
@@ -259,7 +264,6 @@ Event.OnPlayerJoin
 
         >, null, Location.Right, 0.3);
     }
-
 
     // ----------------------------------------------------------- //
 }

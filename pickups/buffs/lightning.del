@@ -1,0 +1,52 @@
+import "../../main.del";
+import ".bmain.del";
+
+globalvar num li_pb;
+
+disabled rule: "---------------- Lightning ----------------"{}
+
+rule: "[Buff] :: Lightning : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[9])
+if (li_pb == 100)
+{
+    buff_i = 9;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Lightning : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[9]) 
+if (can_pickup_buff[9])
+if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+{
+    DisallowButton(player, Button.PrimaryFire);
+    buff_str = "Lightning";
+    buff_i = 9;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Lightning : Remove"
+Event.OngoingPlayer
+if (buff_enabled[9])
+if (buff_ammo[9] <= 0)
+{
+    LogToInspector(<"Lightning Disabled for <0>", player>);
+
+    // destroy hud timer and player effect
+    DestroyEffect(collected_buff_effect[9]);
+
+    buff_enabled[9] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Lightning : Action - Fire"
+Event.OngoingPlayer
+if (buff_enabled[9])
+if (IsPrimaryHeld())
+{
+    
+}

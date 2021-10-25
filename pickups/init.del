@@ -12,8 +12,9 @@ rule: "[Main] :: Pickup Init"
                 CustomColor(255, 50,  145, 255),  // 4
                 CustomColor(80,  185, 255, 255),  // 5
                 CustomColor(161, 73,  197, 255),  // 6
-                CustomColor(255, 255, 255, 255),  // 7
-                CustomColor(0,   230, 150, 255)]; // 8
+                CustomColor(200, 0,   19,  255),  // 7
+                CustomColor(0,   230, 150, 255),  // 8
+                CustomColor(236, 153, 0,   255)]; // 9
 
     // [0]: wallbang
     // [1]: ricochet
