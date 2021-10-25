@@ -80,7 +80,6 @@ if (IsFiringPrimary())
 {
     buff_ammo[2]--;
 
-    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     vec[] buckshot_hp = [];
     player[] buckshot_hp_player = [];
     any[] buckshot_beam = [];

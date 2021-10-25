@@ -75,7 +75,6 @@ if (IsFiringPrimary())
         sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), EnemyPlayers(), player);
     }
 
-    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, sprk_hit, color_arr[6], EffectRev.None);
     any spark_beam = LastCreatedEntity();
 

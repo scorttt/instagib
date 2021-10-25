@@ -61,7 +61,6 @@ if (IsFiringPrimary())
     any[] ricochet_effects = [];
     any ricochet_effect;
 
-    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     vec first_hp = RayCastHitPosition(eye_pos, eye_pos + facing * 100, AllLivingPlayers(), player, true);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, first_hp, color_arr[1], EffectRev.None);

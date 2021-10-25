@@ -63,9 +63,8 @@ if (buff_enabled[5])
 if (IsFiringPrimary())
 {
     electro_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
-    vec start_pos = weapon_muzzle(EyePosition(), Facing());
 
-    CreateBeamEffect(all, BeamType.BadBeam, start_pos, electro_hitpos, color_arr[5], EffectRev.None);
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, electro_hitpos, color_arr[5], EffectRev.None);
     electro_effect = LastCreatedEntity();
 
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_hitpos, S_ELECTRO_ESIZE);

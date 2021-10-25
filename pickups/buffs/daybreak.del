@@ -52,7 +52,6 @@ Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     vec dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hitpos, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, dayb_hitpos, color_arr[8], EffectRev.None);

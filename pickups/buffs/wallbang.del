@@ -59,7 +59,6 @@ if (IsFiringPrimary())
 
     any[] hp_player = [];
 
-    vec gun_pos = weapon_muzzle(EyePosition(), Facing());
     any offset = (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
     vec first_hp = RayCastHitPosition(eye_pos, eye_pos + Facing() * 100, AllLivingPlayers(), player, true);
 

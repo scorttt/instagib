@@ -28,6 +28,7 @@ globalvar bool match_started;
 playervar bool bhopping;
 playervar bool info;
 playervar bool pri_override;
+playervar vec gun_pos;
 
 globalvar bool s_dbg_player;
 globalvar bool s_dbg_world;
@@ -294,7 +295,7 @@ if (IsMeleeHeld())
         EnableTextChat(player);
 }
 
-rule: "[Main] :: Automatically Force McCree"
+rule: "[Main] :: Automatically Force Cassidy"
 Event.OngoingPlayer
 if (!HasSpawned())
 {
@@ -308,6 +309,13 @@ if (match_started)
 if (MatchTime() <= 0)
 {
     EnableCompletion();
+}
+
+rule: "[Main] :: Set Weapon Pos"
+Event.OngoingPlayer
+if (IsFiringPrimary())
+{
+    gun_pos = weapon_muzzle(EyePosition(), Facing());
 }
 
 rule: "[Main] :: Start Primary Override"
