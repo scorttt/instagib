@@ -60,7 +60,7 @@ if (IsFiringPrimary())
 {   
     if (!sprk_check)
     {
-        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
 
         player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_ESIZE && IsInLineOfSight(sprk_hit, Curr()));
         for (num i = 0; i < players.Length; i++)
@@ -72,7 +72,7 @@ if (IsFiringPrimary())
     }
     else
     {
-        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), EnemyPlayers(), player);
+        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), AllLivingPlayers(), player);
     }
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, sprk_hit, color_arr[6], EffectRev.None);
@@ -105,7 +105,7 @@ if (IsButtonHeld(player, Button.Reload))
     CreateEffect(all, Effect.Ring, color_arr[6], RayCastHitPosition(sprk_eyepos, sprk_eyepos + Down() * 100), 0.5);
     sprk_orb[3] = LastCreatedEntity();
 
-    ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, EnemyPlayers(), player), S_SPRK_PSPEED, RateChaseReevaluation.None);
+    ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player), S_SPRK_PSPEED, RateChaseReevaluation.None);
 
     WaitUntil(!sprk_inair, 9999);
     Wait(0.75);
@@ -114,7 +114,7 @@ if (IsButtonHeld(player, Button.Reload))
 
 rule: "[Buff] :: Spark : Action - Projectile Landed"
 Event.OngoingPlayer
-if (DistanceBetween(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, EnemyPlayers(), player)) < 0.1)
+if (DistanceBetween(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player)) < 0.1)
 {
     buff_ammo[6]--;
 

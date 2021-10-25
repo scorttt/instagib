@@ -52,7 +52,7 @@ Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    vec dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+    vec dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hitpos, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, dayb_hitpos, color_arr[8], EffectRev.None);
     any dayb_beam = LastCreatedEntity();
@@ -74,8 +74,8 @@ if (dayb_armed)
 
     dayb_active = true;
     dayb_armed = false;
-    dayb_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
-    dayb_norm = RayCastHitNormal(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+    dayb_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    dayb_norm = RayCastHitNormal(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     num ring_size = 0.5;
     vec mine_pos = dayb_hit + (dayb_norm * 3);
 

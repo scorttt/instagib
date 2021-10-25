@@ -45,7 +45,7 @@ Event.OngoingPlayer
 if (buff_enabled[3])
 if (IsFiringPrimary())
 {
-    vec prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, EnemyPlayers(), player);
+    vec prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, prism_hit, color_arr[3], EffectRev.None);
     any prism_beam = LastCreatedEntity();
