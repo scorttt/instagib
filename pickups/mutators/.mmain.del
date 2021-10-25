@@ -3,9 +3,10 @@ import "../../main.del";
 globalvar bool s_spawn_m;
 globalvar bool s_rand_mcd;
 globalvar num S_M_CD;
+globalvar num S_M_SPAWN;
 globalvar vec[] m_loc;
 globalvar num[] m_in;
-globalvar color m_color;
+globalvar color[] m_color;
 globalvar num m_choice;
 globalvar bool m_rare;
 globalvar vec m_pos;
@@ -50,47 +51,56 @@ if (m_rare || m_in.Length > 0)
         switch (m_choice)
         {
             case (0):
-                m_color = Color.SkyBlue;
+                m_color[0] = Color.SkyBlue;
+                m_color[1] = Color.White;
                 m_ico = AbilityIconString(Hero.Widowmaker, Button.Ultimate);
                 m_str = "Seer";
                 break;
             case (1):
-                m_color = Color.SkyBlue;
+                m_color[0] = Color.SkyBlue;
+                m_color[1] = Color.Blue;
                 m_ico = AbilityIconString(Hero.Echo, Button.Ultimate);
                 m_str = "Decoy";
                 break;
             case (2):
-                m_color = Color.SkyBlue;
+                m_color[0] = Color.SkyBlue;
+                m_color[1] = Color.Purple;
                 m_ico = AbilityIconString(Hero.Sombra, Button.Ability1);
                 m_str = "Stealth";
                 break;
             case (3):
-                m_color = Color.Red;
+                m_color[0] = Color.Red;
+                m_color[1] = Color.Black;
                 m_ico = IconString(Icon.Poison);
                 m_str = "Leech";
                 break;
             case (4):
-                m_color = Color.Red;
+                m_color[0] = Color.Red;
+                m_color[1] = Color.Orange;
                 m_ico = AbilityIconString(Hero.Reaper, Button.Ultimate);
                 m_str = "Berserk";
                 break;
             case (5):
-                m_color = Color.Red;
+                m_color[0] = Color.Red;
+                m_color[1] = Color.Violet;
                 m_ico = AbilityIconString(Hero.Moira, Button.SecondaryFire);
                 m_str = "Leech";
                 break;
             case (6):
-                m_color = Color.Purple;
+                m_color[0] = Color.Purple;
+                m_color[1] = Color.Violet;
                 m_ico = AbilityIconString(Hero.Baptiste, Button.Ability2);
                 m_str = "Denial";
                 break;
             case (7):
-                m_color = Color.Purple;
+                m_color[0] = Color.Purple;
+                m_color[1] = Color.White;
                 m_ico = AbilityIconString(Hero.Mercy, Button.Ultimate);
                 m_str = "Mobility";
                 break;
             case (8):
-                m_color = Color.Purple;
+                m_color[0] = Color.Purple;
+                m_color[1] = Color.Red;
                 m_ico = IconString(Icon.Skull);
                 m_str = "Karma";
                 break;
@@ -102,25 +112,26 @@ if (m_rare || m_in.Length > 0)
         m_rare = false;
         m_ico = AbilityIconString(Hero.Zenyatta, Button.Ultimate);
         m_str = "Empyrea";
-        m_color = Color.White;
+        m_color[0] = Color.White;
+        m_color[1] = Color.White;
     }
 
     mut_pb = 0;
-    ChaseVariableOverTime(mut_pb, 100, 15, TimeChaseReevaluation.DestinationAndDuration);
+    ChaseVariableOverTime(mut_pb, 100, S_M_SPAWN, TimeChaseReevaluation.DestinationAndDuration);
     WaitUntil(mut_pb == 100, 999999);
     StopChasingVariable(mut_pb);
 
     can_pickup_m = true;
 
     // ugly but it works
-    PlayEffect(all, PlayEffect.BadPickupEffect, m_color, m_pos, 1);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1.5, 0), 1);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 1, 0), 2);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, 0.5, 0), 3);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos, 3.5);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -0.5, 0), 3);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1, 0), 2);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color, m_pos + Vector(0, -1.5, 0), 1);
+    PlayEffect(all, PlayEffect.BadExplosion, m_color[1], m_pos, 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 1.5, 0), 1);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 1, 0), 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 0.5, 0), 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos, 3.5);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, -0.5, 0), 3);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, -1, 0), 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, -1.5, 0), 1);
 }
 
 rule: "[Mutator] :: Collect Mutator"
@@ -136,7 +147,7 @@ if (IsAlive())
     // has_mut = true;
     // m_enabled[m_choice] = true;
     StartMutatorTimer(); // todo: move this to the mutator removal rule when i stop being lazy and actually work on it
-    PlayEffect(all, PlayEffect.BadPickupEffect, m_color, m_pos, 1);
+    PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], m_pos, 1);
 
 }
 
