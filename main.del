@@ -103,33 +103,34 @@ rule: "[Main] :: Initial Global"
     S_SPRK_HIT_PESIZE = WorkshopSettingReal("Spark Buff",                    "Spark Hit Explosion Size (7)", 7, 1, 50, 6);
     S_SPRK_HITBOX_SIZE = WorkshopSettingReal("Spark Buff",                   "Spark Projectile Hitbox Size (0.45)", 0.45, 0.5, 10, 7);
 
-    s_spawn_buff[9] = WorkshopSettingToggle("Lightning Buff",                "​​​​​Spawn Lightning (On)", true, 1);
-    S_BUFF_CD[9] = WorkshopSettingInteger("Lightning Buff",                  "Lightning ​Spawn Time (165)", 165, 5, 600, 2);
-    S_BUFF_AMMO[9] = WorkshopSettingInteger("Lightning Buff",                "Lightning Ammo (140)", 140, 1, 10000, 3);
-
     s_spawn_buff[8] = WorkshopSettingToggle("Daybreak Buff",                 "​​​​​Spawn Daybreak (On)", true, 1);
     S_BUFF_CD[8] = WorkshopSettingInteger("Daybreak Buff",                   "Daybreak ​Spawn Time (125)", 125, 5, 600, 2);
     S_BUFF_AMMO[8] = WorkshopSettingInteger("Daybreak Buff",                 "Daybreak Ammo (10)", 10, 1, 1000, 3);
     S_DAYB_RADIUS = WorkshopSettingReal("Daybreak Buff",                     "Daybreak Explosion Radius (7)", 7, 1, 50, 4);
     S_DAYB_TIME = WorkshopSettingReal("Daybreak Buff",                       "Daybreak Explosion Time (0.75)", 0.75, 0.1, 5, 4);
 
+    s_spawn_buff[9] = WorkshopSettingToggle("Lightning Buff",                "​​​​​Spawn Lightning (On)", true, 1);
+    S_BUFF_CD[9] = WorkshopSettingInteger("Lightning Buff",                  "Lightning ​Spawn Time (165)", 165, 5, 600, 2);
+    S_BUFF_AMMO[9] = WorkshopSettingInteger("Lightning Buff",                "Lightning Ammo (220)", 220, 1, 10000, 3);
+    S_LI_DIST = WorkshopSettingReal("Lightning Buff",                        "Lightning Maximum Distance (20)", 20, 1, 100, 3);
+
     s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
-    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (185)", 185, 5, 600, 2);
+    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (195)", 195, 5, 600, 2);
     S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc Buff",                      "Arc Ammo (380)", 380, 1, 10000, 3);
     S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Arc Reflect Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
 
     s_spawn_buff[3] = WorkshopSettingToggle("Prism Buff",                    "​​Spawn Prism (On)", true, 1);
-    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "​Prism Spawn Time (185)", 185, 5, 600, 2);
+    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "​Prism Spawn Time (195)", 195, 5, 600, 2);
     S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism Buff",                    "​​​Prism Ammo (10)", 10, 1, 1000, 3);
 
     s_spawn_buff[2] = WorkshopSettingToggle("Buckshot Buff",                 "​​​​​Spawn Buckshot (On)", true, 1);
-    S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot ​Spawn Time (200)", 200, 5, 600, 2);
+    S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot ​Spawn Time (210)", 210, 5, 600, 2);
     S_BUFF_AMMO[2] = WorkshopSettingInteger("Buckshot Buff",                 "​​Buckshot Ammo (30)", 30, 1, 1000, 3);
     S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "​​​Buckshot Spread (Lower is Tighter) (1.45)", 1.45, 0.1, 20, 4);
     S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot Buff",             "​​​Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
 
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "​​​​​Spawn Ballista (On)", true, 1);
-    S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (220)", 220, 5, 600, 2);
+    S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
     S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
     S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
     S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
@@ -320,7 +321,7 @@ if (IsFiringPrimary())
 
 rule: "[Main] :: Start Primary Override"
 Event.OngoingPlayer
-if (buff_enabled[4] || buff_enabled[7])
+if (buff_enabled[4] || buff_enabled[7] || buff_enabled[9])
 {
     pri_override = true;
 }
@@ -329,6 +330,7 @@ rule: "[Main] :: Stop Primary Override"
 Event.OngoingPlayer
 if (!buff_enabled[4])
 if (!buff_enabled[7])
+if (!buff_enabled[9])
 {
     pri_override = false;
 }

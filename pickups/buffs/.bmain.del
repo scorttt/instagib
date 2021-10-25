@@ -199,7 +199,7 @@ if (IsInteractHeld())
 if (has_buff)
 {
     WaitIfTrue(1);
-    for (num i = 0; i < 9; i++) // this isnt the best way of doing this. oh well
+    for (num i = 0; i < 10; i++) // this isnt the best way of doing this. oh well, TODO: do this properly
     {
         DestroyEffect(collected_buff_effect[i]);
         buff_ammo[i] = 0;

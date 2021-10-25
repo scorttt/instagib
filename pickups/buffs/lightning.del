@@ -1,6 +1,7 @@
 import "../../main.del";
 import ".bmain.del";
 
+globalvar num S_LI_DIST;
 globalvar num li_pb;
 
 disabled rule: "---------------- Lightning ----------------"{}
@@ -48,5 +49,21 @@ Event.OngoingPlayer
 if (buff_enabled[9])
 if (IsPrimaryHeld())
 {
-    
+    CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player)), color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
+    any li_beam = LastCreatedEntity();
+
+    while (IsPrimaryHeld())
+    {
+        buff_ammo[9]--;
+        vec li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
+        player li_player = RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
+
+        if (DistanceBetween(EyePosition(), li_hit) < S_LI_DIST)
+            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[9], li_hit, 0.1);
+
+        Kill(li_player, player);
+        MinWait();
+    }
+
+    DestroyEffect(li_beam);
 }
