@@ -4,8 +4,6 @@ Instagib is a fast paced one-shot deathmatch that takes heavy inspiration from t
 
 - Buffs that heavily modify your weapon such as making your bullets bounce off of walls, shoot through walls, or turn into a shotgun.
 
----
-
 ## **Controls**
 
 - **Bunny Hopping:** Holding Jump while moving gives you the potential to gain insane amounts of speed
@@ -17,8 +15,6 @@ Instagib is a fast paced one-shot deathmatch that takes heavy inspiration from t
 - **Secondary Fire:** Non damaging projectile that displaces yourself and other players 
 
 - **Reload:** Alternate fire that some buffs use
-
----
 
 ## Buffs
 Various buffs are littered throughout the map that modify how your weapon fires
