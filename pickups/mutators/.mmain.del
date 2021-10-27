@@ -1,25 +1,25 @@
 import "../../main.del";
 
-globalvar bool s_spawn_m;
-globalvar bool s_rand_mcd;
-globalvar num S_M_CD;
-globalvar num S_M_SPAWN;
-globalvar vec[] m_loc;
-globalvar num[] m_in;
-globalvar color[] m_color;
-globalvar num m_choice;
-globalvar bool m_rare;
-globalvar vec m_pos;
-globalvar num mut_pb;
-globalvar bool can_pickup_m;
-globalvar bool m_in_timer;
-globalvar bool m_inworld;
-globalvar num m_cd;
-globalvar str m_ico;
-globalvar str m_str;
+globalvar Boolean s_spawn_m;
+globalvar Boolean s_rand_mcd;
+globalvar Number S_M_CD;
+globalvar Number S_M_SPAWN;
+globalvar Vector[] m_loc;
+globalvar Number[] m_in;
+globalvar Color[] m_color;
+globalvar Number m_choice;
+globalvar Boolean m_rare;
+globalvar Vector m_pos;
+globalvar Number mut_pb;
+globalvar Boolean can_pickup_m;
+globalvar Boolean m_in_timer;
+globalvar Boolean m_inworld;
+globalvar Number m_cd;
+globalvar String m_ico;
+globalvar String m_str;
 
-playervar bool has_mut;
-playervar bool[] m_enabled;
+playervar Boolean has_mut;
+playervar Boolean[] m_enabled;
 
 disabled rule: "---------------- Mutator ----------------"{}
 
@@ -36,15 +36,15 @@ if (m_rare || m_in.Length > 0)
     can_pickup_m = false;
 
     // get a random position from the m_pos array
-    vec chosen_m_pos = m_loc.Random(); 
+    Vector chosen_m_pos = m_loc.Random(); 
     m_pos = chosen_m_pos;
 
     // chance to spawn a rainbow mutator
-    num chance = RandomReal(0, 99);
+    Number chance = RandomReal(0, 99);
     if ((chance > 15 && m_in.Length > 0) || !m_rare) // if chance fails, spawn a normal mutator, otherwise spawn a rare mutator
     {
         // get a random mutator type and remove it
-        num chosen_mut = m_in.Random();
+        Number chosen_mut = m_in.Random();
         m_choice = chosen_mut;
         m_in -= chosen_mut; 
 
@@ -153,7 +153,7 @@ if (IsAlive())
 
 void StartMutatorTimer() "[Mutator] :: Set Mutator Time"
 {
-    num rand = RandomInteger(0, 60);
+    Number rand = RandomInteger(0, 60);
     if (s_rand_mcd)
         m_cd = S_M_CD + rand;
     else 

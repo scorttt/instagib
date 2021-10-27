@@ -1,12 +1,12 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num S_DAYB_RADIUS;
-globalvar num S_DAYB_TIME;
-playervar vec dayb_hit;
-playervar vec dayb_norm;
-playervar any[] dayb_effects;
-globalvar num dayb_pb;
+globalvar Number S_DAYB_RADIUS;
+globalvar Number S_DAYB_TIME;
+playervar Vector dayb_hit;
+playervar Vector dayb_norm;
+playervar Any[] dayb_effects;
+globalvar Number dayb_pb;
 
 disabled rule: "---------------- Daybreak ----------------"{}
 
@@ -52,10 +52,10 @@ Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    vec dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    Vector dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hitpos, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, dayb_hitpos, color_arr[8], EffectRev.None);
-    any dayb_beam = LastCreatedEntity();
+    Any dayb_beam = LastCreatedEntity();
 
     if (!dayb_active)
         dayb_armed = true;
@@ -64,8 +64,8 @@ if (IsFiringPrimary())
     DestroyEffect(dayb_beam);
 }
 
-playervar bool dayb_armed;
-playervar bool dayb_active;
+playervar Boolean dayb_armed;
+playervar Boolean dayb_active;
 rule: "[Buff] :: Daybreak Explosion Action"
 Event.OngoingPlayer
 if (dayb_armed)
@@ -76,8 +76,8 @@ if (dayb_armed)
     dayb_armed = false;
     dayb_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     dayb_norm = RayCastHitNormal(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
-    num ring_size = 0.5;
-    vec mine_pos = dayb_hit + (dayb_norm * 3);
+    Number ring_size = 0.5;
+    Vector mine_pos = dayb_hit + (dayb_norm * 3);
 
     CreateEffect(all, Effect.Orb, color_arr[8], dayb_hit, 1);
     dayb_effects[0] = LastCreatedEntity();
@@ -128,9 +128,9 @@ if (dayb_armed)
     ChaseVariableOverTime(dayb_hit, mine_pos, S_DAYB_TIME, TimeChaseReevaluation.None);
     ChaseVariableOverTime(ring_size, S_DAYB_RADIUS, S_DAYB_TIME, TimeChaseReevaluation.None);
 
-    num dist = 0;
-    vec pos_up;
-    vec pos_down;
+    Number dist = 0;
+    Vector pos_up;
+    Vector pos_down;
     CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Up() * 100), S_DAYB_RADIUS + 0.5, EffectRev.PositionAndRadius);
     dayb_effects[18] = LastCreatedEntity();
     CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Down() * 100), S_DAYB_RADIUS + 0.5, EffectRev.PositionAndRadius);
@@ -152,7 +152,7 @@ if (dayb_armed)
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hit, S_DAYB_RADIUS);
     dist = 0;
 
-    for (num i = 0; i < 35; i++)
+    for (Number i = 0; i < 35; i++)
     {
         dist += S_DAYB_RADIUS / 2;
 

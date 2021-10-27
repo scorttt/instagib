@@ -1,9 +1,8 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num S_NUM_WALLBANGS;
-globalvar num wallbang_pb;
-playervar any wallbang_effect;
+globalvar Number S_NUM_WALLBANGS;
+globalvar Number wallbang_pb;
 
 disabled rule: "---------------- Wallbang ----------------"{}
 
@@ -52,19 +51,19 @@ if (IsFiringPrimary())
 {
     buff_ammo[0]--;
     // DestroyEffect(dbg_eff);
+    Any wallbang_effect;
+    Vector eye_pos = EyePosition();
+    Vector[] hp = [];
+    Vector[] exit_hp = [];
 
-    vec eye_pos = EyePosition();
-    vec[] hp = [];
-    vec[] exit_hp = [];
+    Any[] hp_player = [];
 
-    any[] hp_player = [];
-
-    any offset = (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
-    vec first_hp = RayCastHitPosition(eye_pos, eye_pos + Facing() * 100, AllLivingPlayers(), player, true);
+    Any offset = (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
+    Vector first_hp = RayCastHitPosition(eye_pos, eye_pos + Facing() * 100, AllLivingPlayers(), player, true);
 
     if (DistanceBetween(eye_pos, first_hp) < 100)
     {
-        for (num i = 0; i < S_NUM_WALLBANGS + 1; i++)
+        for (Number i = 0; i < S_NUM_WALLBANGS + 1; i++)
         {
             if (i > 0)
                 eye_pos = hp[i - 1];

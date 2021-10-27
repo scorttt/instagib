@@ -21,9 +21,9 @@
     "Heroes": {
       "General": {
         "Enabled Heroes": [
-          "Mccree"
+          "Cassidy"
         ],
-        "Mccree": {
+        "Cassidy": {
           "Damage Dealt": 500,
           "Damage Received": 500,
           "No Ammunition Requirement": true,

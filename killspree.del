@@ -1,8 +1,8 @@
 import "main.del";
-playervar num life_kills;
-playervar any spree_hud;
-playervar color streak_color;
-playervar str streak_str;
+playervar Number life_kills;
+playervar Any spree_hud;
+playervar Color streak_color;
+playervar String streak_str;
 
 disabled rule: "---------------- Kill Spree ----------------"{}
 

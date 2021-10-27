@@ -1,10 +1,10 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num bal_pb;
-playervar num bal_chrg;
-globalvar num S_BAL_CRATE;
-globalvar num S_BAL_MAXSIZE;
+globalvar Number bal_pb;
+playervar Number bal_chrg;
+globalvar Number S_BAL_CRATE;
+globalvar Number S_BAL_MAXSIZE;
 
 disabled rule: "---------------- Ballista ----------------" {}
 

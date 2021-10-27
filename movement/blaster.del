@@ -1,12 +1,12 @@
 import "../main.del";
 
-globalvar num S_SEC_PSPEED;
-globalvar num S_SEC_RADIUS;
-globalvar bool s_sec_enabled;
-playervar vec sec_eyepos;
-playervar any sec_orb;
-playervar vec sec_rc_start;
-playervar vec sec_rc_end;
+globalvar Number S_SEC_PSPEED;
+globalvar Number S_SEC_RADIUS;
+globalvar Boolean s_sec_enabled;
+playervar Vector sec_eyepos;
+playervar Any sec_orb;
+playervar Vector sec_rc_start;
+playervar Vector sec_rc_end;
 disabled rule: "---------------- Secondary Fire ----------------"{}
 
 rule: "[Secondary Fire] :: Projectile"
@@ -43,9 +43,9 @@ if (DistanceBetween(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, Ene
     // sec_in_air = false;
     StopChasingVariable(sec_eyepos);
 
-    any[] players = FilteredArray(AllLivingPlayers(), DistanceBetween(Curr(), sec_eyepos) <= S_SEC_RADIUS);
+    Any[] players = FilteredArray(AllLivingPlayers(), DistanceBetween(Curr(), sec_eyepos) <= S_SEC_RADIUS);
 
-    for (num i = 0; i < players.Length; i++)
+    for (Number i = 0; i < players.Length; i++)
     {
         ApplyImpulse(players[i], DirectionTowards(sec_eyepos, players[i] + Vector(0, 2, 0)), 15, Relative.ToWorld, ContraryMotion.Incorporate);
     }

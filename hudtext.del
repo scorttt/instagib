@@ -1,16 +1,16 @@
 import "main.del";
 
 // would love to use an enum instead of a bunch of macros but for some reason it WONT LET ME BECAUSE OSTW HATES ME OR SOMETHING??????????????????????????? WHY
-num wallbang: 1;
-num ricochet: 2;
-num electro: 3;
-num spark: 4;
-num daybreak: 5;
-num lightning: 6;
-num arc: 7;
-num prism: 8;
-num buckshot: 9;
-num ballista: 10;
+Number wallbang: 1;
+Number ricochet: 2;
+Number electro: 3;
+Number spark: 4;
+Number daybreak: 5;
+Number lightning: 6;
+Number arc: 7;
+Number prism: 8;
+Number buckshot: 9;
+Number ballista: 10;
 
 
 rule: "[Main] :: HUD Text and Effects"
@@ -49,7 +49,7 @@ if (s_buffs_enabled)
             CreateEffect(wallbang_pb != 100 ? all : null, Effect.Sphere, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(wallbang_pb != 100 ? all : null, wallbang_pb, null, buff_pos[0] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[0], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(wallbang_pb != 100 ? all : null, wallbang_pb, null, buff_pos[0] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[0], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -80,7 +80,7 @@ if (s_buffs_enabled)
             CreateEffect(ricochet_pb != 100 ? all : null, Effect.Sphere, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(ricochet_pb != 100 ? all : null, ricochet_pb, null, buff_pos[1] + Vector(0, ricochet_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[1], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(ricochet_pb != 100 ? all : null, ricochet_pb, null, buff_pos[1] + Vector(0, ricochet_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[1], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -117,7 +117,7 @@ if (s_buffs_enabled)
             CreateEffect(buckshot_pb != 100 ? all : null, Effect.Sphere, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[2], buff_pos[2], buckshot_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(buckshot_pb != 100 ? all : null, buckshot_pb, null, buff_pos[2] + Vector(0, buckshot_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[2], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(buckshot_pb != 100 ? all : null, buckshot_pb, null, buff_pos[2] + Vector(0, buckshot_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[2], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -152,7 +152,7 @@ if (s_buffs_enabled)
             CreateEffect(prism_pb != 100 ? all : null, Effect.Sphere, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[3], buff_pos[3], prism_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(prism_pb != 100 ? all : null, prism_pb, null, buff_pos[3] + Vector(0, prism_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[3], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(prism_pb != 100 ? all : null, prism_pb, null, buff_pos[3] + Vector(0, prism_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[3], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -198,7 +198,7 @@ if (s_buffs_enabled)
             CreateEffect(bal_pb != 100 ? all : null, Effect.Sphere, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(bal_pb != 100 ? all : null, bal_pb, null, buff_pos[4] + Vector(0, bal_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[4], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(bal_pb != 100 ? all : null, bal_pb, null, buff_pos[4] + Vector(0, bal_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[4], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -235,7 +235,7 @@ if (s_buffs_enabled)
             CreateEffect(electro_pb != 100 ? all : null, Effect.Sphere, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(electro_pb != 100 ? all : null, electro_pb, null, buff_pos[5] + Vector(0, electro_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[5], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(electro_pb != 100 ? all : null, electro_pb, null, buff_pos[5] + Vector(0, electro_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[5], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -269,7 +269,7 @@ if (s_buffs_enabled)
             CreateEffect(sprk_pb != 100 ? all : null, Effect.Sphere, color_arr[6], buff_pos[6], sprk_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[6], buff_pos[6], sprk_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[6], buff_pos[6], sprk_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(sprk_pb != 100 ? all : null, sprk_pb, null, buff_pos[6] + Vector(0, sprk_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[6], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(sprk_pb != 100 ? all : null, sprk_pb, null, buff_pos[6] + Vector(0, sprk_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[6], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -300,7 +300,7 @@ if (s_buffs_enabled)
             CreateEffect(arc_pb != 100 ? all : null, Effect.Sphere, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[7], buff_pos[7], arc_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(arc_pb != 100 ? all : null, arc_pb, null, buff_pos[7] + Vector(0, arc_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[7], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(arc_pb != 100 ? all : null, arc_pb, null, buff_pos[7] + Vector(0, arc_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[7], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -331,7 +331,7 @@ if (s_buffs_enabled)
             CreateEffect(dayb_pb != 100 ? all : null, Effect.Sphere, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[8], buff_pos[8], dayb_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(dayb_pb != 100 ? all : null, dayb_pb, null, buff_pos[8] + Vector(0, dayb_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[8], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(dayb_pb != 100 ? all : null, dayb_pb, null, buff_pos[8] + Vector(0, dayb_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[8], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -362,7 +362,7 @@ if (s_buffs_enabled)
             CreateEffect(li_pb != 100 ? all : null, Effect.Sphere, color_arr[9], buff_pos[9], li_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.GoodAura, color_arr[9], buff_pos[9], li_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
             CreateEffect(all, Effect.Sparkles, color_arr[9], buff_pos[9], li_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-            CreateProgressBarInWorldText(li_pb != 100 ? all : null, li_pb, null, buff_pos[9] + Vector(0, li_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[9], Color.White, InWorldProgressBarEvaluation.VisibleToPositionAndValues);
+            CreateProgressBarInWorldText(li_pb != 100 ? all : null, li_pb, null, buff_pos[9] + Vector(0, li_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[9], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
         }
     }
 
@@ -372,7 +372,7 @@ if (s_buffs_enabled)
         CreateHudText(m_inworld ? all : null, mut_pb != 100 ? IconString(Icon.QuestionMark) : m_ico, null, mut_pb != 100 ? "Spawning.." : IconString(Icon.Checkmark), 
         Location.Left, 12, m_color[0], Color.White, Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
 
-        CreateProgressBarInWorldText(m_inworld && mut_pb != 100 ? all : null, mut_pb, null, m_pos + Vector(0, mut_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, m_color[0], Color.White, InWorldProgressBarEvaluation.VisibleToPositionValuesAndColor);
+        CreateProgressBarInWorldText(m_inworld && mut_pb != 100 ? all : null, mut_pb, null, m_pos + Vector(0, mut_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, m_color[0], Color.White, ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
         CreateInWorldText(m_inworld && mut_pb == 100 ? all : null, m_ico, m_pos + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToPositionAndString);
         CreateEffect(m_inworld && mut_pb == 100 ? all : null, Effect.BadAura, m_color[1], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
         CreateEffect(m_inworld && mut_pb != 100 ? all : null, Effect.Sphere, m_color[0], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);

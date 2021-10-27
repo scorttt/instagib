@@ -1,8 +1,8 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num arc_pb;
-globalvar num S_ARC_MOD;
+globalvar Number arc_pb;
+globalvar Number S_ARC_MOD;
 
 disabled rule: "---------------- Arc ----------------"{}
 

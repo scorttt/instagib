@@ -1,8 +1,8 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num ricochet_pb;
-globalvar num S_NUM_RICOCHETS;
+globalvar Number ricochet_pb;
+globalvar Number S_NUM_RICOCHETS;
 
 disabled rule: "---------------- Ricochet ----------------"{}
 
@@ -50,25 +50,25 @@ if (buff_ammo[1] > 0)
 if (IsFiringPrimary())
 {
     buff_ammo[1]--;
-    vec eye_pos = EyePosition();
-    vec facing = Facing();
-    vec[] normals = [];
-    vec[] hp = [];
-    vec[] hp_ricochets = [];
-    any[] hp_player = [];
-    any[] ricochets = [];
-    any[] hp_player_ricochets = [];
-    any[] ricochet_effects = [];
-    any ricochet_effect;
+    Vector eye_pos = EyePosition();
+    Vector facing = Facing();
+    Vector[] normals = [];
+    Vector[] hp = [];
+    Vector[] hp_ricochets = [];
+    Any[] hp_player = [];
+    Any[] ricochets = [];
+    Any[] hp_player_ricochets = [];
+    Any[] ricochet_effects = [];
+    Any ricochet_effect;
 
-    vec first_hp = RayCastHitPosition(eye_pos, eye_pos + facing * 100, AllLivingPlayers(), player, true);
+    Vector first_hp = RayCastHitPosition(eye_pos, eye_pos + facing * 100, AllLivingPlayers(), player, true);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, first_hp, color_arr[1], EffectRev.None);
     ricochet_effect = LastCreatedEntity();
 
     if (DistanceBetween(eye_pos, first_hp) < 100)
     {
-        for (num i = 0; i < S_NUM_RICOCHETS; i++)
+        for (Number i = 0; i < S_NUM_RICOCHETS; i++)
         {
             if (i > 0)
             {

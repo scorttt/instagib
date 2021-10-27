@@ -11,26 +11,26 @@ import "arc.del";
 import "daybreak.del";
 import "lightning.del";
 
-globalvar num[] S_BUFF_CD;
-globalvar num[] S_BUFF_AMMO;
-globalvar num[] buff_cd;
-globalvar bool[] buff_timer;
-globalvar bool[] s_spawn_buff;
-globalvar str[] buff_txt;
-globalvar bool s_buffs_enabled;
-globalvar bool s_rand_buff_pos;
-globalvar bool valid_map;
-globalvar vec[] buff_pos;
-globalvar bool s_cd_ip_timer;
-globalvar num buff_i;
-globalvar color buff_color;
-globalvar color[] color_arr;
-globalvar any[] collected_buff_effect;
-globalvar bool[] can_pickup_buff;
-playervar bool has_buff;
-playervar bool[] buff_enabled;
-playervar num[] buff_ammo;
-playervar str buff_str;
+globalvar Number[] S_BUFF_CD;
+globalvar Number[] S_BUFF_AMMO;
+globalvar Number[] buff_cd;
+globalvar Boolean[] buff_timer;
+globalvar Boolean[] s_spawn_buff;
+globalvar String[] buff_txt;
+globalvar Boolean s_buffs_enabled;
+globalvar Boolean s_rand_buff_pos;
+globalvar Boolean valid_map;
+globalvar Vector[] buff_pos;
+globalvar Boolean s_cd_ip_timer;
+globalvar Number buff_i;
+globalvar Color buff_color;
+globalvar Color[] color_arr;
+globalvar Any[] collected_buff_effect;
+globalvar Boolean[] can_pickup_buff;
+playervar Boolean has_buff;
+playervar Boolean[] buff_enabled;
+playervar Number[] buff_ammo;
+playervar String buff_str;
 
 disabled rule: "---------------- Buff ----------------"{}
 
@@ -198,8 +198,8 @@ Event.OngoingPlayer
 if (IsInteractHeld())
 if (has_buff)
 {
-    WaitIfTrue(1);
-    for (num i = 0; i < 10; i++) // this isnt the best way of doing this. oh well, TODO: do this properly
+    Wait(1, WaitBehavior.AbortWhenFalse);
+    for (Number i = 0; i < 10; i++) // this isnt the best way of doing this. oh well, TODO: do this properly
     {
         DestroyEffect(collected_buff_effect[i]);
         buff_ammo[i] = 0;

@@ -22,20 +22,20 @@ import "pickups/buffs/arc.del";
 import "pickups/buffs/daybreak.del";
 import "pickups/mutators/.mmain.del";
 
-globalvar num S_MATCH_TIME_LIMIT;
-globalvar num S_PICKUP_RAD;
-globalvar bool match_started;
-playervar bool bhopping;
-playervar bool info;
-playervar bool pri_override;
-playervar vec gun_pos;
+globalvar Number S_MATCH_TIME_LIMIT;
+globalvar Number S_PICKUP_RAD;
+globalvar Boolean match_started;
+playervar Boolean bhopping;
+playervar Boolean info;
+playervar Boolean pri_override;
+playervar Vector gun_pos;
 
-globalvar bool s_dbg_player;
-globalvar bool s_dbg_world;
-globalvar bool[] s_dbg_fastspawn;
-globalvar bool[] buff_debug;
+globalvar Boolean s_dbg_player;
+globalvar Boolean s_dbg_world;
+globalvar Boolean[] s_dbg_fastspawn;
+globalvar Boolean[] buff_debug;
 
-any weapon_muzzle(vec start_pos, vec dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
+Any weapon_muzzle(Vector start_pos, Vector dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
 
 disabled rule: "---------------- Main ----------------"{}
 
@@ -136,7 +136,7 @@ rule: "[Main] :: Initial Global"
     S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
 
     if (!s_buffs_enabled)
-        for (num i = 0; i < s_spawn_buff.Length; i++)
+        for (Number i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
 
     // ----------------------- DEBUG STUFF ----------------------- //
@@ -157,7 +157,7 @@ rule: "[Main] :: Initial Global"
     buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Lightning", false, 14);
 
     if (s_dbg_fastspawn[0])
-        for (num i = 0; i < S_BUFF_CD.Length; i++)
+        for (Number i = 0; i < S_BUFF_CD.Length; i++)
             S_BUFF_CD[i] = 5;
 
     if (s_dbg_fastspawn[1])
@@ -183,7 +183,7 @@ rule: "[Main] :: Initial Global"
         CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 7)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
 
         WaitUntil(valid_map, 10);
-        for (num i = 0; i < buff_pos.Length; i++)
+        for (Number i = 0; i < buff_pos.Length; i++)
         {
             CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
 
@@ -214,7 +214,7 @@ if (all_living.Length >= 1)
 
     if (valid_map && s_buffs_enabled)
     {
-        for (num i = 0; i < S_BUFF_CD.Length; i++)
+        for (Number i = 0; i < S_BUFF_CD.Length; i++)
         {
             buff_i = i;
             BuffCooldown();
@@ -245,7 +245,7 @@ Event.OnPlayerJoin
     electro_eyepos3 = Vector(-10000, -10000, -10000);
 
     // ----------------------- DEBUG STUFF ----------------------- //
-    for (num i = 0; i < buff_debug.Length; i++)
+    for (Number i = 0; i < buff_debug.Length; i++)
     {
         if (buff_debug[i])
         {
@@ -287,7 +287,7 @@ rule: "[Main] :: Info Toggle"
 Event.OngoingPlayer
 if (IsMeleeHeld())
 {
-    WaitIfTrue(0.5);
+    Wait(0.5, WaitBehavior.AbortWhenFalse);
 
     info = !info;
     if (info)
@@ -300,7 +300,7 @@ rule: "[Main] :: Automatically Force Cassidy"
 Event.OngoingPlayer
 if (!HasSpawned())
 {
-    ForcePlayerHero(player, Hero.Mccree);
+    ForcePlayerHero(player, Hero.Cassidy);
     Wait(1);
     LoopIfConditionIsTrue();
 }

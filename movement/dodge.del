@@ -1,9 +1,9 @@
 import "../main.del";
 
-globalvar num S_DODGE_FORCE;
-globalvar bool s_dodge_enabled;
-playervar vec throttle_of;
-playervar num dodges;
+globalvar Number S_DODGE_FORCE;
+globalvar Boolean s_dodge_enabled;
+playervar Vector throttle_of;
+playervar Number dodges;
 
 disabled rule: "---------------- Dodge ----------------"{}
 

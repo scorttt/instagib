@@ -28,7 +28,7 @@ rule: "[Main] :: Pickup Init"
     // [3]: prism
     // [4]: ballista
 
-    vec[] b_loc = [];
+    Vector[] b_loc = [];
     switch (true)
     {
         case (IsMap(Map.Workshop_Chamber) || IsMap(Map.Workshop_Expanse) || IsMap(Map.Workshop_Expanse_Night) || IsMap(Map.Workshop_Island) || IsMap(Map.Workshop_Island_Night)):
@@ -458,12 +458,12 @@ rule: "[Main] :: Pickup Init"
 
     if (valid_map)
     {
-        num b_len = b_loc.Length;
+        Number b_len = b_loc.Length;
         if (s_buffs_enabled)
         {
-            for (num i = 0; i < b_len; i++)
+            for (Number i = 0; i < b_len; i++)
             {
-                vec chosen_b_pos;
+                Vector chosen_b_pos;
 
                 if (s_rand_buff_pos)
                     chosen_b_pos = b_loc.Random(); 

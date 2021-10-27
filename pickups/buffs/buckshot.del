@@ -1,14 +1,14 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num buckshot_pb;
-globalvar num S_BUCKSHOT_SPREAD;
-globalvar num S_BUCKSHOT_CHARGE_SPD;
-globalvar str[] charge_arr;
-playervar num charge_lvl;
-playervar str charge_str;
-playervar str hascharge_str;
-playervar str nocharge_str;
+globalvar Number buckshot_pb;
+globalvar Number S_BUCKSHOT_SPREAD;
+globalvar Number S_BUCKSHOT_CHARGE_SPD;
+globalvar String[] charge_arr;
+playervar Number charge_lvl;
+playervar String charge_str;
+playervar String hascharge_str;
+playervar String nocharge_str;
 
 disabled rule: "---------------- Buckshot ----------------"{}
 
@@ -56,7 +56,7 @@ if (charge_lvl < 5)
 if (IsAlive())
 if (IsReloadHeld())
 {
-    WaitIfTrue(S_BUCKSHOT_CHARGE_SPD);
+    Wait(S_BUCKSHOT_CHARGE_SPD, WaitBehavior.AbortWhenFalse);
     PlayEffect(all, PlayEffect.GoodPickupEffect, color_arr[2], PositionOf(), 1);
     PlayEffect(player, PlayEffect.BuffImpactSound, Color.White, player, 50);
     charge_lvl++;
@@ -80,20 +80,20 @@ if (IsFiringPrimary())
 {
     buff_ammo[2]--;
 
-    vec[] buckshot_hp = [];
-    player[] buckshot_hp_player = [];
-    any[] buckshot_beam = [];
-    any center_beam;
+    Vector[] buckshot_hp = [];
+    Player[] buckshot_hp_player = [];
+    Any[] buckshot_beam = [];
+    Any center_beam;
 
-    num[] bs_spread;
+    Number[] bs_spread;
     bs_spread[0] = S_BUCKSHOT_SPREAD; // horizontal and verticle spread
     bs_spread[1] = PercSub(S_BUCKSHOT_SPREAD, 33); // diagonal spread
 
     // center
-    vec buckshot_center = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    Vector buckshot_center = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
 
-    num mult = 1;
-    for (num i = 0; i <= charge_lvl; i++)
+    Number mult = 1;
+    for (Number i = 0; i <= charge_lvl; i++)
     {
         // bottom left
         buckshot_hp[i][0] = RayCastHitPosition(EyePosition(), EyePosition() + 
@@ -186,7 +186,7 @@ if (IsFiringPrimary())
         mult++;
 
         // TODO: OPTIMIZE :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) 
-        for (num j = 0; j < 8; j++)
+        for (Number j = 0; j < 8; j++)
         {
             PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[i][j], 0.2);
 

@@ -1,10 +1,10 @@
 import "../main.del";
 
-globalvar num S_BHOP_MAX_SPEED;
-globalvar num S_BHOP_SPEED_RATE;
-globalvar bool s_bhop_enabled;
-playervar num bhop_speed;
-playervar bool is_chasing;
+globalvar Number S_BHOP_MAX_SPEED;
+globalvar Number S_BHOP_SPEED_RATE;
+globalvar Boolean s_bhop_enabled;
+playervar Number bhop_speed;
+playervar Boolean is_chasing;
 
 disabled rule: "---------------- Bhop ----------------"{}
 
@@ -69,6 +69,6 @@ Event.OngoingPlayer
 if (IsOnGround())
 if (bhop_speed > 100)
 {
-    WaitIfTrue(0.25);
+    Wait(0.25, WaitBehavior.AbortWhenFalse);
     ResetSpeed();
 }

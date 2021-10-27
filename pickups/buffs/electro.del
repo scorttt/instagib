@@ -1,23 +1,23 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar num electro_pb;
+globalvar Number electro_pb;
 
 // logic
-globalvar num S_ELECTRO_PSPEED;
-globalvar num S_ELECTRO_MESIZE;
-globalvar num S_ELECTRO_ESIZE;
-globalvar num S_ELECTRO_DELAY;
-playervar vec electro_eyepos1;
-playervar vec electro_eyepos2;
-playervar vec electro_eyepos3;
-playervar vec electro_m_hitpos;
-playervar vec electro_m_effect;
-playervar vec electro_hitpos;
-playervar any electro_effect;
-playervar bool mines_placed;
-playervar color mine_color;
-playervar num mine_det;
+globalvar Number S_ELECTRO_PSPEED;
+globalvar Number S_ELECTRO_MESIZE;
+globalvar Number S_ELECTRO_ESIZE;
+globalvar Number S_ELECTRO_DELAY;
+playervar Vector electro_eyepos1;
+playervar Vector electro_eyepos2;
+playervar Vector electro_eyepos3;
+playervar Vector electro_m_hitpos;
+playervar Vector electro_m_effect;
+playervar Vector electro_hitpos;
+playervar Any electro_effect;
+playervar Boolean mines_placed;
+playervar Color mine_color;
+playervar Number mine_det;
 
 disabled rule: "---------------- Electro ----------------"{}
 
@@ -69,8 +69,8 @@ if (IsFiringPrimary())
 
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_hitpos, S_ELECTRO_ESIZE);
 
-    player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), electro_hitpos) <= S_ELECTRO_ESIZE && IsInLineOfSight(electro_hitpos, Curr()));
-    for (num i = 0; i < players.Length; i++)
+    Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), electro_hitpos) <= S_ELECTRO_ESIZE && IsInLineOfSight(electro_hitpos, Curr()));
+    for (Number i = 0; i < players.Length; i++)
     {
         Kill(players[i], player);
     }
@@ -161,7 +161,7 @@ if (IsButtonHeld(player, Button.Reload))
     mines_placed = true;
     mine_color = color_arr[5];
 
-    for (num i = 0; i < 3; i++)
+    for (Number i = 0; i < 3; i++)
         PlayEffect(all, PlayEffect.GoodExplosion, mine_color, electro_m_hitpos[i], 0.1);
 
     mine_det = S_ELECTRO_DELAY;
@@ -174,11 +174,11 @@ void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Mines"
     mines_placed = false;
     StopChasingVariable(mine_det);
 
-    player[] players = [];
-    for (num i = 0; i < 3; i++)
+    Player[] players = [];
+    for (Number i = 0; i < 3; i++)
     {
         players[i] = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(Curr(), electro_m_hitpos[i]) && DistanceBetween(Curr(), electro_m_hitpos[i]) <= S_ELECTRO_MESIZE); // get players per mine
-        for (num j = 0; j < CountOf(players[i]); j++)
+        for (Number j = 0; j < CountOf(players[i]); j++)
         {
             Kill(players[i][j], player);
         }
@@ -203,6 +203,6 @@ rule: "[Buff] :: Electro : Action - Mines Idle"
 Event.OngoingPlayer
 if (mines_placed)
 {
-    WaitIfTrue(S_ELECTRO_DELAY);
+    Wait(S_ELECTRO_DELAY, WaitBehavior.AbortWhenFalse);
     ExplodeMine();
 }
