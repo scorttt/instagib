@@ -31,8 +31,11 @@ Various buffs are littered throughout the map that modify how your weapon fires
 - **Spark:** 
 	- Explosive shots, Press Reload to launch an explosive projectile that detonates with a large radius when shot
 
+- **Lightning:**
+	- Short range laser
+
 - **Arc:** 
-	- Reflective laser that bounces on surfaces decreasing in distance each bounce
+	- Laser that bounces on surfaces decreasing in distance each bounce
 
 - **Daybreak:** 
 	- Delayed cylinder shaped vertical explosion that ignores all surfaces
