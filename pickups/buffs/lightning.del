@@ -4,6 +4,8 @@ import ".bmain.del";
 globalvar Number S_LI_DIST;
 globalvar Number li_pb;
 
+playervar Any li_beam;
+
 disabled rule: "---------------- Lightning ----------------"{}
 
 rule: "[Buff] :: Lightning : Create Orb"
@@ -50,17 +52,20 @@ if (buff_enabled[9])
 if (IsPrimaryHeld())
 if (IsAlive())
 {
-    CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player)), color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
-    Any li_beam = LastCreatedEntity();
+    WaitIfTrue(0.03);
+    Vector li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
+    MinWait();
+    CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), li_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
+    li_beam = LastCreatedEntity();
 
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[9])
     {
         buff_ammo[9]--;
-        Vector li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
+        li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
         Player li_player = RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
 
         if (DistanceBetween(EyePosition(), li_hit) < S_LI_DIST)
-            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[9], li_hit, 0.1);
+            PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], li_hit, 0.1);
 
         Kill(li_player, player);
         MinWait();
