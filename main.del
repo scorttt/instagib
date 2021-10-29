@@ -1,7 +1,7 @@
 import "../overwatch-scripts/macros.del";
 // import "../overwatch-scripts/ruler.del";
-// import "settings.json";
-import "dbgsettings.json";
+import "settings.json";
+// import "dbgsettings.json";
 
 import "movement/bhop.del";
 import "movement/blaster.del";
@@ -112,7 +112,7 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[9] = WorkshopSettingToggle("Lightning Buff",                "​​​​​Spawn Lightning (On)", true, 1);
     S_BUFF_CD[9] = WorkshopSettingInteger("Lightning Buff",                  "Lightning ​Spawn Time (165)", 165, 5, 600, 2);
     S_BUFF_AMMO[9] = WorkshopSettingInteger("Lightning Buff",                "Lightning Ammo (220)", 220, 1, 10000, 3);
-    S_LI_DIST = WorkshopSettingReal("Lightning Buff",                        "Lightning Maximum Distance (20)", 20, 1, 100, 3);
+    S_LI_DIST = WorkshopSettingReal("Lightning Buff",                        "Lightning Maximum Distance (17.5)", 17.5, 1, 100, 3);
 
     s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
     S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (195)", 195, 5, 600, 2);
@@ -286,6 +286,7 @@ if (IsPrimaryHeld())
 rule: "[Main] :: Info Toggle"
 Event.OngoingPlayer
 if (IsMeleeHeld())
+if (valid_map)
 {
     WaitIfTrue(0.5);
 
