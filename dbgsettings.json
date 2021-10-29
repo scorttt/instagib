@@ -41,5 +41,6 @@
       "Explosion Sounds": true, 
       "Buff and Debuff Sounds": true
     },
-    "Description": "Instagib Debug Script"
+    "Mode Name": "Instagib",
+    "Description": "Debug Script"
   }

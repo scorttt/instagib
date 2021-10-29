@@ -203,6 +203,6 @@ rule: "[Buff] :: Electro : Action - Mines Idle"
 Event.OngoingPlayer
 if (mines_placed)
 {
-    Wait(S_ELECTRO_DELAY, WaitBehavior.AbortWhenFalse);
+    WaitIfTrue(S_ELECTRO_DELAY);
     ExplodeMine();
 }

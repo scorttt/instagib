@@ -69,6 +69,6 @@ Event.OngoingPlayer
 if (IsOnGround())
 if (bhop_speed > 100)
 {
-    Wait(0.25, WaitBehavior.AbortWhenFalse);
+    WaitIfTrue(0.25);
     ResetSpeed();
 }

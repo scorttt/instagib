@@ -1,5 +1,5 @@
 import "../overwatch-scripts/macros.del";
-import "../overwatch-scripts/ruler.del";
+// import "../overwatch-scripts/ruler.del";
 // import "settings.json";
 import "dbgsettings.json";
 
@@ -287,7 +287,7 @@ rule: "[Main] :: Info Toggle"
 Event.OngoingPlayer
 if (IsMeleeHeld())
 {
-    Wait(0.5, WaitBehavior.AbortWhenFalse);
+    WaitIfTrue(0.5);
 
     info = !info;
     if (info)

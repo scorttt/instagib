@@ -51,5 +51,6 @@
     "Explosion Sounds": true, 
     "Buff and Debuff Sounds": true
   },
-  "Description": "Instagib\nCode: APPPX\nCreated by scort#11221\nHold Melee in game for help\nv2.0 | 10/24/21"
+  "Mode Name": "Instagib",
+  "Description": "Code: APPPX\nCreated by scort#11221\nHold Melee in game for help\nv2.0 | 10/24/21"
 }

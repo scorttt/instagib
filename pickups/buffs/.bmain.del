@@ -198,7 +198,7 @@ Event.OngoingPlayer
 if (IsInteractHeld())
 if (has_buff)
 {
-    Wait(1, WaitBehavior.AbortWhenFalse);
+    WaitIfTrue(1);
     for (Number i = 0; i < 10; i++) // this isnt the best way of doing this. oh well, TODO: do this properly
     {
         DestroyEffect(collected_buff_effect[i]);
