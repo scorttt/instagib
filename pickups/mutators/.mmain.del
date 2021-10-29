@@ -125,6 +125,8 @@ if (m_rare || m_in.Length > 0)
 
     // ugly but it works
     PlayEffect(all, PlayEffect.BadExplosion, m_color[1], m_pos, 2);
+    PlayEffect(all, PlayEffect.BadExplosion, m_color[0], m_pos, 10);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Down(), 100);
     PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 1.5, 0), 1);
     PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 1, 0), 2);
     PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Vector(0, 0.5, 0), 3);
@@ -142,7 +144,7 @@ if (can_pickup_m)
 if (DistanceBetween(m_pos, PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 {
-    // can_pickup_m = false;
+    can_pickup_m = false;
     m_inworld = false;
     // has_mut = true;
     // m_enabled[m_choice] = true;
