@@ -93,6 +93,7 @@ Event.OngoingPlayer
 if (buff_enabled[5])
 if (!mines_placed)
 if (IsButtonHeld(player, Button.Reload))
+if (IsAlive())
 {
     mine_color = Color.Blue;
 

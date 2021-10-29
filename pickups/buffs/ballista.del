@@ -50,6 +50,7 @@ rule: "[Buff] :: Ballista : Action"
 Event.OngoingPlayer
 if (buff_enabled[4])
 if (IsPrimaryHeld())
+if (IsAlive())
 {
     bal_chrg = 0;
     ChaseVariableOverTime(bal_chrg, 110, S_BAL_CRATE, TimeChaseReevaluation.None);

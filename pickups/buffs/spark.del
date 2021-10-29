@@ -86,6 +86,7 @@ rule: "[Buff] :: Spark : Action - Launch Projectile"
 Event.OngoingPlayer
 if (buff_enabled[6])
 if (IsButtonHeld(player, Button.Reload))
+if (IsAlive())
 {
     sprk_inair = true;
     sprk_rc_start = EyePosition();
