@@ -52,7 +52,7 @@ if (buff_enabled[9])
 if (IsPrimaryHeld())
 if (IsAlive())
 {
-    WaitIfTrue(0.03);
+    WaitIfTrue(0.03); // brief hold
     Vector li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
     MinWait();
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), li_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
