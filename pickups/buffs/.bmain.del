@@ -30,16 +30,18 @@ globalvar Boolean[] can_pickup_buff;
 playervar Boolean has_buff;
 playervar Boolean[] buff_enabled;
 playervar Number[] buff_ammo;
+playervar Number buff_t;
 playervar String buff_str;
 
 disabled rule: "---------------- Buff ----------------"{}
 
 void CollectBuff() playervar "[Buff] :: Buff Collection"
 {
+    buff_t = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
     BigMessage(player, buff_str);
-    LogToInspector(<"<0> Enabled for <1>", buff_str, player>);
+    LogToInspector(<"<0> given to <1>", buff_str, player>);
 
     if (!has_buff)
     {
@@ -199,17 +201,15 @@ if (IsInteractHeld())
 if (has_buff)
 {
     WaitIfTrue(1);
-    for (Number i = 0; i < 10; i++) // this isnt the best way of doing this. oh well, TODO: do this properly
-    {
-        DestroyEffect(collected_buff_effect[i]);
-        buff_ammo[i] = 0;
-        buff_enabled[i] = false;
-    }
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[buff_t], PositionOf() + WorldVectorOf(Vector(0, 1, 1), player), 1);
+    DestroyEffect(collected_buff_effect[buff_t]);
+    buff_ammo[buff_t] = 0;
+    buff_enabled[buff_t] = false;
 
     has_buff = false;
-    PlayEffect(all, PlayEffect.BadPickupEffect, Color.White, PositionOf() + Vector(0, 1, 0.3), 1);
+    buff_t = -1;
 }
-
 
 // buff_timer: bool
 // buff_cd: integer
