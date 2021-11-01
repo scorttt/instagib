@@ -47,7 +47,7 @@ rule: "[Main] :: Initial Global"
 
     CreateHudText(all, null, MatchTime() % 60 >= 10 
                              ? <"<0>:<1>",  Floor(MatchTime() / 60), Floor(MatchTime() % 60)> 
-                             : <"<0>:0<1>", Floor(MatchTime() / 60), Floor(MatchTime() % 60)>, " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", Location.Top, 0.2);
+                             : <"<0>:0<1>", Floor(MatchTime() / 60), Floor(MatchTime() % 60)>, " \n\n\n\n\n\n", Location.Top, 0.2);
 
     SetMatchTime(1);
 
@@ -250,6 +250,7 @@ Event.OnPlayerJoin
         if (buff_debug[i])
         {
             has_buff = true;
+            buff_t = i; // if multiple buffs are given this will break manual buff removal
             buff_enabled[i] = true;
             buff_ammo[i] = 999999;
         }
