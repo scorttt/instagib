@@ -85,7 +85,7 @@ if (IsFiringPrimary())
             if (DistanceBetween(hp[i], eye_pos) > 99) // i do not like this
                 break;
 
-            if (hp_player[i] != null && hp_player[i] != player)
+            // if (hp_player[i] != null/*  && hp_player[i] != player */)
                 Kill(hp_player[i], player);
 
             PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.2);

@@ -18,7 +18,7 @@ if (IsAlive())
     sec_rc_start = EyePosition();
     sec_rc_end = EyePosition() + Facing() * 100;
 
-    PlayEffect(all, PlayEffect.RingExplosionSound, Color.White, player, 50);
+    PlayEffect(all, PlayEffect.RingExplosionSound, null, player, 50);
 
     DestroyEffect(sec_orb[0]);
     DestroyEffect(sec_orb[1]);

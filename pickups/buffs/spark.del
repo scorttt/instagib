@@ -91,7 +91,7 @@ if (IsAlive())
     sprk_inair = true;
     sprk_rc_start = EyePosition();
     sprk_rc_end = EyePosition() + Facing() * 100;
-    PlayEffect(all, PlayEffect.RingExplosionSound, Color.White, player, 50);
+    PlayEffect(all, PlayEffect.RingExplosionSound, null, player, 50);
 
     DestroyEffect(sprk_orb);
 

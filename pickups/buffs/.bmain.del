@@ -59,7 +59,7 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
 
     // pickup effects
     PlayEffect(all, PlayEffect.GoodPickupEffect, buff_color, buff_pos[buff_i], 1);
-    PlayEffect(all, PlayEffect.BuffExplosionSound, buff_color, buff_pos[buff_i], 200);
+    PlayEffect(all, PlayEffect.BuffExplosionSound, null, buff_pos[buff_i], 200);
 
     buff_cd[buff_i] = S_BUFF_CD[buff_i];
     BuffCooldown();

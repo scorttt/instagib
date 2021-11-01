@@ -58,7 +58,7 @@ if (IsReloadHeld())
 {
     WaitIfTrue(S_BUCKSHOT_CHARGE_SPD);
     PlayEffect(all, PlayEffect.GoodPickupEffect, color_arr[2], PositionOf(), 1);
-    PlayEffect(player, PlayEffect.BuffImpactSound, Color.White, player, 50);
+    PlayEffect(player, PlayEffect.BuffImpactSound, null, player, 50);
     charge_lvl++;
     
     buff_ammo[2]--;

@@ -4,7 +4,7 @@ import ".bmain.del";
 globalvar Number S_LI_DIST;
 globalvar Number li_pb;
 
-playervar Any li_beam;
+playervar Any[] li_effects;
 
 disabled rule: "---------------- Lightning ----------------"{}
 
@@ -55,8 +55,13 @@ if (IsAlive())
     WaitIfTrue(0.03); // brief hold
     Vector li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
     MinWait();
+
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), li_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
-    li_beam = LastCreatedEntity();
+    li_effects[0] = LastCreatedEntity();
+    CreateEffect(all, Effect.WinstonTeslaCannonSound, null, player, 100);
+    li_effects[1] = LastCreatedEntity();
+    CreateEffect(all, Effect.OmnicSlicerBeamSound, null, player, 100);
+    li_effects[2] = LastCreatedEntity();
 
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[9])
     {
@@ -71,5 +76,5 @@ if (IsAlive())
         MinWait();
     }
 
-    DestroyEffect(li_beam);
+    DestroyEffect(li_effects);
 }
