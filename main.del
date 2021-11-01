@@ -90,7 +90,7 @@ rule: "[Main] :: Initial Global"
     S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro ​Spawn Time (100)", 100, 5, 600, 2);
     S_BUFF_AMMO[5] = WorkshopSettingInteger("Electro Buff",                  "Electro Ammo (16)", 16, 1, 1000, 3);
     S_ELECTRO_ESIZE = WorkshopSettingReal("Electro Buff",                    "Electro Primary Explosion Size (1.5)", 1.5, 1, 500, 4);
-    S_ELECTRO_MESIZE = WorkshopSettingReal("Electro Buff",                   "Electro Mine Explosion Size (7.5)", 7.5, 1, 500, 5);
+    S_ELECTRO_MESIZE = WorkshopSettingReal("Electro Buff",                   "Electro Mine Explosion Size (6.5)", 6.5, 1, 500, 5);
     S_ELECTRO_DELAY = WorkshopSettingReal("Electro Buff",                    "Electro Mine Idle Explosion Time (5)", 5, 1, 500, 6);
     S_ELECTRO_PSPEED = WorkshopSettingReal("Electro Buff",                   "Electro Mine Projectile Speed (70)", 70, 1, 500, 7);
 
