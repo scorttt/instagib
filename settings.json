@@ -46,7 +46,9 @@
   "Extensions": {
     "Play More Effects": true,
     "Beam Effects": true,
+    "Beam Sounds": true,
     "Buff Status Effects": true,
+    "Debuff Status Effects": true,
     "Energy Explosion Effects": true,
     "Explosion Sounds": true, 
     "Buff and Debuff Sounds": true
