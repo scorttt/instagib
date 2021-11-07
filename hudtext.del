@@ -1,16 +1,18 @@
 import "main.del";
 
-// would love to use an enum instead of a bunch of macros but for some reason it WONT LET ME BECAUSE OSTW HATES ME OR SOMETHING??????????????????????????? WHY
-Number wallbang: 1;
-Number ricochet: 2;
-Number electro: 3;
-Number spark: 4;
-Number daybreak: 5;
-Number lightning: 6;
-Number arc: 7;
-Number prism: 8;
-Number buckshot: 9;
-Number ballista: 10;
+class Sorting 
+{
+  public static Number wallbang:    1;
+  public static Number ricochet:    2;
+  public static Number electro:     3;
+  public static Number spark:       4;
+  public static Number daybreak:    5;
+  public static Number lightning:   6;
+  public static Number arc:         7;
+  public static Number prism:       8;
+  public static Number buckshot:    9; 
+  public static Number ballista:    10;
+}
 
 
 rule: "[Main] :: HUD Text and Effects"
@@ -29,16 +31,16 @@ if (s_buffs_enabled)
         <"Wallbang  |  <0>", wallbang_pb != 100 
                                 ? buff_txt[0] 
                                 : IconString(Icon.Checkmark)>, 
-        "Pierce through surfaces", Location.Left, wallbang, color_arr[0], color_arr[0]);
+        "Pierce through surfaces", Location.Left, Sorting.wallbang, color_arr[0], color_arr[0]);
 
         CreateHudText(local.buff_enabled[0] ? local : null, null, null, 
         <" <0> Wallbang Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Baptiste, Button.Ultimate), local.buff_ammo[0], S_BUFF_AMMO[0]>, 
+        AbilityIconString(Hero.Baptiste, Button.Ultimate), local.buff_ammo[0], local.max_ammo[0]>, 
         Location.Top, 1, TextColor: color_arr[0]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Baptiste, Button.Ultimate), null,
         wallbang_pb != 100 ? buff_txt[0] : IconString(Icon.Checkmark),
-        Location.Left, wallbang, color_arr[0], color_arr[0]);
+        Location.Left, Sorting.wallbang, color_arr[0], color_arr[0]);
 
         CreateEffect(wallbang_pb == 100 ? all : null, Effect.Orb, color_arr[0], buff_pos[0], 2, EffectRev.VisibleTo);
         CreateInWorldText(wallbang_pb == 100 ? all : null, AbilityIconString(Hero.Baptiste, Button.Ultimate), buff_pos[0] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -60,16 +62,16 @@ if (s_buffs_enabled)
         <"Ricochet  |  <0>", ricochet_pb != 100 
                                 ? buff_txt[1] 
                                 : IconString(Icon.Checkmark)>, 
-        "Ricochets off surfaces", Location.Left, ricochet, color_arr[1], color_arr[1]);
+        "Ricochets off surfaces", Location.Left, Sorting.ricochet, color_arr[1], color_arr[1]);
 
         CreateHudText(local.buff_enabled[1] ? local : null, null, null, 
         <" <0> Ricochet Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Winston, Button.Ability1), local.buff_ammo[1], S_BUFF_AMMO[1]>, 
+        AbilityIconString(Hero.Winston, Button.Ability1), local.buff_ammo[1], local.max_ammo[1]>, 
         Location.Top, 1, TextColor: color_arr[1]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Winston, Button.Ability1), null,
         ricochet_pb != 100 ? buff_txt[1] : IconString(Icon.Checkmark),
-        Location.Left, ricochet, color_arr[1], color_arr[1]);
+        Location.Left, Sorting.ricochet, color_arr[1], color_arr[1]);
 
         CreateEffect(ricochet_pb == 100 ? all : null, Effect.Orb, color_arr[1], buff_pos[1], 2, EffectRev.VisibleTo);
         CreateInWorldText(ricochet_pb == 100 ? all : null, AbilityIconString(Hero.Winston, Button.Ability1), buff_pos[1] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -91,11 +93,11 @@ if (s_buffs_enabled)
         <"Buckshot  |  <0>", buckshot_pb != 100 
                                 ? buff_txt[2] 
                                 : IconString(Icon.Checkmark)>, 
-        <"Shotgun that fires in a large spread, Hold <0> to charge your shots for more bullets", InputBindingString(Button.Reload)>, Location.Left, buckshot, color_arr[2], color_arr[2]);
+        <"Shotgun that fires in a large spread, Hold <0> to charge your shots for more bullets", InputBindingString(Button.Reload)>, Location.Left, Sorting.buckshot, color_arr[2], color_arr[2]);
 
         CreateHudText(local.buff_enabled[2] ? local : null, null, null, 
         <" <0> Buckshot Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Ashe, Button.Ability1), local.buff_ammo[2], S_BUFF_AMMO[2]>, 
+        AbilityIconString(Hero.Ashe, Button.Ability1), local.buff_ammo[2], local.max_ammo[2]>, 
         Location.Top, 1, TextColor: color_arr[2]);
         CreateHudText(local.buff_enabled[2] ? local : null, null, null, 
         <" Hold <0> to charge shots", InputBindingString(Button.Reload)>, 
@@ -106,7 +108,7 @@ if (s_buffs_enabled)
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Ashe, Button.Ability1), null,
         buckshot_pb != 100 ? buff_txt[2] : IconString(Icon.Checkmark),
-        Location.Left, buckshot, color_arr[2], color_arr[2]);
+        Location.Left, Sorting.buckshot, color_arr[2], color_arr[2]);
 
         CreateEffect(buckshot_pb == 100 ? all : null, Effect.Orb, color_arr[2], buff_pos[2], 2, EffectRev.VisibleTo);
         CreateInWorldText(buckshot_pb == 100 ? all : null, AbilityIconString(Hero.Ashe, Button.Ability1), buff_pos[2] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -128,11 +130,11 @@ if (s_buffs_enabled)
         <"Prism  |  <0>", prism_pb != 100 
                             ? buff_txt[3] 
                             : IconString(Icon.Checkmark)>, 
-        <"Shotgun that bounces off surfaces, Press <0> to launch a projectile that kills any enemies in view of the projectile once shot", InputBindingString(Button.Reload)>, Location.Left, prism, color_arr[3], color_arr[3]);
+        <"Shotgun that bounces off surfaces, Press <0> to launch a projectile that kills any enemies in view of the projectile once shot", InputBindingString(Button.Reload)>, Location.Left, Sorting.prism, color_arr[3], color_arr[3]);
 
         CreateHudText(local.buff_enabled[3] ? local : null, null, null,
         <" <0> Prism Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Moira, Button.Ultimate), local.buff_ammo[3], S_BUFF_AMMO[3]>, 
+        AbilityIconString(Hero.Moira, Button.Ultimate), local.buff_ammo[3], local.max_ammo[3]>, 
         Location.Top, 1, TextColor: color_arr[3]);
 
         CreateHudText(local.buff_enabled[3] ? local : null, null, null,
@@ -141,7 +143,7 @@ if (s_buffs_enabled)
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Moira, Button.Ultimate), null,
         prism_pb != 100 ? buff_txt[3] : IconString(Icon.Checkmark),
-        Location.Left, prism, color_arr[3], color_arr[3]);
+        Location.Left, Sorting.prism, color_arr[3], color_arr[3]);
 
         CreateEffect(prism_pb == 100 ? all : null, Effect.Orb, color_arr[3], buff_pos[3], 2, EffectRev.VisibleTo);
         CreateInWorldText(prism_pb == 100 ? all : null, AbilityIconString(Hero.Moira, Button.Ultimate), buff_pos[3] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -163,11 +165,11 @@ if (s_buffs_enabled)
         <"Ballista  |  <0>", bal_pb != 100 
                                 ? buff_txt[4] 
                                 : IconString(Icon.Checkmark)>, 
-        <"Large laser that goes through everything in front and behind the player, charge shots with <0> and release to fire",  InputBindingString(Button.PrimaryFire)>, Location.Left, ballista, color_arr[4], color_arr[4]);
+        <"Large laser that goes through everything in front and behind the player, charge shots with <0> and release to fire",  InputBindingString(Button.PrimaryFire)>, Location.Left, Sorting.ballista, color_arr[4], color_arr[4]);
 
         CreateHudText(local.buff_enabled[4] ? local : null, null, null,
         <" <0> Ballista Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Symmetra, Button.Ultimate), local.buff_ammo[4], S_BUFF_AMMO[4]>, 
+        AbilityIconString(Hero.Symmetra, Button.Ultimate), local.buff_ammo[4], local.max_ammo[4]>, 
         Location.Top, 1, TextColor: color_arr[4]);
 
         // really ugly. dont care!
@@ -187,7 +189,7 @@ if (s_buffs_enabled)
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Symmetra, Button.Ultimate), null,
         bal_pb != 100 ? buff_txt[4] : IconString(Icon.Checkmark),
-        Location.Left, ballista, color_arr[4], color_arr[4]);
+        Location.Left, Sorting.ballista, color_arr[4], color_arr[4]);
 
         CreateEffect(bal_pb == 100 ? all : null, Effect.Orb, color_arr[4], buff_pos[4], 2, EffectRev.VisibleTo);
         CreateInWorldText(bal_pb == 100 ? all : null, AbilityIconString(Hero.Symmetra, Button.Ultimate), buff_pos[4] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -209,11 +211,11 @@ if (s_buffs_enabled)
         <"Electro  |  <0>", electro_pb != 100 
                                 ? buff_txt[5] 
                                 : IconString(Icon.Checkmark)>, 
-        <"Explosive shots, Press <0> to launch 3 explosive projectiles that detonate when shot", InputBindingString(Button.Reload)>, Location.Left, electro, color_arr[5], color_arr[5]);
+        <"Explosive shots, Press <0> to launch 3 explosive projectiles that detonate when shot", InputBindingString(Button.Reload)>, Location.Left, Sorting.electro, color_arr[5], color_arr[5]);
 
         CreateHudText(local.buff_enabled[5] ? local : null, null, null, 
         <" <0> Electro Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Echo, Button.SecondaryFire), local.buff_ammo[5], S_BUFF_AMMO[5]>,
+        AbilityIconString(Hero.Echo, Button.SecondaryFire), local.buff_ammo[5], local.max_ammo[5]>,
         Location.Top, 1, TextColor: color_arr[5]);
         CreateHudText(local.buff_enabled[5] ? local : null, null, null, 
         <" Press <0> for alternate fire", InputBindingString(Button.Reload)>,
@@ -224,7 +226,7 @@ if (s_buffs_enabled)
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Echo, Button.SecondaryFire), null,
         electro_pb != 100 ? buff_txt[5] : IconString(Icon.Checkmark),
-        Location.Left, electro, color_arr[5], color_arr[5]);
+        Location.Left, Sorting.electro, color_arr[5], color_arr[5]);
 
         CreateEffect(electro_pb == 100 ? all : null, Effect.Orb, color_arr[5], buff_pos[5], 2, EffectRev.VisibleTo);
         CreateInWorldText(electro_pb == 100 ? all : null, AbilityIconString(Hero.Echo, Button.SecondaryFire), buff_pos[5] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -246,11 +248,11 @@ if (s_buffs_enabled)
         <"Spark  |  <0>", sprk_pb != 100 
                             ? buff_txt[6] 
                             : IconString(Icon.Checkmark)>, 
-        <"Explosive shots, Press <0> to launch an explosive projectile that detonates with a large radius when shot", InputBindingString(Button.Reload)>, Location.Left, spark, color_arr[6], color_arr[6]);
+        <"Explosive shots, Press <0> to launch an explosive projectile that detonates with a large radius when shot", InputBindingString(Button.Reload)>, Location.Left, Sorting.spark, color_arr[6], color_arr[6]);
 
         CreateHudText(local.buff_enabled[6] ? local : null, null, null,
         <" <0> Spark Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Sigma, Button.Ability1), local.buff_ammo[6], S_BUFF_AMMO[6]>,
+        AbilityIconString(Hero.Sigma, Button.Ability1), local.buff_ammo[6], local.max_ammo[6]>,
         Location.Top, 1, TextColor: color_arr[6]);
         CreateHudText(local.buff_enabled[6] ? local : null, null, null,
         <" Press <0> for alternate fire", InputBindingString(Button.Reload)>, 
@@ -258,7 +260,7 @@ if (s_buffs_enabled)
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Sigma, Button.Ability1), null,
         sprk_pb != 100 ? buff_txt[6] : IconString(Icon.Checkmark),
-        Location.Left, spark, color_arr[6], color_arr[6]);
+        Location.Left, Sorting.spark, color_arr[6], color_arr[6]);
 
         CreateEffect(sprk_pb == 100 ? all : null, Effect.Orb, color_arr[6], buff_pos[6], 2, EffectRev.VisibleTo);
         CreateInWorldText(sprk_pb == 100 ? all : null, AbilityIconString(Hero.Sigma, Button.Ability1), buff_pos[6] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -280,16 +282,16 @@ if (s_buffs_enabled)
         <"Arc  |  <0>", arc_pb != 100 
                                 ? buff_txt[7] 
                                 : IconString(Icon.Checkmark)>, 
-        "Reflective laser that bounces on surfaces decreasing in distance each bounce", Location.Left, arc, color_arr[7], color_arr[7]);
+        "Reflective laser that bounces on surfaces decreasing in distance each bounce", Location.Left, Sorting.arc, color_arr[7], color_arr[7]);
 
         CreateHudText(local.buff_enabled[7] ? local : null, null, null, 
         <" <0> Arc Ammo: <1> / <2>", 
-        AbilityIconString(Hero.Echo, Button.Ability2), local.buff_ammo[7], S_BUFF_AMMO[7]>, 
+        AbilityIconString(Hero.Echo, Button.Ability2), local.buff_ammo[7], local.max_ammo[7]>, 
         Location.Top, 1, TextColor: color_arr[7]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Echo, Button.Ability2), null,
         arc_pb != 100 ? buff_txt[7] : IconString(Icon.Checkmark),
-        Location.Left, arc, color_arr[7], color_arr[7]);
+        Location.Left, Sorting.arc, color_arr[7], color_arr[7]);
 
         CreateEffect(arc_pb == 100 ? all : null, Effect.Orb, color_arr[7], buff_pos[7], 2, EffectRev.VisibleTo);
         CreateInWorldText(arc_pb == 100 ? all : null, AbilityIconString(Hero.Echo, Button.Ability2), buff_pos[7] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -311,16 +313,16 @@ if (s_buffs_enabled)
         <"Daybreak  |  <0>", dayb_pb != 100 
                                 ? buff_txt[8] 
                                 : IconString(Icon.Checkmark)>,
-        "Delayed cylinder shaped explosion that ignores surfaces", Location.Left, daybreak, color_arr[8], color_arr[8]);
+        "Delayed cylinder shaped explosion that ignores surfaces", Location.Left, Sorting.daybreak, color_arr[8], color_arr[8]);
 
         CreateHudText(local.buff_enabled[8] ? local : null, null, null, 
         <" <0> Daybreak Ammo: <1> / <2>", 
-        AbilityIconString(Hero.WreckingBall, Button.Ability2), local.buff_ammo[8], S_BUFF_AMMO[8]>, 
+        AbilityIconString(Hero.WreckingBall, Button.Ability2), local.buff_ammo[8], local.max_ammo[8]>, 
         Location.Top, 1, TextColor: color_arr[8]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.WreckingBall, Button.Ability2), null,
         dayb_pb != 100 ? buff_txt[8] : IconString(Icon.Checkmark),
-        Location.Left, daybreak, color_arr[8], color_arr[8]);
+        Location.Left, Sorting.daybreak, color_arr[8], color_arr[8]);
 
         CreateEffect(dayb_pb == 100 ? all : null, Effect.Orb, color_arr[8], buff_pos[8], 2, EffectRev.VisibleTo);
         CreateInWorldText(dayb_pb == 100 ? all : null, AbilityIconString(Hero.WreckingBall, Button.Ability2), buff_pos[8] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
@@ -342,16 +344,16 @@ if (s_buffs_enabled)
         <"Lightning  |  <0>", li_pb != 100 
                                 ? buff_txt[9] 
                                 : IconString(Icon.Checkmark)>,
-        "Short range consistent laser", Location.Left, lightning, color_arr[9], color_arr[9]);
+        "Short range consistent laser", Location.Left, Sorting.lightning, color_arr[9], color_arr[9]);
 
         CreateHudText(local.buff_enabled[9] ? local : null, null, null, 
         <" <0> Lightning Ammo: <1> / <2>", 
-        IconString(Icon.Bolt), local.buff_ammo[9], S_BUFF_AMMO[9]>, 
+        IconString(Icon.Bolt), local.buff_ammo[9], local.max_ammo[9]>, 
         Location.Top, 1, TextColor: color_arr[9]);
 
         CreateHudText(FilteredArray(all, !Curr().info), IconString(Icon.Bolt), null,
         li_pb != 100 ? buff_txt[9] : IconString(Icon.Checkmark),
-        Location.Left, lightning, color_arr[9], color_arr[9]);
+        Location.Left, Sorting.lightning, color_arr[9], color_arr[9]);
 
         CreateEffect(li_pb == 100 ? all : null, Effect.Orb, color_arr[9], buff_pos[9], 2, EffectRev.VisibleTo);
         CreateInWorldText(li_pb == 100 ? all : null, IconString(Icon.Bolt), buff_pos[9] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
