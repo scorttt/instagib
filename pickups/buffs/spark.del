@@ -103,7 +103,7 @@ if (IsAlive())
     sprk_orb[1] = LastCreatedEntity();
     CreateEffect(all, Effect.BadAura, color_arr[6], sprk_eyepos, 0.5);
     sprk_orb[2] = LastCreatedEntity();
-    CreateEffect(all, Effect.Ring, color_arr[6], RayCastHitPosition(sprk_eyepos, sprk_eyepos + Down() * 100), 0.5);
+    CreateEffect(all, Effect.Ring, color_arr[6], sprk_eyepos, S_SPRK_HIT_PESIZE);
     sprk_orb[3] = LastCreatedEntity();
 
     ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player), S_SPRK_PSPEED, RateChaseReevaluation.None);
