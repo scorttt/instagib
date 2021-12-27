@@ -478,7 +478,6 @@ rule: "[Main] :: Pickup Init"
         
         if (s_spawn_m)
         {
-            m_rare = true;
             StartMutatorTimer();
         }
     }
