@@ -11,33 +11,37 @@ import "arc.del";
 import "daybreak.del";
 import "lightning.del";
 
-globalvar Number[] S_BUFF_CD;
-globalvar Number[] S_BUFF_AMMO;
-globalvar Number[] buff_cd;
-globalvar Boolean[] buff_timer;
-globalvar Boolean[] s_spawn_buff;
-globalvar String[] buff_txt;
-globalvar Boolean s_buffs_enabled;
-globalvar Boolean s_rand_buff_pos;
-globalvar Boolean valid_map;
-globalvar Vector[] buff_pos;
-globalvar Boolean s_cd_ip_timer;
-globalvar Number buff_i;
-globalvar Color buff_color;
-globalvar Color[] color_arr;
-globalvar Any[] collected_buff_effect;
-globalvar Boolean[] can_pickup_buff;
-playervar Boolean has_buff;
-playervar Boolean[] buff_enabled;
-playervar Number[] buff_ammo;
-playervar Number buff_t;
-playervar String buff_str;
+// array indices should be set the same as the buff id
+globalvar Number[] S_BUFF_CD; // setting array of durations a buff spawns
+globalvar Number[] S_BUFF_AMMO; // setting array of maximum buff ammo the player gets by default
+globalvar Boolean[] s_spawn_buff; // setting array of buffs allowed to spawn
+globalvar Boolean s_buffs_enabled; // setting whether buffs are allowed
+globalvar Boolean s_rand_buff_pos; // setting whether buffs randomly spawn in different locations each round
+globalvar Boolean s_cd_ip_timer; // setting whether buff spawn effects are visible
+
+globalvar Boolean[] can_pickup_buff; // array of buff indices that can be collected
+playervar Boolean[] buff_enabled; // array of the enabled buff index
+globalvar Boolean[] buff_timer; // array of whether a buff cooldown is running
+globalvar Number[] buff_cd; // array of current buff cooldowns
+playervar Number[] buff_ammo; // array of buff indices ammo
+globalvar String[] buff_txt; // buff timer text shown in the players HUD
+globalvar Vector[] buff_pos; // array of set buff positions
+playervar Boolean has_buff; // whether the player owns a buff
+playervar Number buff_held; // currently held buff index
+globalvar Number buff_i; // index of the buff
+playervar String buff_str; // string of the held buff
+globalvar Any buff_trail; // beam effect for firing weapon with a buff
+playervar Color buff_color; // the given buff color to the player 
+globalvar Any[] collected_buff_effect; // good aura around a player with a buff
+globalvar Boolean valid_map; // whether buffs can spawn on a map
+globalvar Color[] color_arr; // global array of colors
+playervar Number[] max_ammo; // maximum buff ammo
 
 disabled rule: "---------------- Buff ----------------"{}
 
 void CollectBuff() playervar "[Buff] :: Buff Collection"
 {
-    buff_t = buff_i;
+    buff_held = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
     BigMessage(player, buff_str);
@@ -56,6 +60,7 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
         buff_ammo[buff_i] = 0;
 
     buff_ammo[buff_i] += S_BUFF_AMMO[buff_i];
+    max_ammo[buff_i] = buff_ammo[buff_i];
 
     // pickup effects
     PlayEffect(all, PlayEffect.GoodPickupEffect, buff_color, buff_pos[buff_i], 1);
@@ -65,7 +70,6 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     BuffCooldown();
 
     buff_i = -1;
-    buff_color = null;
 }
 
 void BuffCooldown() "[Buff] :: Start Buff Timer"
@@ -125,9 +129,9 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
 
                 break;
             case (8):
-                LogToInspector("Daybreak cooldown started");
-                dayb_pb = 0;
-                ChaseVariableOverTime(dayb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
+                LogToInspector("Pylon cooldown started");
+                pyl_pb = 0;
+                ChaseVariableOverTime(pyl_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
 
                 break;
             case (9):
@@ -185,8 +189,8 @@ void CreateOrb() "[Buff] :: Create Orb"
             StopChasingVariable(arc_pb);
             break;
         case (8):
-            LogToInspector("Daybreak Orb Created");
-            StopChasingVariable(dayb_pb);
+            LogToInspector("Pylon Orb Created");
+            StopChasingVariable(pyl_pb);
             break;
         case (9):
             LogToInspector("Lightning Orb Created");
@@ -202,38 +206,15 @@ if (has_buff)
 {
     WaitIfTrue(1);
 
-    PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[buff_t], PositionOf() + WorldVectorOf(Vector(0, 1, 1), player), 1);
-    DestroyEffect(collected_buff_effect[buff_t]);
-    buff_ammo[buff_t] = 0;
-    buff_enabled[buff_t] = false;
+    PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[buff_held], PositionOf() + WorldVectorOf(Vector(0, 1, 1), player), 1);
+    DestroyEffect(collected_buff_effect[buff_held]);
+    buff_ammo[buff_held] = 0;
+    buff_enabled[buff_held] = false;
+    buff_color = null;
 
     has_buff = false;
-    buff_t = -1;
+    buff_held = -1;
 }
-
-// buff_timer: bool
-// buff_cd: integer
-// buff_txt: string
-// rule: "[Buff] :: Buff Timer"
-// if (IsTrueForAny(buff_timer, Curr())) // if any timer is running
-// {
-//     // todo: optimize. unsure if i will keep this
-//     for (num i = 0; i < CountOf(FilteredArray(buff_timer, true)); i++) // i < count of what buff_timers are running
-//     {
-//         if (buff_timer[i]) // decrement only if the indexed timer is running
-//         {
-//             buff_cd[i]--;
-
-//             // update string
-//             buff_txt[i] = buff_cd[i] % 60 >= 10
-//                             ? <"<0>:<1>", Floor(buff_cd[i] / 60), Floor(buff_cd[i] % 60)> 
-//                             : <"<0>:0<1>", Floor(buff_cd[i] / 60), Floor(buff_cd[i] % 60)>;
-//         }
-//     }
-
-//     Wait(1);
-//     LoopIfConditionIsTrue();
-// }
 
 rule: "[Buff] :: Wallbang Timer"
 if (buff_timer[0])
