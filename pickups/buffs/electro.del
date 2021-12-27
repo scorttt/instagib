@@ -14,7 +14,6 @@ playervar Vector electro_eyepos3;
 playervar Vector electro_m_hitpos;
 playervar Vector electro_m_effect;
 playervar Vector electro_hitpos;
-playervar Any electro_effect;
 playervar Boolean mines_placed;
 playervar Color mine_color;
 playervar Number mine_det;
@@ -38,6 +37,7 @@ if (!has_buff || buff_enabled[5])
 if (can_pickup_buff[5])
 if (DistanceBetween(buff_pos[5], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     buff_str = "Electro";
     buff_i = 5;
@@ -65,7 +65,7 @@ if (IsFiringPrimary())
     electro_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, electro_hitpos, color_arr[5], EffectRev.None);
-    electro_effect = LastCreatedEntity();
+    buff_trail = LastCreatedEntity();
 
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_hitpos, S_ELECTRO_ESIZE);
 
@@ -85,7 +85,7 @@ if (IsFiringPrimary())
     }
 
     Wait(0.25);
-    DestroyEffect(electro_effect);
+    DestroyEffect(buff_trail);
 }
 
 rule: "[Buff] :: Electro : Action - Launch Sticky Mines"

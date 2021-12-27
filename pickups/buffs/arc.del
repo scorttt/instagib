@@ -23,6 +23,7 @@ if (!has_buff || buff_enabled[7])
 if (can_pickup_buff[7])
 if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     DisallowButton(player, Button.PrimaryFire);
     buff_str = "Arc";

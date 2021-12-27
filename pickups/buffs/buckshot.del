@@ -29,6 +29,7 @@ if (!has_buff || buff_enabled[2])
 if (can_pickup_buff[2])
 if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     buff_str = "Buckshot";
     buff_i = 2;
@@ -83,7 +84,6 @@ if (IsFiringPrimary())
     Vector[] buckshot_hp = [];
     Player[] buckshot_hp_player = [];
     Any[] buckshot_beam = [];
-    Any center_beam;
 
     Number[] bs_spread;
     bs_spread[0] = S_BUCKSHOT_SPREAD; // horizontal and verticle spread
@@ -198,12 +198,12 @@ if (IsFiringPrimary())
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.2);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_center, color_arr[2], EffectRev.None);
-    center_beam = LastCreatedEntity();
+    buff_trail = LastCreatedEntity();
 
     Kill(buckshot_hp_player, player);
 
     Wait(0.25);
-    DestroyEffect(center_beam);
+    DestroyEffect(buff_trail);
     DestroyEffect(buckshot_beam);
 
     charge_lvl = 0;

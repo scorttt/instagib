@@ -25,6 +25,7 @@ if (!has_buff || buff_enabled[9])
 if (can_pickup_buff[9])
 if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     DisallowButton(player, Button.PrimaryFire);
     buff_str = "Lightning";
@@ -52,16 +53,22 @@ if (buff_enabled[9])
 if (IsPrimaryHeld())
 if (IsAlive())
 {
-    WaitIfTrue(0.03); // brief hold
+    if (EntityExists(li_effects))
+        DestroyEffect(li_effects);
+
+    WaitIfTrue(0.05); // brief hold
+    Boolean hit = false;
     Vector li_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
     MinWait();
 
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), li_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
     li_effects[0] = LastCreatedEntity();
-    CreateEffect(all, Effect.WinstonTeslaCannonSound, null, player, 100);
+    CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
     li_effects[1] = LastCreatedEntity();
-    CreateEffect(all, Effect.OmnicSlicerBeamSound, null, player, 100);
+    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 100);
     li_effects[2] = LastCreatedEntity();
+    CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, li_hit, 100);
+    li_effects[3] = LastCreatedEntity();
 
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[9])
     {
@@ -70,11 +77,21 @@ if (IsAlive())
         Player li_player = RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * S_LI_DIST, AllLivingPlayers(), player);
 
         if (DistanceBetween(EyePosition(), li_hit) < S_LI_DIST)
+        {
             PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], li_hit, 0.1);
+            hit = true;
+        }
+        else
+        {
+            hit = false;
+        }
 
         Kill(li_player, player);
         MinWait();
     }
 
+    MinWait(); 
+
     DestroyEffect(li_effects);
+    hit = false;
 }

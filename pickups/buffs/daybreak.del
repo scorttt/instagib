@@ -1,44 +1,45 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number S_DAYB_RADIUS;
-globalvar Number S_DAYB_TIME;
-playervar Vector dayb_hit;
-playervar Vector dayb_norm;
-playervar Any[] dayb_effects;
-globalvar Number dayb_pb;
+globalvar Number S_PYL_RADIUS;
+globalvar Number S_PYL_TIME;
+playervar Vector pyl_hit;
+playervar Vector pyl_norm;
+playervar Any[] pyl_effects;
+globalvar Number pyl_pb;
 
-disabled rule: "---------------- Daybreak ----------------"{}
+disabled rule: "---------------- Pylon ----------------"{}
 
-rule: "[Buff] :: Daybreak : Create Orb"
+rule: "[Buff] :: Pylon : Create Orb"
 if (match_started)
 if (valid_map)
 if (s_spawn_buff[8])
-if (dayb_pb == 100)
+if (pyl_pb == 100)
 {
     buff_i = 8;
     CreateOrb();
 }
 
-rule: "[Buff] :: Daybreak : Collect"
+rule: "[Buff] :: Pylon : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
 if (!has_buff || buff_enabled[8])
 if (can_pickup_buff[8])
 if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
-    buff_str = "Daybreak";
+    buff_str = "Pylon";
     buff_i = 8;
     CollectBuff();
 }
 
-rule: "[Buff] :: Daybreak : Remove"
+rule: "[Buff] :: Pylon : Remove"
 Event.OngoingPlayer
 if (buff_enabled[8])
 if (buff_ammo[8] <= 0)
 {
-    LogToInspector(<"Daybreak Disabled for <0>", player>);
+    LogToInspector(<"Pylon Disabled for <0>", player>);
 
     // destroy hud timer and player effect
     DestroyEffect(collected_buff_effect[8]);
@@ -47,127 +48,25 @@ if (buff_ammo[8] <= 0)
     has_buff = false;
 }
 
-rule: "[Buff] :: Daybreak Fire Action"
+rule: "[Buff] :: Pylon Fire Action"
 Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    Vector dayb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hitpos, 0.2);
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, dayb_hitpos, color_arr[8], EffectRev.None);
-    Any dayb_beam = LastCreatedEntity();
-
-    if (!dayb_active)
-        dayb_armed = true;
+    Vector pyl_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], pyl_hitpos, 0.2);
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, pyl_hitpos, color_arr[8], EffectRev.None);
+    buff_trail = LastCreatedEntity();
 
     Wait(0.25);
-    DestroyEffect(dayb_beam);
+    DestroyEffect(buff_trail);
 }
 
-playervar Boolean dayb_armed;
-playervar Boolean dayb_active;
-rule: "[Buff] :: Daybreak Explosion Action"
+playervar Boolean pyl_armed;
+playervar Boolean pyl_active;
+rule: "[Buff] :: Pylon Placement Mode"
 Event.OngoingPlayer
-if (dayb_armed)
+if (pyl_armed)
 {
-    buff_ammo[8]--;
-
-    dayb_active = true;
-    dayb_armed = false;
-    dayb_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
-    dayb_norm = RayCastHitNormal(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
-    Number ring_size = 0.5;
-    Vector mine_pos = dayb_hit + (dayb_norm * 3);
-
-    CreateEffect(all, Effect.Orb, color_arr[8], dayb_hit, 1);
-    dayb_effects[0] = LastCreatedEntity();
-    CreateEffect(all, Effect.BadAura, color_arr[8], dayb_hit, 1);
-    dayb_effects[1] = LastCreatedEntity();
-    PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[8], dayb_hit, 2.5);
-
-    CreateEffect(all, Effect.GoodAura, color_arr[8], dayb_hit, ring_size);
-    dayb_effects[2] = LastCreatedEntity();
-    CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Down() * 100), ring_size + 0.5);
-    dayb_effects[3] = LastCreatedEntity();
-    CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Up() * 100), ring_size + 0.5);
-    dayb_effects[4] = LastCreatedEntity();
-
-    // cylinder beam dayb_effects
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(Time() * 100 % 360, 0) * S_DAYB_RADIUS) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(Time() * 100 % 360, 0) * S_DAYB_RADIUS) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[5] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(Time() * 100 % 360, 0) * -S_DAYB_RADIUS) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(Time() * 100 % 360, 0) * -S_DAYB_RADIUS) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[6] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(((Time() * 100) + 90) % 360, 0) * S_DAYB_RADIUS) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(((Time() * 100) + 90) % 360, 0) * S_DAYB_RADIUS) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[7] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(((Time() * 100) + 90) % 360, 0) * -S_DAYB_RADIUS) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(((Time() * 100) + 90) % 360, 0) * -S_DAYB_RADIUS) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[8] = LastCreatedEntity();
-
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(Time() * 600 % 360, 0) * (ring_size)) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(Time() * 600 % 360, 0) * (ring_size)) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[9] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(Time() * 600 % 360, 0) * (-ring_size)) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(Time() * 600 % 360, 0) * (-ring_size)) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[10] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(((Time() * 600) + 45) % 360, 0) * (ring_size)) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(((Time() * 600) + 45) % 360, 0) * (ring_size)) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[11] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + (DirectionFromAngles(((Time() * 600) + 45) % 360, 0) * (-ring_size)) + Vector(0, 1000, 0), dayb_hit + (DirectionFromAngles(((Time() * 600) + 45) % 360, 0) * (-ring_size)) + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[12] = LastCreatedEntity();
-
-    // sphere connecting to outer cylinder beam dayb_effects
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit, dayb_hit + DirectionFromAngles(Time() * 600 % 360, 0) * S_DAYB_RADIUS, color_arr[8]);
-    dayb_effects[13] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit, dayb_hit + DirectionFromAngles(Time() * 600 % 360, 0) * -S_DAYB_RADIUS, color_arr[8]);
-    dayb_effects[14] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit, dayb_hit + DirectionFromAngles(((Time() * 600) + 90) % 360, 0) * S_DAYB_RADIUS, color_arr[8]);
-    dayb_effects[15] = LastCreatedEntity();
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit, dayb_hit + DirectionFromAngles(((Time() * 600) + 90) % 360, 0) * -S_DAYB_RADIUS, color_arr[8]);
-    dayb_effects[16] = LastCreatedEntity();
-
-    // middle beam
-    CreateBeamEffect(all, BeamType.GoodBeam, dayb_hit + Vector(0, 1000, 0), dayb_hit + Vector(0, -1000, 0), color_arr[8]);
-    dayb_effects[17] = LastCreatedEntity();
-
-    ChaseVariableOverTime(dayb_hit, mine_pos, S_DAYB_TIME, TimeChaseReevaluation.None);
-    ChaseVariableOverTime(ring_size, S_DAYB_RADIUS, S_DAYB_TIME, TimeChaseReevaluation.None);
-
-    Number dist = 0;
-    Vector pos_up;
-    Vector pos_down;
-    CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Up() * 100), S_DAYB_RADIUS + 0.5, EffectRev.PositionAndRadius);
-    dayb_effects[18] = LastCreatedEntity();
-    CreateEffect(all, Effect.Ring, color_arr[8], RayCastHitPosition(dayb_hit, dayb_hit + Down() * 100), S_DAYB_RADIUS + 0.5, EffectRev.PositionAndRadius);
-    dayb_effects[19] = LastCreatedEntity();
-
-    WaitUntil(dayb_hit == mine_pos, 10);
-
-    DestroyEffect(dayb_effects[0]);
-    DestroyEffect(dayb_effects[1]);
-    DestroyEffect(dayb_effects[2]);
-    DestroyEffect(dayb_effects[3]);
-    DestroyEffect(dayb_effects[4]);
-    DestroyEffect(dayb_effects[13]);
-    DestroyEffect(dayb_effects[14]);
-    DestroyEffect(dayb_effects[15]);
-    DestroyEffect(dayb_effects[16]);
-    DestroyEffect(dayb_effects[17]);
-
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], dayb_hit, S_DAYB_RADIUS);
-    dist = 0;
-
-    for (Number i = 0; i < 35; i++)
-    {
-        dist += S_DAYB_RADIUS / 2;
-
-        pos_up[i] = dayb_hit + Up() * dist;
-        pos_down[i] = dayb_hit + Down() * dist;
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], pos_up[i], S_DAYB_RADIUS);
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], pos_down[i], S_DAYB_RADIUS);
-        Kill(PlayersWithinRadius(pos_up[i], S_DAYB_RADIUS, LOSCheck: RadiusLOS.Off), player);
-        Kill(PlayersWithinRadius(pos_down[i], S_DAYB_RADIUS, LOSCheck: RadiusLOS.Off), player);
-    }
-
-    Wait(0.5);
-
-    StopChasingVariable(dayb_hit);
-    DestroyEffect(dayb_effects);
-    dayb_active = false;
-    dayb_armed = false;
+    
 }

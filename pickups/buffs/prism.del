@@ -22,6 +22,7 @@ if (!has_buff || buff_enabled[3])
 if (can_pickup_buff[3])
 if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     buff_str = "Prism";
     buff_i = 3;
@@ -48,8 +49,8 @@ if (IsFiringPrimary())
     Vector prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, prism_hit, color_arr[3], EffectRev.None);
-    Any prism_beam = LastCreatedEntity();
+    buff_trail = LastCreatedEntity();
 
     Wait(0.25);
-    DestroyEffect(prism_beam);
+    DestroyEffect(buff_trail);
 }

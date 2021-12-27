@@ -23,6 +23,7 @@ if (!has_buff || buff_enabled[0])
 if (can_pickup_buff[0])
 if (DistanceBetween(buff_pos[0], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
+if (!IsFiringPrimary())
 {
     buff_str = "Wallbang";
     buff_i = 0;
@@ -42,7 +43,7 @@ if (buff_ammo[0] <= 0)
     has_buff = false;
 }
 
-// playervar any dbg_eff;
+// playervar Any dbg_eff;
 rule: "[Buff] :: Wallbang : Action"
 Event.OngoingPlayer
 if (buff_enabled[0])
@@ -51,7 +52,6 @@ if (IsFiringPrimary())
 {
     buff_ammo[0]--;
     // DestroyEffect(dbg_eff);
-    Any wallbang_effect;
     Vector eye_pos = EyePosition();
     Vector[] hp = [];
     Vector[] exit_hp = [];
@@ -73,14 +73,16 @@ if (IsFiringPrimary())
             hp_player[i] = RayCastHitPlayer  (hp[i],              hp[i]   + Facing()                         * 100, AllLivingPlayers(), player, true);
             exit_hp[i] =   RayCastHitPosition(hp[i],              hp[i]   + DirectionTowards(hp[i], eye_pos) * DistanceBetween(hp[i], eye_pos), null, null, true);
 
-            if (DistanceBetween(exit_hp[i], eye_pos) > 0.2)
+            if (DistanceBetween(exit_hp[i], eye_pos) > 0.4)
+            {
                 PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], exit_hp[i] + offset, 0.2);
 
                 // // debug shit
-                // CreateEffect(all, Effect.Sphere, Color.Red, exit_hp[Once(i)], 0.2);
+                // CreateEffect(all, Effect.Sphere, Color.Red, exit_hp[i], 0.2, EffectRev.None);
                 // dbg_eff[i][1] = LastCreatedEntity();
-                // CreateInWorldText(all, <" \n \n \n \n<0>", Once(i)>, exit_hp[Once(i)], 1, Clipping.DoNotClip, TextColor: Color.Red);
+                // CreateInWorldText(all, <" \n \n \n \n<0>", i>, exit_hp[i], 1, Clipping.DoNotClip, TextColor: Color.Red);
                 // dbg_eff[i][3] = LastTextID();
+            }
 
             if (DistanceBetween(hp[i], eye_pos) > 99) // i do not like this
                 break;
@@ -91,24 +93,24 @@ if (IsFiringPrimary())
             PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.2);
 
             // // debug shit
-            // CreateEffect(all, Effect.Sphere, i < S_NUM_WALLBANGS ? Color.Blue : Color.Green, hp[Once(i)], 0.2);
+            // CreateEffect(all, Effect.Sphere, i < S_NUM_WALLBANGS ? Color.Blue : Color.Green, hp[i], 0.2, EffectRev.None);
             // dbg_eff[i][0] = LastCreatedEntity();
-            // CreateInWorldText(all, <"<0>\n<1>", Once(i), Once(DistanceBetween(hp[i], hp[i - 1]))>, hp[Once(i)], 1, Clipping.DoNotClip, TextColor: i < S_NUM_WALLBANGS ? Color.Blue : Color.Green);
+            // CreateInWorldText(all, <"<0>\n<1>", i, DistanceBetween(hp[i], hp[i - 1])>, hp[i], 1, Clipping.DoNotClip, TextColor: i < S_NUM_WALLBANGS ? Color.Blue : Color.Green);
             // dbg_eff[i][2] = LastTextID();
         }
 
         CreateBeamEffect(all, BeamType.BadBeam, gun_pos, LastOf(hp), color_arr[0], EffectRev.None);
-        wallbang_effect = LastCreatedEntity();
+        buff_trail = LastCreatedEntity();
     }
     else
     {
         CreateBeamEffect(all, BeamType.BadBeam, gun_pos, first_hp, color_arr[0], EffectRev.None);
-        wallbang_effect = LastCreatedEntity();
+        buff_trail = LastCreatedEntity();
     }
     
     // CreateBeamEffect(all, BeamType.GrappleBeam, EyePosition(), LastOf(hp), Color.Yellow, EffectRev.None);
     // dbg_eff[S_NUM_WALLBANGS + 2] = LastCreatedEntity();
 
     Wait(0.25);
-    DestroyEffect(wallbang_effect);
+    DestroyEffect(buff_trail);
 }
