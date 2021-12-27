@@ -38,7 +38,7 @@ if (IsAlive())
 
 rule: "[Secondary Fire] :: Projectile Impulse"
 Event.OngoingPlayer
-if (DistanceBetween(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, EnemyPlayers(), player)) < 0.1)
+if (DistanceBetween(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, EnemyPlayers(), player)) < 0.5)
 {
     // sec_in_air = false;
     StopChasingVariable(sec_eyepos);
