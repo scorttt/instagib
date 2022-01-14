@@ -63,11 +63,11 @@ if (IsFiringPrimary())
     {
         sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
 
-        Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_PRIESIZE && IsInLineOfSight(sprk_hit, Curr()));
-        for (Number i = 0; i < players.Length; i++)
-        {
-            Kill(players[i], player);
-        }
+        // Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_PRIESIZE && IsInLineOfSight(sprk_hit, Curr()));
+        // Kill(players, player);
+
+        // if (players.Length > 0)
+        //     buff_ammo[6]--;
 
         PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_hit, S_SPRK_PRIESIZE);
     }

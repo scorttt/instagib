@@ -9,7 +9,7 @@ import "electro.del";
 import "spark.del";
 import "arc.del";
 import "daybreak.del";
-import "lightning.del";
+import "volt.del";
 
 // array indices should be set the same as the buff id
 globalvar Number[] S_BUFF_CD; // setting array of durations a buff spawns
@@ -135,9 +135,9 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
 
                 break;
             case (9):
-                LogToInspector("Lightning cooldown started");
-                li_pb = 0;
-                ChaseVariableOverTime(li_pb, 100, S_BUFF_CD[9], TimeChaseReevaluation.None);
+                LogToInspector("Volt cooldown started");
+                vlt_pb = 0;
+                ChaseVariableOverTime(vlt_pb, 100, S_BUFF_CD[9], TimeChaseReevaluation.None);
 
                 break;
         }
@@ -193,8 +193,8 @@ void CreateOrb() "[Buff] :: Create Orb"
             StopChasingVariable(pyl_pb);
             break;
         case (9):
-            LogToInspector("Lightning Orb Created");
-            StopChasingVariable(li_pb);
+            LogToInspector("Volt Orb Created");
+            StopChasingVariable(vlt_pb);
             break;
     }
 }
@@ -333,7 +333,7 @@ if (buff_timer[8])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Lightning Timer"
+rule: "[Buff] :: Volt Timer"
 if (buff_timer[9])
 {
     buff_cd[9]--;

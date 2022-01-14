@@ -72,11 +72,6 @@ rule: "[Main] :: Initial Global"
     s_cd_ip_timer = WorkshopSettingToggle("Buffs",                           "Show buff cooldown visuals and timer (On)", true, 2);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
 
-    s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
-    s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
-    S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
-    S_M_SPAWN = WorkshopSettingInteger("Mutators",                           "Mutator Creation Time (15)", 15, 1, 600, 3);
-
     s_spawn_buff[0] = WorkshopSettingToggle("Wallbang Buff",                 "​​​​Spawn Wallbang (On)", true, 1);
     S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang Buff",                   "​​Wallbang Spawn Time (75)", 75, 5, 600, 2);
     S_BUFF_AMMO[0] = WorkshopSettingInteger("Wallbang Buff",                 "Wallbang Ammo (20)", 20, 1, 1000, 3);
@@ -108,10 +103,10 @@ rule: "[Main] :: Initial Global"
     S_BUFF_CD[8] = WorkshopSettingInteger("Pylon Buff",                      "Pylon ​Spawn Time (125)", 125, 5, 600, 2);
     S_BUFF_AMMO[8] = WorkshopSettingInteger("Pylon Buff",                    "Pylon Ammo (10)", 10, 1, 1000, 3);
 
-    s_spawn_buff[9] = WorkshopSettingToggle("Lightning Buff",                "​​​​​Spawn Lightning (On)", true, 1);
-    S_BUFF_CD[9] = WorkshopSettingInteger("Lightning Buff",                  "Lightning ​Spawn Time (165)", 165, 5, 600, 2);
-    S_BUFF_AMMO[9] = WorkshopSettingInteger("Lightning Buff",                "Lightning Ammo (320)", 320, 1, 10000, 3);
-    S_LI_DIST = WorkshopSettingReal("Lightning Buff",                        "Lightning Maximum Distance (15)", 15, 1, 100, 3);
+    s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                "​​​​​Spawn Volt (On)", true, 1);
+    S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                  "Volt ​Spawn Time (165)", 165, 5, 600, 2);
+    S_BUFF_AMMO[9] = WorkshopSettingInteger("Volt Buff",                "Volt Ammo (320)", 320, 1, 10000, 3);
+    S_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Maximum Distance (15)", 15, 1, 100, 3);
 
     s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
     S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (195)", 195, 5, 600, 2);
@@ -134,14 +129,19 @@ rule: "[Main] :: Initial Global"
     S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
     S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
 
+    s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
+    s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
+    S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
+    S_M_CREATION = WorkshopSettingInteger("Mutators",                           "Mutator Creation Time (15)", 15, 1, 600, 3);
+
     if (!s_buffs_enabled)
         for (Number i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
 
     // ----------------------- DEBUG STUFF ----------------------- //
 
-    s_dbg_player = WorkshopSettingToggle("Debug",                       "Player Info", false, 1);
-    s_dbg_world = WorkshopSettingToggle("Debug",                        "World Info", false, 2);
+    s_dbg_player = WorkshopSettingToggle("Debug",                       "Player Info", true, 1);
+    s_dbg_world = WorkshopSettingToggle("Debug",                        "World Info", true, 2);
     s_dbg_fastspawn[0] = WorkshopSettingToggle("Debug",                 "​Fast Buff Spawn", false, 3);
     s_dbg_fastspawn[1] = WorkshopSettingToggle("Debug",                 "​Fast Mutator Spawn", false, 4);
     buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 5);
@@ -153,7 +153,7 @@ rule: "[Main] :: Initial Global"
     buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
     buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
     buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Pylon", false, 13);
-    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Lightning", false, 14);
+    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Volt", false, 14);
 
     if (s_dbg_fastspawn[0])
         for (Number i = 0; i < S_BUFF_CD.Length; i++)
@@ -163,15 +163,16 @@ rule: "[Main] :: Initial Global"
     {
         s_rand_mcd = false;
         S_M_CD = 5;
-        S_M_SPAWN = 5;
+        S_M_CREATION = 5;
     }
 
     if (s_dbg_world)
     {
-        CreateHudText(host, null, <"valid_map: <0>\nm_cd: <1>, recent mutator: <2>\nmutator time added: <3>", 
+        CreateHudText(host, null, <"valid_map: <0>\nm_cd: <1>, recent mutator: <2>\nmutator time: <3> + <4>", 
         valid_map,
         m_cd,
         m_str,
+        S_M_CD,
         rand
 
         >, null, Location.Right, 0.2);
@@ -337,16 +338,16 @@ if (!buff_enabled[4])
 if (!buff_enabled[7])
 if (!buff_enabled[9])
 {
-    WaitUntil(!IsPrimaryHeld(), 99999); // prevents automatic weapon firing after override turns off
+    WaitUntil(!IsPrimaryHeld(), 99999); // prevents automatic weapon firing after conditions are true
     pri_override = false;
 }
 
 // rule: "Kill"
-//     Event.OngoingPlayer
-//     if (player == host && IsInteractHeld())
-//     {
-//         Kill();
-//     }
+// Event.OngoingPlayer
+// if (player == host && IsInteractHeld())
+// {
+//     Kill();
+// }
 
 rule: "Bots"
 if (FilteredArray(all, IsDummyBot(Curr())).Length < 8 - FilteredArray(all, !IsDummyBot(Curr())).Length)

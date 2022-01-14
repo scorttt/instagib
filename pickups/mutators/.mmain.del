@@ -1,23 +1,23 @@
 import "../../main.del";
 
-globalvar Boolean s_spawn_m; 
-globalvar Boolean s_rand_mcd;
-globalvar Number S_M_CD;
-globalvar Number S_M_SPAWN;
-globalvar Vector[] m_loc;
-globalvar Number[] m_in;
-globalvar Color[] m_color;
-globalvar Vector m_pos;
-globalvar Number mut_pb;
-globalvar Boolean can_pickup_m;
-globalvar Boolean m_in_timer;
-globalvar Boolean m_inworld;
-globalvar Number m_cd;
-globalvar String m_ico;
-globalvar String m_str;
+globalvar Boolean s_spawn_m; // mutator can spawn
+globalvar Boolean s_rand_mcd; // mutator timer is randomized
+globalvar Number S_M_CD; // constant for all mutators
+globalvar Number S_M_CREATION; // constant for the mutator to spawn after m_cd runs low
+globalvar Vector[] m_loc; // array of all possible mutator locations
+globalvar Number[] m_in; // index of the available mutator
+globalvar Color[] m_color; // color of the currently spawned mutator 
+globalvar Vector m_pos; // final position of the mutator
+globalvar Number mut_pb; // progress bar control var for S_M_CREATION
+globalvar Boolean can_pickup_m; // can the mutator be collected
+globalvar Boolean m_in_timer; // is the mutator timer running
+globalvar Boolean m_inworld; // is the mutator currently in the world
+globalvar Number m_cd; // remaining time for the mutator
+globalvar String m_ico; // icon for the mutator
+globalvar String m_str; // string for the mutator
 
-playervar Boolean has_mut;
-playervar Boolean[] m_enabled;
+playervar Boolean has_mut; // does the player have the mutator
+playervar Boolean[] m_enabled; // which mutator is enabled
 
 disabled rule: "---------------- Mutator ----------------"{}
 
@@ -102,7 +102,7 @@ if (m_in.Length > 0)
     BigMessage(all, <"<0> is spawning", m_str>);
 
     mut_pb = 0;
-    ChaseVariableOverTime(mut_pb, 100, S_M_SPAWN, TimeChaseReevaluation.DestinationAndDuration);
+    ChaseVariableOverTime(mut_pb, 100, S_M_CREATION, TimeChaseReevaluation.DestinationAndDuration);
     WaitUntil(mut_pb == 100, 999999);
     StopChasingVariable(mut_pb);
 

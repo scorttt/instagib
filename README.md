@@ -31,7 +31,7 @@ Various buffs are littered throughout the map that modify how your weapon fires
 - **Spark:** 
 	- Explosive shots, Press Reload to launch an explosive projectile that detonates with a large radius when shot
 
-- **Lightning:**
+- **Volt:**
 	- Short range laser
 
 - **Arc:** 

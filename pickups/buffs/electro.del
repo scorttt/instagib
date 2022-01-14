@@ -69,11 +69,11 @@ if (IsFiringPrimary())
 
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_hitpos, S_ELECTRO_ESIZE);
 
-    Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), electro_hitpos) <= S_ELECTRO_ESIZE && IsInLineOfSight(electro_hitpos, Curr()));
-    for (Number i = 0; i < players.Length; i++)
-    {
-        Kill(players[i], player);
-    }
+    // Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), electro_hitpos) <= S_ELECTRO_ESIZE && IsInLineOfSight(electro_hitpos, Curr()));
+    // Kill(players, player);
+
+    // if (players.Length > 0)
+    //     buff_ammo[5]--;
 
     // set off all mines if one is shot
     if (mines_placed &&

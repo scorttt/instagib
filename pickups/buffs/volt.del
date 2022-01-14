@@ -1,0 +1,97 @@
+import "../../main.del";
+import ".bmain.del";
+
+globalvar Number S_VLT_DIST;
+globalvar Number vlt_pb;
+
+playervar Any[] vlt_effects;
+
+disabled rule: "---------------- Volt ----------------"{}
+
+rule: "[Buff] :: Volt : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[9])
+if (vlt_pb == 100)
+{
+    buff_i = 9;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Volt : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[9]) 
+if (can_pickup_buff[9])
+if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    DisallowButton(player, Button.PrimaryFire);
+    buff_str = "Volt";
+    buff_i = 9;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Volt : Remove"
+Event.OngoingPlayer
+if (buff_enabled[9])
+if (buff_ammo[9] <= 0)
+{
+    LogToInspector(<"Volt Disabled for <0>", player>);
+
+    // destroy hud timer and player effect
+    DestroyEffect(collected_buff_effect[9]);
+
+    buff_enabled[9] = false;
+    has_buff = false;
+}
+
+rule: "[Buff] :: Volt : Action - Fire"
+Event.OngoingPlayer
+if (buff_enabled[9])
+if (IsPrimaryHeld())
+if (IsAlive())
+{
+    if (EntityExists(vlt_effects))
+        DestroyEffect(vlt_effects);
+
+    WaitIfTrue(0.05); // brief hold
+    Boolean hit = false;
+    Vector vlt_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_VLT_DIST, AllLivingPlayers(), player);
+    MinWait();
+
+    CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), vlt_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
+    vlt_effects[0] = LastCreatedEntity();
+    CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
+    vlt_effects[1] = LastCreatedEntity();
+    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 100);
+    vlt_effects[2] = LastCreatedEntity();
+    CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, vlt_hit, 100);
+    vlt_effects[3] = LastCreatedEntity();
+
+    while (IsPrimaryHeld() && IsAlive() && buff_enabled[9])
+    {
+        buff_ammo[9]--;
+        vlt_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_VLT_DIST, AllLivingPlayers(), player);
+        Player vlt_player = RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * S_VLT_DIST, AllLivingPlayers(), player);
+
+        if (DistanceBetween(EyePosition(), vlt_hit) < S_VLT_DIST)
+        {
+            PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], vlt_hit, 0.1);
+            hit = true;
+        }
+        else
+        {
+            hit = false;
+        }
+
+        Kill(vlt_player, player);
+        MinWait();
+    }
+
+    MinWait(); 
+
+    DestroyEffect(vlt_effects);
+    hit = false;
+}
