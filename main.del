@@ -1,4 +1,4 @@
-import "../overwatch-scripts/macros.del";
+import "../workshop-scripts/macros.del";
 // import "settings.json";
 
 // import "../overwatch-scripts/ruler.del";
@@ -60,7 +60,6 @@ rule: "[Main] :: Initial Global"
     s_sec_enabled = WorkshopSettingToggle("Secondary Fire",                  "Enable Secondary (On)", true, 1);
     S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                     "​​​Projectile Speed (90)", 90, 1, 500, 3);
     S_SEC_RADIUS = WorkshopSettingReal("Secondary Fire",                     "​​​Explosion Radius (2.5)", 2.5, 1, 20, 4);
-    
     s_dodge_enabled = WorkshopSettingToggle("Dodge",                         "Enable Dodge (On)", true, 1);
     S_DODGE_FORCE = WorkshopSettingReal("Dodge",                             "Dodge ​​​​​Force (14)", 14, 1, 100, 2);
      
@@ -168,6 +167,17 @@ rule: "[Main] :: Initial Global"
 
     if (s_dbg_world)
     {
+        // server load, entity, and text information
+        CreateHudText(host, null, <" \nCur: <0>%\nAvg: <1>%\nPeak: <2>%\nEnt: <3> / 256\nTxt: <4> (<5>) / 128\n", 
+        Near(ServerLoad() / 2.55), 
+        Near(ServerLoadAverage() / 2.55), 
+        Near(ServerLoadPeak() / 2.55), 
+        EntityCount(), 
+        TextCount(), TextCount() - (buff_pos.Length + all.Length + 2)
+
+        >, null, Location.Right, 0.2, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+
+        // world information
         CreateHudText(host, null, <"valid_map: <0>\nm_cd: <1>, recent mutator: <2>\nmutator time: <3> + <4>", 
         valid_map,
         m_cd,
@@ -175,18 +185,14 @@ rule: "[Main] :: Initial Global"
         S_M_CD,
         rand
 
-        >, null, Location.Right, 0.2);
-
-        CreateHudText(host, null, <" \nCur: <0>%", RoundToInteger(ServerLoad() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.32, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(host, null, <"Avg: <0>%", RoundToInteger(ServerLoadAverage() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.33, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(host, null, <"Peak: <0>%", RoundToInteger(ServerLoadPeak() / 2.55, Rounding.Nearest)>, null, Location.Right, 0.34, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(host, null, <"Ent: <0> / 256", EntityCount()>, null, Location.Right, 0.36, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-        CreateHudText(host, null, <"Txt: <0> (<1>) / 128", TextCount(), TextCount() - (buff_pos.Length + 7)>, null, Location.Right, 0.37, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+        >, null, Location.Right, 0.3);
 
         WaitUntil(valid_map, 10);
+
+        // buff information
         for (Number i = 0; i < buff_pos.Length; i++)
         {
-            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>", 
+            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
 
             Once(i), 
             buff_cd[Once(i)],
@@ -240,6 +246,8 @@ Event.OnPlayerJoin
     CreateEffect(bhopping ? all : null, Effect.Soldier76SprintingEffect, Color.White, player, 1);
     bhop_speed = 100;
 
+    has_buff = false;
+    has_mut = false;
     charge_str = "○ ○ ○ ○ ○ ";
     sec_eyepos = Vector(-10000, -10000, -10000);
     sprk_eyepos = Vector(-10000, -10000, -10000);
@@ -261,12 +269,14 @@ Event.OnPlayerJoin
 
     if (s_dbg_player)
     {
-        CreateHudText(host, null, <" \n<0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\n<4>", 
+        // player information
+        CreateHudText(host, null, <" \n<0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\n<4>\nhas mutator: <5>", 
         player,
         bhopping, 
         bhop_speed,
         dodges,
-        has_buff ? <"current buff: <0>", buff_str> : <"recent buff: <0>", buff_str>
+        has_buff ? <"current buff: <0>", buff_str> : <"recent buff: <0>", buff_str>,
+        has_mut
 
         >, null, Location.Right, 0.5);
     }
