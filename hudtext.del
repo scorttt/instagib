@@ -296,11 +296,14 @@ if (s_buffs_enabled)
         AbilityIconString(Hero.Orisa, Button.Ultimate), 
         "Pylon",
         <"Place pylons that require connection with another pylon, kills any enemies who cross. Place with <0> and confirm with <1>", InputBindingString(Button.Reload), InputBindingString(Button.PrimaryFire)>, Location.Left, Sorting.pylon, color_arr[8], color_arr[8]);
-
         CreateHudText(local.buff_enabled[8] ? local : null, null, null, 
+    
         <" <0> Pylon Ammo: <1> / <2>",
         AbilityIconString(Hero.Orisa, Button.Ultimate), local.buff_ammo[8], local.max_ammo[8]>, 
         Location.Top, 1, TextColor: color_arr[8]);
+        CreateHudText(local.buff_enabled[8] ? local : null, null, null,
+        <" Press <0> to enter placement mode", InputBindingString(Button.Reload)>, 
+        Location.Top, 1.1, TextColor: color_arr[8]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Orisa, Button.Ultimate), null,
         pyl_pb != 100 ? buff_txt[8] : IconString(Icon.Checkmark),
