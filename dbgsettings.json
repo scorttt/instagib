@@ -26,6 +26,7 @@
         "Cassidy": {
           "Damage Dealt": 500,
           "Damage Received": 500,
+          "Movement Speed": 115,
           "No Ammunition Requirement": true,
           "Quick Melee": false,
           "Secondary Fire": false,
@@ -44,5 +45,5 @@
       "Buff and Debuff Sounds": true
     },
     "Mode Name": "Instagib",
-    "Description": "Debug Script"
+    "Description": "Instagib Debug Script\nDo not save"
   }

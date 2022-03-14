@@ -36,6 +36,7 @@
       "Cassidy": {
         "Damage Dealt": 500,
         "Damage Received": 500,
+        "Movement Speed": 115,
         "No Ammunition Requirement": true,
         "Quick Melee": false,
         "Secondary Fire": false,
@@ -54,5 +55,5 @@
     "Buff and Debuff Sounds": true
   },
   "Mode Name": "Instagib",
-  "Description": "Code: APPPX\nCreated by scort#11221\nHold Melee in game for help\nv2.0 | 12/27/21"
+  "Description": "Code: APPPX\nCreated by scort#11221\nHold Melee in game for help\nv2.0 | ??/??/??"
 }
