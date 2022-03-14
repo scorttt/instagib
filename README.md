@@ -47,12 +47,12 @@ Various buffs are littered throughout the map that modify how your weapon fires
 
 
 ## Mutators
-Mutators modify the player, and can give the player strong new abilities that change the gameplay
+Mutators modify the player, and give the player strong new abilities
 - **Seer**
 	- Pulsating area that reveals enemies through walls
 
 - **Dummy**
-	- Places a moving decoy, if the Dummy is killed, show the attackers location for 5 seconds
+	- Place a moving decoy that when killed, show the attackers location for a short time
 
 - **Stealth**
 	- Full invisibility for a short duration when activated or indefinitely if still
@@ -66,7 +66,14 @@ Mutators modify the player, and can give the player strong new abilities that ch
 - **Replicate**
 	- Killing a player with a buff will give you the victim players buff
 
-- 
+- **Denial**
+	- Prevents a death and turns the player fully invisible for a short time when used
+
+- **Mirage**
+	- Create a Mirage placed at your location that you can swap to at any time
+
+- **Mobility**
+	- Enhances and buffs all movement abilities
 
 ---
 
