@@ -1,0 +1,142 @@
+import "main.del";
+
+globalvar Boolean[] s_dbg_fastspawn; // collectable fast spawning. 0 = buff, 1 = mutator
+globalvar Boolean[] buff_debug; // array of buffs to give
+
+rule: "Global Debug"
+{
+    for (Number i = 0; i < 20; i++)
+        LogToInspector("!!! DEBUG FILE IS IMPORTED !!!");
+
+    s_dbg_fastspawn[0] = WorkshopSettingToggle("Debug",                 "Fast Buff Spawn", false, 3);
+    s_dbg_fastspawn[1] = WorkshopSettingToggle("Debug",                 "Fast Mutator Spawn", false, 4);
+    buff_debug[0] = WorkshopSettingToggle("Debug",                      "Give Wallbang", false, 5);
+    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give Ricochet", false, 6);
+    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 7);
+    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 8);
+    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 9);
+    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 10);
+    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
+    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
+    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Pylon", false, 13);
+    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Volt", false, 14);
+
+    if (s_dbg_fastspawn[0])
+        for (Number i = 0; i < S_BUFF_CD.Length; i++)
+            S_BUFF_CD[i] = 5;
+
+    if (s_dbg_fastspawn[1])
+    {
+        s_rand_mcd = false;
+        S_M_CD = 5;
+        S_M_CREATION = 5;
+    }
+    // server load, entity, and text information
+    CreateHudText(host, null, <"C: <0>%, A: <1>%, P: <2>%, E: <3>, T: <4> (<5>)\n", 
+    Near(ServerLoad() / 2.55), 
+    Near(ServerLoadAverage() / 2.55), 
+    Near(ServerLoadPeak() / 2.55), 
+    EntityCount(), 
+    TextCount(), TextCount() - (buff_pos.Length + all.Length + 3)
+
+    >, null, Location.Right, 0.2, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+
+    // world information
+    CreateHudText(host, null, 
+    <"valid_map: <0>\nm_cd: <1>, mutator: <2>\nfinal time: <3> + <4>", 
+    valid_map,
+    m_cd, m_str,
+    S_M_CD, rand
+
+    >, null, Location.Right, 0.3);
+
+    WaitUntil(valid_map, 10);
+
+    // buff world information
+    for (Number i = 0; i < buff_pos.Length; i++)
+    {
+        CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
+
+        Once(i), 
+        buff_cd[Once(i)],
+        Once(buff_pos[i]),
+        DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
+        Once(buff_pos[i]), 
+
+        1, Clipping.DoNotClip);
+    }
+
+    // mutator world information
+    CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
+    m_str, 
+    m_cd != 0 ? m_cd : m_pb,
+    m_pos, 
+    DistanceBetween(PositionOf(host) + Up(), m_pos)>, m_pos, 1, Clipping.DoNotClip);
+}
+
+rule: "Player Debug"
+Event.OnPlayerJoin
+{
+    for (Number i = 0; i < buff_debug.Length; i++)
+    {
+        if (buff_debug[i])
+        {
+            has_buff = true;
+            buff_held = i; // if multiple buffs are given this will break manual buff removal, dont care enough to fix it
+            buff_enabled[i] = true;
+            buff_ammo[i] = 999999;
+        }
+    }
+
+    // player information
+    CreateHudText(host, null, <" \n<0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\n<4>\nhas mutator: <5>", 
+    player,
+    bhopping, 
+    bhop_speed,
+    dodges,
+    has_buff ? <"current buff: <0>", buff_str> : <"recent buff: <0>", buff_str>,
+    has_mut
+
+    >, null, Location.Right, 0.5);
+}
+
+// rule: "Kill"
+// Event.OngoingPlayer
+// if (player == host && IsInteractHeld())
+// {
+//     Kill();
+// }
+
+rule: "Bots"
+if (FilteredArray(all, IsDummyBot(Curr())).Length < 8 - FilteredArray(all, !IsDummyBot(Curr())).Length)
+if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
+{
+    CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null), Facing(host) * -1);
+}
+rule: "Destroy Bots"
+if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
+{
+    DestroyAllDummyBots();
+}
+
+// rule: "Show OW Spawn Points"
+// if (match_started)
+// {
+//     for (Number i = 0; i < SpawnPoints(Team.All).Length; i++)
+//     {
+//         CreateEffect(all, Effect.Sphere, Color.White, RayCastHitPosition(SpawnPoints(Team.All)[i], SpawnPoints(Team.All)[i] + Down() * 1, null, null), 0.5, EffectRev.None);
+//     }
+// }
+
+// rule: "Bots Hold Left Click"
+// Event.OngoingPlayer
+// if (IsDummyBot())
+// {
+//     StartHoldingButton(player, Button.PrimaryFire);
+// }
+
+// rule: "Show start_pos"
+// Event.OngoingPlayer
+// {
+//     CreateEffect(player, Effect.Sphere, Color.Aqua, weapon_muzzle, 0.05);
+// }
