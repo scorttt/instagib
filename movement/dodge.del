@@ -1,6 +1,7 @@
 import "../main.del";
 
 globalvar Number S_DODGE_FORCE;
+globalvar Number S_DODGE_AMT;
 globalvar Boolean s_dodge_enabled;
 playervar Vector throttle_of;
 playervar Number dodges;
@@ -33,10 +34,10 @@ if (IsButtonHeld(player, Button.Ability1))
 rule: "[Dodge] :: On Ground"
 Event.OngoingPlayer
 if (IsOnGround())
-if (dodges < 2)
+if (dodges < S_DODGE_AMT)
 {
     if (bhopping)
         Wait(0.25);
 
-    dodges = 2;
+    dodges = S_DODGE_AMT;
 }
