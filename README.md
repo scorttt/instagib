@@ -1,8 +1,4 @@
-Instagib is a fast paced one-shot deathmatch that takes heavy inspiration from the arena shooters of old. 
-
-- Movement system for the potential of gaining insane amounts of speed and mobility. 
-
-- Buffs that heavily modify your weapon such as making your bullets bounce off of walls, shoot through walls, or turn into a shotgun.
+Instagib is a fast paced one-shot deathmatch that takes heavy inspiration from the arena shooters of old, with a movement system for the potential of gaining insane amounts of speed and mobility, buffs that will heavily modify how your weapon fires, and mutators that can change individual gameplay
 
 ## **Controls**
 
@@ -48,6 +44,29 @@ Various buffs are littered throughout the map that modify how your weapon fires
 
 - **Prism:** 
 	- (TBD), Press Reload to launch a projectile that kills enemies in view of it once shot
+
+
+## Mutators
+Mutators modify the player, and can give the player strong new abilities that change the gameplay
+- **Seer**
+	- Pulsating area that reveals enemies through walls
+
+- **Dummy**
+	- Places a moving decoy, if the Dummy is killed, show the attackers location for 5 seconds
+
+- **Stealth**
+	- Full invisibility for a short duration when activated or indefinitely if still
+
+- **Berserk**
+	- Enhances various attack related abilities
+
+- **Poison**
+	- Enemies nearby will take damage over time in a radius, line of sight not needed
+
+- **Replicate**
+	- Killing a player with a buff will give you the victim players buff
+
+- 
 
 ---
 
