@@ -1,8 +1,9 @@
 import "../workshop-scripts/macros.del";
 // import "settings.json";
 
-// import "../overwatch-scripts/ruler.del";
+// import "../workshop-scripts/ruler.del";
 import "dbgsettings.json";
+import "debug.del";
 
 import "movement/bhop.del";
 import "movement/blaster.del";
@@ -26,16 +27,12 @@ import "pickups/mutators/.mmain.del";
 globalvar Number S_MATCH_TIME_LIMIT; // maximum match time
 globalvar Number S_PICKUP_RAD; // minimum radius to collect a buff
 globalvar Number S_GAMEMODE; // chosen gamemode
+// globalvar Number[] S_LANG; // chosen language
 globalvar Boolean match_started; // has the match started
 playervar Boolean bhopping; // is the player bhopping
 playervar Boolean info; // information toggle
 playervar Boolean pri_override; // if the player owns a buff that does not use Cassidy's default fire
 playervar Vector gun_pos; // arbitrary position of the gun
-
-globalvar Boolean s_dbg_player; // show player debug info
-globalvar Boolean s_dbg_world; // show world debug info
-globalvar Boolean[] s_dbg_fastspawn; // collectable fast spawning
-globalvar Boolean[] buff_debug; // array of buffs to give
 
 Any weapon_muzzle(Vector start_pos, Vector dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
 
@@ -55,45 +52,47 @@ rule: "[Main] :: Initial Global"
 
     match_started = false;
 
-    S_GAMEMODE = WorkshopSettingCombo("General",                              "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2 vs 2 vs 2 vs 2"], 1);
-    S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "​Match Time (Minutes) (20)", 20, 8, 60, 1) * 60;
+    // S_LANG = WorkshopSettingCombo("General",                                 "Language / Idioma / 言語 / 언어", 0, ["English", "Español", "日本語", "한국어"], 0);
+    S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2v2v2v2"], 1);
+    S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 8, 60, 1) * 60;
     S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 2);
 
     s_sec_enabled = WorkshopSettingToggle("Secondary Fire",                  "Enable Secondary (On)", true, 1);
-    S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                     "​​​Projectile Speed (90)", 90, 1, 500, 3);
-    S_SEC_RADIUS = WorkshopSettingReal("Secondary Fire",                     "​​​Explosion Radius (2.5)", 2.5, 1, 20, 4);
+    S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                     "Projectile Speed (90)", 90, 1, 500, 3);
+    S_SEC_RADIUS = WorkshopSettingReal("Secondary Fire",                     "Explosion Radius (2.5)", 2.5, 1, 20, 4);
 
     s_dodge_enabled = WorkshopSettingToggle("Dodge",                         "Enable Dodge (On)", true, 1);
-    S_DODGE_FORCE = WorkshopSettingReal("Dodge",                             "Dodge ​​​​​Force (14)", 14, 1, 100, 2);
+    S_DODGE_FORCE = WorkshopSettingReal("Dodge",                             "Dodge Strength (14)", 14, 1, 100, 2);
+    S_DODGE_AMT = WorkshopSettingInteger("Dodge",                            "Dodge Amount (2)", 2, 1, 100, 3);
 
     s_bhop_enabled = WorkshopSettingToggle("Bunny Hopping",                  "Enable Bunny Hopping (On)", true, 1);
-    S_BHOP_MAX_SPEED = WorkshopSettingInteger("Bunny Hopping",               "​Maximum Speed Multiplier From Bunny Hopping (10000)", 10000, 110, 10000, 2);
-    S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "​​Speed gain rate (13.5)", 13.5, 1, 100, 3);
+    S_BHOP_MAX_SPEED = WorkshopSettingInteger("Bunny Hopping",               "Maximum Speed Multiplier From Bunny Hopping (10000)", 10000, 110, 10000, 2);
+    S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "Speed gain rate (13.5)", 13.5, 1, 100, 3);
 
-    s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "​​Enable Buffs (On)", true, 1);
+    s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_cd_ip_timer = WorkshopSettingToggle("Buffs",                           "Show buff cooldown visuals and timer (On)", true, 2);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
 
-    s_spawn_buff[0] = WorkshopSettingToggle("Wallbang Buff",                 "​​​​Spawn Wallbang (On)", true, 1);
-    S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang Buff",                   "​​Wallbang Spawn Time (75)", 75, 5, 600, 2);
+    s_spawn_buff[0] = WorkshopSettingToggle("Wallbang Buff",                 "Spawn Wallbang (On)", true, 1);
+    S_BUFF_CD[0] = WorkshopSettingInteger("Wallbang Buff",                   "Wallbang Spawn Time (75)", 75, 5, 600, 2);
     S_BUFF_AMMO[0] = WorkshopSettingInteger("Wallbang Buff",                 "Wallbang Ammo (20)", 20, 1, 1000, 3);
-    S_NUM_WALLBANGS = WorkshopSettingInteger("Wallbang Buff",                "​Wallbang Maximum Amount Of Surfaces (4)", 4, 1, 16, 4);
+    S_NUM_WALLBANGS = WorkshopSettingInteger("Wallbang Buff",                "Amount Of Surfaces to Pierce (4)", 4, 1, 16, 4);
 
     s_spawn_buff[1] = WorkshopSettingToggle("Ricochet Buff",                 "Spawn Ricochet (On)", true, 1);
-    S_BUFF_CD[1] = WorkshopSettingInteger("Ricochet Buff",                   "Ricochet ​Spawn Time (75)", 75, 5, 600, 2);
+    S_BUFF_CD[1] = WorkshopSettingInteger("Ricochet Buff",                   "Ricochet Spawn Time (75)", 75, 5, 600, 2);
     S_BUFF_AMMO[1] = WorkshopSettingInteger("Ricochet Buff",                 "Ricochet Ammo (15)", 15, 1, 1000, 3);
-    S_NUM_RICOCHETS = WorkshopSettingInteger("Ricochet Buff",                "​​​Ricochet Amount (6)", 6, 1, 24, 4);
+    S_NUM_RICOCHETS = WorkshopSettingInteger("Ricochet Buff",                "Amount of Bounces (5)", 5, 1, 24, 4);
 
-    s_spawn_buff[5] = WorkshopSettingToggle("Electro Buff",                  "​​​​​Spawn Electro (On)", true, 1);
-    S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro ​Spawn Time (100)", 100, 5, 600, 2);
+    s_spawn_buff[5] = WorkshopSettingToggle("Electro Buff",                  "Spawn Electro (On)", true, 1);
+    S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro Spawn Time (100)", 100, 5, 600, 2);
     S_BUFF_AMMO[5] = WorkshopSettingInteger("Electro Buff",                  "Electro Ammo (16)", 16, 1, 1000, 3);
     S_ELECTRO_ESIZE = WorkshopSettingReal("Electro Buff",                    "Electro Primary Explosion Size (1.5)", 1.75, 1, 500, 4);
     S_ELECTRO_MESIZE = WorkshopSettingReal("Electro Buff",                   "Electro Mine Explosion Size (6.5)", 6.5, 1, 500, 5);
     S_ELECTRO_DELAY = WorkshopSettingReal("Electro Buff",                    "Electro Mine Idle Explosion Time (5)", 5, 1, 500, 6);
     S_ELECTRO_PSPEED = WorkshopSettingReal("Electro Buff",                   "Electro Mine Projectile Speed (70)", 70, 1, 500, 7);
 
-    s_spawn_buff[6] = WorkshopSettingToggle("Spark Buff",                    "​​​​​Spawn Spark (On)", true, 1);
-    S_BUFF_CD[6] = WorkshopSettingInteger("Spark Buff",                      "Spark ​Spawn Time (125)", 125, 5, 600, 2);
+    s_spawn_buff[6] = WorkshopSettingToggle("Spark Buff",                    "Spawn Spark (On)", true, 1);
+    S_BUFF_CD[6] = WorkshopSettingInteger("Spark Buff",                      "Spark Spawn Time (125)", 125, 5, 600, 2);
     S_BUFF_AMMO[6] = WorkshopSettingInteger("Spark Buff",                    "Spark Ammo (10)", 10, 1, 1000, 3);
     S_SPRK_PRIESIZE = WorkshopSettingReal("Spark Buff",                      "Spark Primary Explosion Size (1.75)", 1.75, 1, 10, 5);
     S_SPRK_PSPEED = WorkshopSettingReal("Spark Buff",                        "Spark Projectile Speed (20)", 20, 1, 500, 4);
@@ -101,31 +100,31 @@ rule: "[Main] :: Initial Global"
     S_SPRK_HIT_PESIZE = S_SPRK_PESIZE * 2;
     S_SPRK_HITBOX_SIZE = WorkshopSettingReal("Spark Buff",                   "Spark Projectile Hitbox Size (0.45)", 0.45, 0.5, 10, 7);
 
-    s_spawn_buff[8] = WorkshopSettingToggle("Pylon Buff",                    "​​​​​Spawn Pylon (On)", true, 1);
-    S_BUFF_CD[8] = WorkshopSettingInteger("Pylon Buff",                      "Pylon ​Spawn Time (125)", 125, 5, 600, 2);
+    s_spawn_buff[8] = WorkshopSettingToggle("Pylon Buff",                    "Spawn Pylon (On)", true, 1);
+    S_BUFF_CD[8] = WorkshopSettingInteger("Pylon Buff",                      "Pylon Spawn Time (125)", 125, 5, 600, 2);
     S_BUFF_AMMO[8] = WorkshopSettingInteger("Pylon Buff",                    "Maximum Available Pylons", 6, 1, 10, 3);
 
-    s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "​​​​​Spawn Volt (On)", true, 1);
-    S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt ​Spawn Time (165)", 165, 5, 600, 2);
+    s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "Spawn Volt (On)", true, 1);
+    S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt Spawn Time (165)", 165, 5, 600, 2);
     S_BUFF_AMMO[9] = WorkshopSettingInteger("Volt Buff",                     "Volt Ammo (320)", 320, 1, 10000, 3);
     S_VLT_DIST = WorkshopSettingReal("Volt Buff",                            "Volt Maximum Distance (15)", 15, 1, 100, 3);
 
-    s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "​​​​​Spawn Arc (On)", true, 1);
-    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc ​Spawn Time (195)", 195, 5, 600, 2);
+    s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "Spawn Arc (On)", true, 1);
+    S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc Spawn Time (195)", 195, 5, 600, 2);
     S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc Buff",                      "Arc Ammo (540)", 540, 1, 10000, 3);
-    S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Arc Reflect Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
+    S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Bounce Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
 
-    s_spawn_buff[3] = WorkshopSettingToggle("Prism Buff",                    "​​Spawn Prism (On)", true, 1);
-    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "​Prism Spawn Time (195)", 195, 5, 600, 2);
-    S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism Buff",                    "​​​Prism Ammo (10)", 10, 1, 1000, 3);
+    s_spawn_buff[3] = WorkshopSettingToggle("Prism Buff",                    "Spawn Prism (On)", true, 1);
+    S_BUFF_CD[3] = WorkshopSettingInteger("Prism Buff",                      "Prism Spawn Time (195)", 195, 5, 600, 2);
+    S_BUFF_AMMO[3] = WorkshopSettingInteger("Prism Buff",                    "Prism Ammo (10)", 10, 1, 1000, 3);
 
-    s_spawn_buff[2] = WorkshopSettingToggle("Buckshot Buff",                 "​​​​​Spawn Buckshot (On)", true, 1);
-    S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot ​Spawn Time (210)", 210, 5, 600, 2);
-    S_BUFF_AMMO[2] = WorkshopSettingInteger("Buckshot Buff",                 "​​Buckshot Ammo (30)", 30, 1, 1000, 3);
-    S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "​​​Buckshot Spread (Lower is Tighter) (1.25)", 1.25, 0.1, 20, 4);
-    S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot Buff",             "​​​Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
+    s_spawn_buff[2] = WorkshopSettingToggle("Buckshot Buff",                 "Spawn Buckshot (On)", true, 1);
+    S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot Spawn Time (210)", 210, 5, 600, 2);
+    S_BUFF_AMMO[2] = WorkshopSettingInteger("Buckshot Buff",                 "Buckshot Ammo (30)", 30, 1, 1000, 3);
+    S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "Buckshot Spread (Lower is Tighter) (1.25)", 1.25, 0.1, 20, 4);
+    S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot Buff",             "Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
 
-    s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "​​​​​Spawn Ballista (On)", true, 1);
+    s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
     S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
     S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
@@ -140,79 +139,13 @@ rule: "[Main] :: Initial Global"
         for (Number i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
 
-    // ----------------------- DEBUG STUFF ----------------------- //
-
-    s_dbg_player = WorkshopSettingToggle("Debug",                       "Player Info", true, 1);
-    s_dbg_world = WorkshopSettingToggle("Debug",                        "World Info", true, 2);
-    s_dbg_fastspawn[0] = WorkshopSettingToggle("Debug",                 "​Fast Buff Spawn", false, 3);
-    s_dbg_fastspawn[1] = WorkshopSettingToggle("Debug",                 "​Fast Mutator Spawn", false, 4);
-    buff_debug[0] = WorkshopSettingToggle("Debug",                      "​​​​​Give Wallbang", false, 5);
-    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give ​​​​​​​​​​Ricochet", false, 6);
-    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 7);
-    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 8);
-    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 9);
-    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 10);
-    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
-    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
-    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Pylon", false, 13);
-    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Volt", false, 14);
-
-    if (s_dbg_fastspawn[0])
-        for (Number i = 0; i < S_BUFF_CD.Length; i++)
-            S_BUFF_CD[i] = 5;
-
-    if (s_dbg_fastspawn[1])
-    {
-        s_rand_mcd = false;
-        S_M_CD = 5;
-        S_M_CREATION = 5;
-    }
-
-    if (s_dbg_world)
-    {
-        // server load, entity, and text information
-        CreateHudText(host, null, <" \nCur: <0>%\nAvg: <1>%\nPeak: <2>%\nEnt: <3> / 256\nTxt: <4> (<5>) / 128\n", 
-        Near(ServerLoad() / 2.55), 
-        Near(ServerLoadAverage() / 2.55), 
-        Near(ServerLoadPeak() / 2.55), 
-        EntityCount(), 
-        TextCount(), TextCount() - (buff_pos.Length + all.Length + 2)
-
-        >, null, Location.Right, 0.2, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
-
-        // world information
-        CreateHudText(host, null, <"valid_map: <0>\nm_cd: <1>, recent mutator: <2>\nmutator time: <3> + <4>", 
-        valid_map,
-        m_cd,
-        m_str,
-        S_M_CD,
-        rand
-
-        >, null, Location.Right, 0.3);
-
-        WaitUntil(valid_map, 10);
-
-        // buff information
-        for (Number i = 0; i < buff_pos.Length; i++)
-        {
-            CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
-
-            Once(i), 
-            buff_cd[Once(i)],
-            Once(buff_pos[i]),
-            DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
-            Once(buff_pos[i]), 
-
-            1, Clipping.DoNotClip);
-        }
-    }
-
-    if (!s_dbg_player)
-    // ----------------------------------------------------------- //
-    {
-        CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
-        CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
-    }
+    CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
+    CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
+    CreateHudText(local.life_kills >= 5 ? local : null, null, <" \n<0> Kill Streak", local.life_kills>, local.streak_str, Location.Left, 100, Color.White, Color.White, local.streak_color != null ? local.streak_color : RainbowColor(), HudTextRev.VisibleToSortOrderStringAndColor);
+    
+    CreateInWorldText(local, local.xhair, 
+    Update(EyePosition(local) + 100 * ((-0.190) * DirectionFromAngles(HorizontalAngleFromDirection(Facing(local)), VerticalAngleFromDirection(Facing(local)) - 90) + 3 * Facing(local))), 
+    2, Clipping.DoNotClip, InworldTextRev.VisibleToPositionStringAndColor, color_arr[local.buff_held]);
 }
 
 rule: "[Main] :: Start Match"
@@ -247,44 +180,19 @@ Event.OnPlayerJoin
     DisallowButton(player, Button.Ability2);
 
     CreateEffect(bhopping ? all : null, Effect.Soldier76SprintingEffect, Color.White, player, 1);
-    bhop_speed = 100;
+    CreateEffect(IsAlive() && has_buff ? all : null, Effect.GoodAura, buff_color, player, 0.5, EffectRev.VisibleToPositionRadiusAndColor);
 
+    bhop_speed = 100;
     has_buff = false;
     has_mut = false;
+    xhair = "";
     charge_str = "○ ○ ○ ○ ○ ";
+    spread = S_BUCKSHOT_SPREAD;
     sec_eyepos = Vector(-10000, -10000, -10000);
     sprk_eyepos = Vector(-10000, -10000, -10000);
     electro_eyepos1 = Vector(-10000, -10000, -10000);
     electro_eyepos2 = Vector(-10000, -10000, -10000);
     electro_eyepos3 = Vector(-10000, -10000, -10000);
-
-    // ----------------------- DEBUG STUFF ----------------------- //
-    for (Number i = 0; i < buff_debug.Length; i++)
-    {
-        if (buff_debug[i])
-        {
-            has_buff = true;
-            buff_held = i; // if multiple buffs are given this will break manual buff removal
-            buff_enabled[i] = true;
-            buff_ammo[i] = 999999;
-        }
-    }
-
-    if (s_dbg_player)
-    {
-        // player information
-        CreateHudText(host, null, <" \n<0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\n<4>\nhas mutator: <5>", 
-        player,
-        bhopping, 
-        bhop_speed,
-        dodges,
-        has_buff ? <"current buff: <0>", buff_str> : <"recent buff: <0>", buff_str>,
-        has_mut
-
-        >, null, Location.Right, 0.5);
-    }
-
-    // ----------------------------------------------------------- //
 }
 
 rule: "[Main] :: Server Fire and Delay"
@@ -340,7 +248,9 @@ if (has_buff)
 
 rule: "[Main] :: Start Primary Override"
 Event.OngoingPlayer
-if (buff_enabled[4] || buff_enabled[7] || buff_enabled[9])
+if (buff_enabled[4] || 
+    buff_enabled[7] || 
+    buff_enabled[9])
 {
     pri_override = true;
 }
@@ -354,44 +264,3 @@ if (!buff_enabled[9])
     WaitUntil(!IsPrimaryHeld(), 99999); // prevents automatic weapon firing after conditions are true
     pri_override = false;
 }
-
-// rule: "Kill"
-// Event.OngoingPlayer
-// if (player == host && IsInteractHeld())
-// {
-//     Kill();
-// }
-
-rule: "Bots"
-if (FilteredArray(all, IsDummyBot(Curr())).Length < 8 - FilteredArray(all, !IsDummyBot(Curr())).Length)
-if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
-{
-    CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null), Facing(host) * -1);
-}
-rule: "Destroy Bots"
-if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
-{
-    DestroyAllDummyBots();
-}
-
-// rule: "Show OW Spawn Points"
-// if (match_started)
-// {
-//     for (Number i = 0; i < SpawnPoints(Team.All).Length; i++)
-//     {
-//         CreateEffect(all, Effect.Sphere, Color.White, RayCastHitPosition(SpawnPoints(Team.All)[i], SpawnPoints(Team.All)[i] + Down() * 1, null, null), 0.5, EffectRev.None);
-//     }
-// }
-
-// rule: "Bots Hold Left Click"
-// Event.OngoingPlayer
-// if (IsDummyBot())
-// {
-//     StartHoldingButton(player, Button.PrimaryFire);
-// }
-
-// rule: "Show start_pos"
-// Event.OngoingPlayer
-// {
-//     CreateEffect(player, Effect.Sphere, Color.Aqua, weapon_muzzle, 0.05);
-// }
