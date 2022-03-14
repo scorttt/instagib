@@ -16,18 +16,6 @@ rule: "[Main] :: Pickup Init"
                 CustomColor(0,   230, 150, 255),  // 8
                 CustomColor(236, 153, 0,   255)]; // 9
 
-    // [0]: wallbang
-    // [1]: ricochet
-    // [5]: electro
-    // [6]: spark
-    // [7]: arc
-    // [8]: daybreak
-
-    // supers
-    // [2]: buckshot
-    // [3]: prism
-    // [4]: ballista
-
     Vector[] b_loc = [];
     switch (true)
     {
