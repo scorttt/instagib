@@ -1,6 +1,5 @@
 import "main.del";
 playervar Number life_kills;
-playervar Any spree_hud;
 playervar Color streak_color;
 playervar String streak_str;
 
@@ -14,9 +13,6 @@ Event.OnFinalBlow
     switch (life_kills)
     {
         case (5):
-            CreateHudText(player, null, <" \n<0> Kill Streak", life_kills>, streak_str, Location.Left, 100, Color.White, Color.White, streak_color != null ? streak_color : RainbowColor(), HudTextRev.StringAndColor);
-            spree_hud = LastTextID();
-
             streak_str = "Killing Spree";
             streak_color = Color.White;
             break;
@@ -50,8 +46,5 @@ Event.OnFinalBlow
 rule: "[Killspree] :: Reset Kills on death"
 Event.OnDeath
 {
-    if (life_kills >= 5)
-        DestroyHudText(spree_hud);
-
     life_kills = 0;
 }
