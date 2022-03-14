@@ -7,7 +7,7 @@ class Sorting
     public static Number electro:     3;
     public static Number spark:       4;
     public static Number pylon:       5;
-    public static Number volt:   6;
+    public static Number volt:        6;
     public static Number arc:         7;
     public static Number prism:       8;
     public static Number buckshot:    9; 
@@ -209,7 +209,7 @@ if (s_buffs_enabled)
         <" Press <0> for alternate fire", InputBindingString(Button.Reload)>,
         Location.Top, 1.1, TextColor: color_arr[5]);
         CreateHudText(local.mines_placed ? local : null, null, null, 
-        AltFont(<" [ Automatic Detonation in: <0> ]", Ceiling(local.mine_det)>),
+        AltFont(<" [ Detonation in: <0> ]", Ceiling(local.mine_det)>),
         Location.Top, 1.2, TextColor: color_arr[5]);
 
         CreateHudText(FilteredArray(all, !Curr().info), AbilityIconString(Hero.Echo, Button.SecondaryFire), null,
@@ -266,7 +266,7 @@ if (s_buffs_enabled)
         CreateHudText(FilteredArray(all, Curr().info), 
         AbilityIconString(Hero.Echo, Button.Ability2), 
         "Arc", 
-        "Reflective laser that bounces on surfaces decreasing in distance each bounce", Location.Left, Sorting.arc, color_arr[7], color_arr[7]);
+        "Reflective laser that bounces on surfaces", Location.Left, Sorting.arc, color_arr[7], color_arr[7]);
 
         CreateHudText(local.buff_enabled[7] ? local : null, null, null, 
         <" <0> Arc Ammo: <1> / <2>", 
@@ -295,7 +295,7 @@ if (s_buffs_enabled)
         CreateHudText(FilteredArray(all, Curr().info), 
         AbilityIconString(Hero.Orisa, Button.Ultimate), 
         "Pylon",
-        <"Place pylons that require connection with another pylon, kills any enemies who cross. Place with <0> and confirm with <1>", InputBindingString(Button.Reload), InputBindingString(Button.PrimaryFire)>, Location.Left, Sorting.pylon, color_arr[8], color_arr[8]);
+        <"Create a wall of deadly lasers. Place with <0> and confirm placement with <1>", InputBindingString(Button.Reload), InputBindingString(Button.PrimaryFire)>, Location.Left, Sorting.pylon, color_arr[8], color_arr[8]);
         CreateHudText(local.buff_enabled[8] ? local : null, null, null, 
     
         <" <0> Pylon Ammo: <1> / <2>",
@@ -354,15 +354,15 @@ if (s_buffs_enabled)
     if (s_spawn_m)
     {
         CreateHudText(m_inworld ? all : null, null, " \n", null, Location.Left, 11.9, null, null);
-        CreateHudText(m_inworld ? all : null, m_ico, null, mut_pb != 100 && m_cd <= S_M_CREATION ? m_cd + S_M_CREATION : IconString(Icon.Checkmark), 
+        CreateHudText(m_inworld ? all : null, m_ico, m_str, m_pb != 100 && m_cd <= S_M_CREATION ? <"<0>%", Floor(m_pb)> : IconString(Icon.Checkmark), 
         Location.Left, 12, m_color[0], Color.White, Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
  
-        CreateProgressBarInWorldText(m_inworld && mut_pb != 100 ? all : null, mut_pb, null, m_pos + Vector(0, mut_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, m_color[0], null, ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
-        CreateInWorldText(m_inworld && mut_pb == 100 ? all : null, m_ico, m_pos + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToPositionAndString);
-        CreateEffect(m_inworld && mut_pb == 100 ? all : null, Effect.BadAura, m_color[1], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
-        CreateEffect(m_inworld && mut_pb != 100 ? all : null, Effect.Sphere, m_color[0], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
-        CreateEffect(m_inworld ? all : null, Effect.GoodAura, m_color[0], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
-        CreateEffect(m_inworld ? all : null, Effect.Sparkles, m_color[0], m_pos, mut_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
+        CreateProgressBarInWorldText(m_inworld && m_pb != 100 ? all : null, m_pb, null, m_pos + Vector(0, m_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, m_color[0], null, ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
+        CreateInWorldText(m_inworld && m_pb == 100 ? all : null, m_ico, m_pos + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToPositionAndString);
+        CreateEffect(m_inworld && m_pb == 100 ? all : null, Effect.BadAura, m_color[1], m_pos, m_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
+        CreateEffect(m_inworld && m_pb != 100 ? all : null, Effect.Sphere, m_color[0], m_pos, m_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
+        CreateEffect(m_inworld ? all : null, Effect.GoodAura, m_color[0], m_pos, m_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
+        CreateEffect(m_inworld ? all : null, Effect.Sparkles, m_color[0], m_pos, m_pb * 0.0045, EffectRev.VisibleToPositionRadiusAndColor);
     }
 
     if (s_sec_enabled || s_bhop_enabled || s_dodge_enabled)
