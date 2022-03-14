@@ -24,21 +24,8 @@ if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Prism";
     buff_i = 3;
     CollectBuff();
-}
-
-rule: "[Buff] :: Prism : Remove"
-Event.OngoingPlayer
-if (buff_enabled[3])
-if (buff_ammo[3] <= 0)
-{
-    LogToInspector(<"Prism Disabled for <0>", player>);
-    DestroyEffect(collected_buff_effect[3]);
-
-    buff_enabled[3] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Prism : Fire Action"

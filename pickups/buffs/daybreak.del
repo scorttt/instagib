@@ -29,23 +29,8 @@ if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Pylon";
     buff_i = 8;
     CollectBuff();
-}
-
-rule: "[Buff] :: Pylon : Remove"
-Event.OngoingPlayer
-if (buff_enabled[8])
-if (buff_ammo[8] <= 0)
-{
-    LogToInspector(<"Pylon Disabled for <0>", player>);
-
-    // destroy hud timer and player effect
-    DestroyEffect(collected_buff_effect[8]);
-
-    buff_enabled[8] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Pylon Fire Action"

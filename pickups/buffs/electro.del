@@ -39,22 +39,8 @@ if (DistanceBetween(buff_pos[5], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Electro";
     buff_i = 5;
     CollectBuff();
-}
-
-rule: "[Buff] :: Electro : Remove"
-Event.OngoingPlayer
-if (buff_enabled[5])
-if (buff_ammo[5] <= 0)
-{
-    LogToInspector(<"Electro Disabled for <0>", player>);
-
-    DestroyEffect(collected_buff_effect[5]);
-
-    buff_enabled[5] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Electro : Action - Primary"

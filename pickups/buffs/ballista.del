@@ -27,24 +27,8 @@ if (DistanceBetween(buff_pos[4], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    DisallowButton(player, Button.PrimaryFire);
-    buff_str = "Ballista";
     buff_i = 4;
     CollectBuff();
-}
-
-rule: "[Buff] :: Ballista : Remove"
-Event.OngoingPlayer
-if (buff_enabled[4])
-if (buff_ammo[4] <= 0)
-{
-    LogToInspector(<"Ballista Disabled for <0>", player>);
-
-    // destroy hud timer and player effect
-    DestroyEffect(collected_buff_effect[4]);
-
-    buff_enabled[4] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Ballista : Action"

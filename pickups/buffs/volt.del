@@ -27,24 +27,8 @@ if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    DisallowButton(player, Button.PrimaryFire);
-    buff_str = "Volt";
     buff_i = 9;
     CollectBuff();
-}
-
-rule: "[Buff] :: Volt : Remove"
-Event.OngoingPlayer
-if (buff_enabled[9])
-if (buff_ammo[9] <= 0)
-{
-    LogToInspector(<"Volt Disabled for <0>", player>);
-
-    // destroy hud timer and player effect
-    DestroyEffect(collected_buff_effect[9]);
-
-    buff_enabled[9] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Volt : Action - Fire"

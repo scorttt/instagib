@@ -35,22 +35,8 @@ if (DistanceBetween(buff_pos[6], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Spark";
     buff_i = 6;
     CollectBuff();
-}
-
-rule: "[Buff] :: Spark : Remove"
-Event.OngoingPlayer
-if (buff_enabled[6])
-if (buff_ammo[6] <= 0)
-{
-    LogToInspector(<"Spark Disabled for <0>", player>);
-
-    DestroyEffect(collected_buff_effect[6]);
-
-    buff_enabled[6] = false;
-    has_buff = false;
 }
 
 Number sprk_check: Update(DistanceBetween(sprk_eyepos, Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos)))) <= S_SPRK_HITBOX_SIZE);

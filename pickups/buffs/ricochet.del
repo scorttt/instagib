@@ -25,24 +25,9 @@ if (DistanceBetween(buff_pos[1], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Ricochet";
     buff_i = 1;
     CollectBuff();
 }
-
-rule: "[Buff] :: Ricochet : Remove"
-Event.OngoingPlayer
-if (buff_enabled[1])
-if (buff_ammo[1] <= 0)
-{
-    LogToInspector(<"Riochet Disabled for <0>", player>);
-
-    DestroyEffect(collected_buff_effect[1]);
-
-    buff_enabled[1] = false;
-    has_buff = false;
-}
-
 
 rule: "[Buff] :: Ricochet : Action"
 Event.OngoingPlayer

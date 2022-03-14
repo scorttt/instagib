@@ -25,24 +25,8 @@ if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    DisallowButton(player, Button.PrimaryFire);
-    buff_str = "Arc";
     buff_i = 7;
     CollectBuff();
-}
-
-rule: "[Buff] :: Arc : Remove"
-Event.OngoingPlayer
-if (buff_enabled[7])
-if (buff_ammo[7] <= 0)
-{
-    LogToInspector(<"Arc Disabled for <0>", player>);
-
-    // destroy hud timer and player effect
-    DestroyEffect(collected_buff_effect[7]);
-
-    buff_enabled[7] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Arc : Action - Fire"

@@ -9,6 +9,7 @@ playervar Number charge_lvl;
 playervar String charge_str;
 playervar String hascharge_str;
 playervar String nocharge_str;
+playervar Number spread;
 
 disabled rule: "---------------- Buckshot ----------------"{}
 
@@ -31,22 +32,8 @@ if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_str = "Buckshot";
     buff_i = 2;
     CollectBuff();
-}
-
-rule: "[Buff] :: Buckshot : Remove"
-Event.OngoingPlayer
-if (buff_enabled[2])
-if (buff_ammo[2] <= 0)
-{
-    LogToInspector(<"Buckshot Disabled for <0>", player>);
-
-    DestroyEffect(collected_buff_effect[2]);
-
-    buff_enabled[2] = false;
-    has_buff = false;
 }
 
 rule: "[Buff] :: Buckshot : Charge"
@@ -60,8 +47,9 @@ if (IsReloadHeld())
     WaitIfTrue(S_BUCKSHOT_CHARGE_SPD);
     PlayEffect(all, PlayEffect.GoodPickupEffect, color_arr[2], PositionOf(), 1);
     PlayEffect(player, PlayEffect.BuffImpactSound, null, player, 50);
+
     charge_lvl++;
-    
+    spread = spread + 0.35;
     buff_ammo[2]--;
 
     hascharge_str = StringSlice(charge_arr[0], 0, charge_lvl * 2);
@@ -86,8 +74,8 @@ if (IsFiringPrimary())
     Any[] buckshot_beam = [];
 
     Number[] bs_spread;
-    bs_spread[0] = S_BUCKSHOT_SPREAD; // horizontal and verticle spread
-    bs_spread[1] = PercSub(S_BUCKSHOT_SPREAD, 33); // diagonal spread
+    bs_spread[0] = spread; // horizontal and verticle spread
+    bs_spread[1] = PercSub(spread, 33); // diagonal spread
 
     // center
     Vector buckshot_center = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
@@ -208,4 +196,5 @@ if (IsFiringPrimary())
 
     charge_lvl = 0;
     charge_str = "○ ○ ○ ○ ○ ";
+    spread = S_BUCKSHOT_SPREAD;
 }

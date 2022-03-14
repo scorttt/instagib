@@ -28,7 +28,7 @@ globalvar String[] buff_txt; // buff timer text shown in the players HUD
 globalvar Vector[] buff_pos; // array of set buff positions
 playervar Boolean has_buff; // whether the player owns a buff
 playervar Number buff_held; // currently held buff index
-globalvar Number buff_i; // index of the buff
+globalvar Number buff_i; // index of the buff (this probably shouldnt be a globalvar but it seems to be working fine, what could possibly go wrong)
 playervar String buff_str; // string of the held buff
 globalvar Any buff_trail; // beam effect for firing weapon with a buff
 playervar Color buff_color; // the given buff color to the player 
@@ -36,11 +36,59 @@ globalvar Any[] collected_buff_effect; // good aura around a player with a buff
 globalvar Boolean valid_map; // whether buffs can spawn on a map
 globalvar Color[] color_arr; // global array of colors
 playervar Number[] max_ammo; // maximum buff ammo
+playervar String xhair;
 
 disabled rule: "---------------- Buff ----------------"{}
 
 void CollectBuff() playervar "[Buff] :: Buff Collection"
 {
+    switch (buff_i)
+    {
+        case (0):
+            buff_str = "Wallbang";
+            xhair = "≫                   ≪";
+            break;
+        case (1):
+            buff_str = "Ricochet";
+            xhair = "ᄼ                   ᄾ";
+            break;
+        case (2):
+            buff_str = "Buckshot";
+            xhair = "〔                   〕";
+            break;
+        case (3):
+            buff_str = "Prism";
+            xhair = "▲                   ▼";
+            break;
+        case (4):
+            DisallowButton(player, Button.PrimaryFire);
+            buff_str = "Ballista";
+            xhair = "∈                   ∋";
+            break;
+        case (5):
+            buff_str = "Electro";
+            xhair = "⁅                   ⁆";
+            break;
+        case (6):
+            buff_str = "Spark";
+            xhair = "※                   ※";
+            break;
+        case (7):
+            DisallowButton(player, Button.PrimaryFire);
+            buff_str = "Arc";
+            xhair = "ᅏ                   ᅑ";
+            break;
+        case (8):
+            buff_str = "Pylon";
+            xhair = "ㅐ                   ㅐ";
+            break;
+        case (9):
+            DisallowButton(player, Button.PrimaryFire);
+            buff_str = "Volt";
+            xhair = "ᅣ                   ᅧ";
+            break;
+    }
+
     buff_held = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
@@ -51,9 +99,6 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     {
         buff_enabled[buff_i] = true;
         has_buff = true;
-
-        CreateEffect(IsAlive() ? all : null, Effect.GoodAura, buff_color, player, 0.5, EffectRev.VisibleToPositionAndRadius);
-        collected_buff_effect[buff_i] = LastCreatedEntity();
     }
 
     if (buff_ammo[buff_i] < 0)
@@ -199,7 +244,18 @@ void CreateOrb() "[Buff] :: Create Orb"
     }
 }
 
-rule: "[Buff] :: Remove Current Buff"
+rule: "[Buff] :: Remove Buff"
+Event.OngoingPlayer
+if (IsTrueForAll(buff_enabled, false) || IsTrueForAll(buff_ammo, Curr() <= 0))
+{
+    for (Number i = 0; i < buff_enabled.Length; i++)
+        buff_enabled[i] = false;
+
+    has_buff = false;
+    xhair = "";
+}
+
+rule: "[Buff] :: Remove Current Buff Hotkey"
 Event.OngoingPlayer
 if (IsInteractHeld())
 if (has_buff)
@@ -207,7 +263,7 @@ if (has_buff)
     WaitIfTrue(1);
 
     PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[buff_held], PositionOf() + WorldVectorOf(Vector(0, 1, 1), player), 1);
-    DestroyEffect(collected_buff_effect[buff_held]);
+
     buff_ammo[buff_held] = 0;
     buff_enabled[buff_held] = false;
     buff_color = null;
