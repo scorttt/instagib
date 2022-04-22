@@ -173,7 +173,6 @@ if (IsFiringPrimary())
 
         mult++;
 
-        // TODO: OPTIMIZE :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) :) 
         for (Number j = 0; j < 8; j++)
         {
             PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[i][j], 0.2);
