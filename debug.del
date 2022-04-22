@@ -18,7 +18,7 @@ rule: "Global Debug"
     buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 10);
     buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
     buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
-    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Pylon", false, 13);
+    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Nebula", false, 13);
     buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Volt", false, 14);
 
     if (s_dbg_fastspawn[0])
@@ -31,22 +31,16 @@ rule: "Global Debug"
         S_M_CD = 5;
         S_M_CREATION = 5;
     }
-    // server load, entity, and text information
-    CreateHudText(host, null, <"C: <0>%, A: <1>%, P: <2>%, E: <3>, T: <4> (<5>)\n", 
-    Near(ServerLoad() / 2.55), 
-    Near(ServerLoadAverage() / 2.55), 
-    Near(ServerLoadPeak() / 2.55), 
-    EntityCount(), 
-    TextCount(), TextCount() - (buff_pos.Length + all.Length + 3)
 
-    >, null, Location.Right, 0.2, Color.White, Color.White, Color.White, HudTextRev.VisibleToSortOrderStringAndColor);
+    // server load, entity, and text information
+    ServerStats(buff_pos.Length + all.Length + 3);
 
     // world information
     CreateHudText(host, null, 
-    <"valid_map: <0>\nm_cd: <1>, mutator: <2>\nfinal time: <3> + <4>", 
+    <"valid_map: <0>\nm_cd: <1>, mutator: <2> (<3>)\nfinal time: <4> + <5>, mut remaining: <6>", 
     valid_map,
-    m_cd, m_str,
-    S_M_CD, rand
+    m_cd, chosen_mut, m_str,
+    S_M_CD, rand, m_in.Length
 
     >, null, Location.Right, 0.3);
 
@@ -56,7 +50,6 @@ rule: "Global Debug"
     for (Number i = 0; i < buff_pos.Length; i++)
     {
         CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
-
         Once(i), 
         buff_cd[Once(i)],
         Once(buff_pos[i]),
@@ -67,9 +60,8 @@ rule: "Global Debug"
     }
 
     // mutator world information
-    CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
-    m_str, 
-    m_cd != 0 ? m_cd : m_pb,
+    CreateInWorldText(host, <"<0> (<1>), <2>\n<3>\n<4>\n\n\n\n\n", 
+    chosen_mut, m_str, m_cd != 0 ? m_cd : m_pb,
     m_pos, 
     DistanceBetween(PositionOf(host) + Up(), m_pos)>, m_pos, 1, Clipping.DoNotClip);
 }
@@ -124,7 +116,7 @@ if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
 // {
 //     for (Number i = 0; i < SpawnPoints(Team.All).Length; i++)
 //     {
-//         CreateEffect(all, Effect.Sphere, Color.White, RayCastHitPosition(SpawnPoints(Team.All)[i], SpawnPoints(Team.All)[i] + Down() * 1, null, null), 0.5, EffectRev.None);
+//         CreateEffect(all, Effect.Sphere, Color.White, RayCastHitPosition(SpawnPoints(Team.All)[i], SpawnPoints(Team.All)[i] + Down(), null, null), 0.5, EffectRev.None);
 //     }
 // }
 
