@@ -3,6 +3,7 @@ import ".bmain.del";
 
 globalvar Number arc_pb;
 globalvar Number S_ARC_MOD;
+playervar Any arc_effects;
 
 disabled rule: "---------------- Arc ----------------"{}
 
@@ -34,66 +35,49 @@ Event.OngoingPlayer
 if (buff_enabled[7])
 if (IsPrimaryHeld())
 {
-    // // THIS SHIT BROCKEN
-    // vec eye_pos = weapon_muzzle(EyePosition(), Facing());
-    // vec facing = Facing();
-    // num dist = 100;
+    // this code will turn into pure vomit
+    // TODO: make arc hit bounce using similar code as ricochet
+    if (EntityExists(arc_effects))
+        DestroyEffect(arc_effects);
 
-    // vec[] normals;
-    // vec[] hp;
-    // vec[] hp_ricochets;
-    // any[] ricochets;
-    // any[] hp_player;
-    // any[] hp_player_ricochets;
-    // any[] effects;
+    WaitIfTrue(0.05); // brief hold
+    Boolean hit = false;
+    Vector arc_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    MinWait();
 
-    // for (num i = 0; i < 16; i++)
-    // {
-    //     CreateBeamEffect(all, BeamType.BadBeam, eye_pos, facing, color_arr[7], EffectRev.PositionAndRadius);
-    //     effects[i] = LastCreatedEntity();
-    // }
+    CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), arc_hit, color_arr[7], EffectRev.VisibleToPositionRadiusAndColor);
+    arc_effects[0] = LastCreatedEntity();
+    CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
+    arc_effects[1] = LastCreatedEntity();
+    CreateEffect(all, Effect.OmnicSlicerBeamSound, null, player, 100);
+    arc_effects[2] = LastCreatedEntity();
+    CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, arc_hit, 100);
+    arc_effects[3] = LastCreatedEntity();
+    CreateEffect(hit ? all : null, Effect.OmnicSlicerBeamSound, null, player, 100);
+    arc_effects[4] = LastCreatedEntity();
 
-    // while (IsInteractHeld())
-    // {
-    //     buff_ammo[7]--;
-    //     eye_pos = EyePosition();
-    //     facing = Facing();
-    //     normals = [];
-    //     hp = [];
-    //     hp_ricochets = [];
-    //     ricochets = [];
-    //     hp_player = [];
-    //     hp_player_ricochets = [];
+    while (IsPrimaryHeld() && IsAlive() && buff_enabled[7])
+    {
+        buff_ammo[7]--;
+        arc_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player));
+        Player arc_player = Update(RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player));
 
-    //     for (num i = 0; i < 16; i++)
-    //     {
-    //         if (i > 0)
-    //         {
-    //             eye_pos = hp[i - 1];
-    //             facing = ricochets[i - 1];
+        if (DistanceBetween(EyePosition(), arc_hit) < 99)
+        {
+            PlayEffect(all, PlayEffect.BadExplosion, color_arr[7], arc_hit, 0.1);
+            hit = true;
+        }
+        else
+        {
+            hit = false;
+        }
 
-    //             dist = dist / 4;
-    //         }
+        Kill(arc_player, player);
+        MinWait();
+    }
 
-    //         hp[i] =                  RayCastHitPosition(eye_pos, eye_pos + facing * dist, null, player, true);
-    //         normals[i] =             RayCastHitNormal  (eye_pos, eye_pos + facing * dist, null, player, true);
-    //         hp_player[i] =           RayCastHitPlayer  (eye_pos, eye_pos + facing * dist, AllLivingPlayers(), player, true);
+    MinWait(); 
 
-    //         ricochets[i] =           facing - (2 * (normals[i] * DotProduct(facing, normals[i])));
-
-    //         hp_ricochets[i] =        RayCastHitPosition(hp[i], hp[i] + ricochets[i] * dist, null, player, true);
-    //         hp_player_ricochets[i] = RayCastHitPlayer  (hp[i], hp[i] + ricochets[i] * dist, AllLivingPlayers(), player, true);
-
-    //         PlayEffect(all, PlayEffect.GoodExplosion, Color.White, hp[i], 0.2); // last ricochet
-    //         PlayEffect(all, PlayEffect.GoodExplosion, Color.White, hp_ricochets[i], 0.2); // ricochets
-
-    //         if (DistanceBetween(eye_pos, facing) > dist - 1)
-    //             break;
-    //     }
-
-    //     MinWait();
-    // }
-
-    // Wait(0.25);
-    // DestroyEffect(effects);
+    DestroyEffect(arc_effects);
+    hit = false;
 }
