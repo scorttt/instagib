@@ -15,7 +15,6 @@ playervar Vector electro_m_hitpos;
 playervar Vector electro_m_effect;
 playervar Vector electro_hitpos;
 playervar Boolean mines_placed;
-playervar Color mine_color;
 playervar Number mine_det;
 
 disabled rule: "---------------- Electro ----------------"{}
@@ -74,29 +73,26 @@ if (IsFiringPrimary())
     DestroyEffect(buff_trail);
 }
 
-rule: "[Buff] :: Electro : Action - Launch Sticky Mines"
+rule: "[Buff] :: Electro : Action - Launch Spikes"
 Event.OngoingPlayer
 if (buff_enabled[5])
 if (!mines_placed)
 if (IsButtonHeld(player, Button.Reload))
 if (IsAlive())
 {
-    mine_color = Color.Blue;
-
     // first mine //
     buff_ammo[5]--;
 
     electro_m_hitpos[0] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
-    DestroyEffect(electro_m_effect[0][0]);
-    DestroyEffect(electro_m_effect[0][1]);
+    DestroyEffect(electro_m_effect[0]);
 
     electro_eyepos1 = EyePosition();
 
-    CreateEffect(all, Effect.Orb, mine_color, electro_eyepos1, 0.20, EffectRev.PositionRadiusAndColor);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos1, electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
     electro_m_effect[0][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, mine_color, electro_eyepos1, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[0][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos1, electro_m_hitpos[0], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -110,14 +106,13 @@ if (IsAlive())
     electro_m_hitpos[1] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
-    DestroyEffect(electro_m_effect[1][0]);
-    DestroyEffect(electro_m_effect[1][1]);
+    DestroyEffect(electro_m_effect[1]);
 
     electro_eyepos2 = EyePosition();
 
-    CreateEffect(all, Effect.Orb, mine_color, electro_eyepos2, 0.20, EffectRev.PositionRadiusAndColor);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos2, electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
     electro_m_effect[1][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, mine_color, electro_eyepos2, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[1][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos2, electro_m_hitpos[1], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -131,14 +126,13 @@ if (IsAlive())
     electro_m_hitpos[2] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
-    DestroyEffect(electro_m_effect[2][0]);
-    DestroyEffect(electro_m_effect[2][1]);
+    DestroyEffect(electro_m_effect[2]);
 
     electro_eyepos3 = EyePosition();
 
-    CreateEffect(all, Effect.Orb, mine_color, electro_eyepos3, 0.20, EffectRev.PositionRadiusAndColor);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos3, electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
     electro_m_effect[2][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, mine_color, electro_eyepos3, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[2][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos3, electro_m_hitpos[2], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -146,16 +140,15 @@ if (IsAlive())
 
     WaitUntil(DistanceBetween(electro_eyepos1, electro_m_hitpos[0]) < 0.1 && DistanceBetween(electro_eyepos2, electro_m_hitpos[1]) < 0.1 && DistanceBetween(electro_eyepos3, electro_m_hitpos[2]) < 0.1, 9999);
     mines_placed = true;
-    mine_color = color_arr[5];
 
     for (Number i = 0; i < 3; i++)
-        PlayEffect(all, PlayEffect.GoodExplosion, mine_color, electro_m_hitpos[i], 0.1);
+        PlayEffect(all, PlayEffect.GoodExplosion, Color.SkyBlue, electro_m_hitpos[i], 0.1);
 
     mine_det = S_ELECTRO_DELAY;
     ChaseVariableOverTime(mine_det, 0, S_ELECTRO_DELAY, TimeChaseReevaluation.None);
 }
 
-void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Mines"
+void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Spikes"
 {
     buff_ammo[5]--;
     mines_placed = false;
@@ -165,10 +158,9 @@ void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Mines"
     for (Number i = 0; i < 3; i++)
     {
         players[i] = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(Curr(), electro_m_hitpos[i]) && DistanceBetween(Curr(), electro_m_hitpos[i]) <= S_ELECTRO_MESIZE); // get players per mine
+
         for (Number j = 0; j < CountOf(players[i]); j++)
-        {
             Kill(players[i][j], player);
-        }
 
         DestroyEffect(electro_m_effect[i][0]);
         DestroyEffect(electro_m_effect[i][1]);
@@ -179,14 +171,12 @@ void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Mines"
         electro_m_hitpos[i] = null;
     }
 
-    mine_color = Color.Blue;
-
     electro_eyepos1 = Vector(-10000, -10000, -10000);
     electro_eyepos2 = Vector(-10000, -10000, -10000);
     electro_eyepos3 = Vector(-10000, -10000, -10000);
 }
 
-rule: "[Buff] :: Electro : Action - Mines Idle"
+rule: "[Buff] :: Electro : Action - Spikes Idle"
 Event.OngoingPlayer
 if (mines_placed)
 {
