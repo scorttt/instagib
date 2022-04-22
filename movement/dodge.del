@@ -37,7 +37,10 @@ if (IsOnGround())
 if (dodges < S_DODGE_AMT)
 {
     if (bhopping)
+    {
+        WaitUntil(!IsButtonHeld(player, Button.Ability1), 99999);
         Wait(0.25);
+    }
 
     dodges = S_DODGE_AMT;
 }
