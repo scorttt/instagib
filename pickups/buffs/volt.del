@@ -60,7 +60,7 @@ if (IsAlive())
         vlt_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * S_VLT_DIST, AllLivingPlayers(), player);
         Player vlt_player = RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * S_VLT_DIST, AllLivingPlayers(), player);
 
-        if (DistanceBetween(EyePosition(), vlt_hit) < S_VLT_DIST)
+        if (DistanceBetween(EyePosition(), vlt_hit) < S_VLT_DIST - 1)
         {
             PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], vlt_hit, 0.1);
             hit = true;
