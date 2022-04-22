@@ -4,6 +4,8 @@ globalvar Boolean s_spawn_m; // mutator can spawn
 globalvar Boolean s_rand_mcd; // mutator timer is randomized
 globalvar Number S_M_CD; // constant for all mutators
 globalvar Number S_M_CREATION; // constant for the mutator to spawn after m_cd runs low
+globalvar Number S_M_DURATION;
+globalvar Number chosen_mut; // chosen id of the mutator
 globalvar Vector[] m_loc; // array of all possible mutator locations
 globalvar Number[] m_in; // index of the available mutator
 globalvar Color[] m_color; // color of the currently spawned mutator 
@@ -12,12 +14,14 @@ globalvar Number m_pb; // progress bar control var for S_M_CREATION
 globalvar Boolean can_pickup_m; // can the mutator be collected
 globalvar Boolean m_in_timer; // is the mutator timer running
 globalvar Boolean m_inworld; // is the mutator currently in the world
-globalvar Number m_cd; // remaining time for the mutator
+globalvar Boolean m_inuse; // is a mutator currently in use by a player
+globalvar Number m_cd; // remaining time for the mutator to spawn
 globalvar String m_ico; // icon for the mutator
 globalvar String m_str; // string for the mutator
 
 playervar Boolean has_mut; // does the player have the mutator
 playervar Boolean[] m_enabled; // which mutator is enabled
+playervar Number m_tleft; // progress bar control var for the player owning a mutator
 
 disabled rule: "---------------- Mutator ----------------"{}
 
@@ -31,7 +35,7 @@ if (m_in.Length > 0)
     m_inworld = true;
     can_pickup_m = false;
 
-    BigMessage(all, <"<0> is spawning", m_str>);
+    BigMessage(all, <"<0> <1>", m_str, LANG_STR[11][2]>);
 
     m_pb = 0;
     m_in_timer = false;
@@ -60,11 +64,22 @@ if (IsAlive())
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], m_pos, 1);
     can_pickup_m = false;
     m_inworld = false;
-    // has_mut = true;
-    // m_enabled[m_choice] = true;
+    has_mut = true;
+    m_enabled[chosen_mut] = true;
 
-    StartMutatorTimer(); // todo: move this to the mutator removal rule when i stop being lazy and actually work on it
+    m_tleft = 100;
+    ChaseVariableOverTime(m_tleft, 0, S_M_DURATION, TimeChaseReevaluation.None);
 
+}
+
+rule: "[Mutator] :: Remove Mutator"
+Event.OngoingPlayer
+if (has_mut)
+if (m_tleft == 0)
+{
+    has_mut = false;
+    m_in -= chosen_mut; // remove the chosen mutator from the array
+    StartMutatorTimer();
 }
 
 globalvar Number rand;
@@ -77,65 +92,64 @@ void StartMutatorTimer() "[Mutator] :: Set new position and reset time"
     if (m_in.Length > 0)
     {
         // get a random mutator from the array
-        Number chosen_mut = m_in.Random();
+        chosen_mut = m_in.Random();
         switch (chosen_mut)
         {
             case (0):
                 m_color[0] = Color.SkyBlue;
                 m_color[1] = Color.White;
                 m_ico = AbilityIconString(Hero.Widowmaker, Button.Ultimate);
-                m_str = "Seer";
+                m_str = LANG_STR[2][0];
                 break;
             case (1):
                 m_color[0] = Color.SkyBlue;
                 m_color[1] = Color.Blue;
                 m_ico = AbilityIconString(Hero.Roadhog, Button.Ultimate);
-                m_str = "Dummy";
+                m_str = LANG_STR[2][1];
                 break;
             case (2):
                 m_color[0] = Color.SkyBlue;
                 m_color[1] = Color.Purple;
                 m_ico = AbilityIconString(Hero.Sombra, Button.Ability1);
-                m_str = "Stealth";
+                m_str = LANG_STR[2][2];
                 break;
             case (3):
                 m_color[0] = Color.Red;
                 m_color[1] = Color.Black;
                 m_ico = IconString(Icon.Poison);
-                m_str = "Poison";
+                m_str = LANG_STR[2][3];
                 break;
             case (4):
                 m_color[0] = Color.Red;
                 m_color[1] = Color.Orange;
                 m_ico = AbilityIconString(Hero.Reaper, Button.Ultimate);
-                m_str = "Berserk";
+                m_str = LANG_STR[2][4];
                 break;
             case (5):
                 m_color[0] = Color.Red;
                 m_color[1] = Color.Violet;
                 m_ico = AbilityIconString(Hero.Moira, Button.SecondaryFire);
-                m_str = "Leech";
+                m_str = LANG_STR[2][5];
                 break;
             case (6):
                 m_color[0] = Color.Purple;
                 m_color[1] = Color.Violet;
                 m_ico = AbilityIconString(Hero.Baptiste, Button.Ability2);
-                m_str = "Denial";
+                m_str = LANG_STR[2][6];
                 break;
             case (7):
                 m_color[0] = Color.Purple;
                 m_color[1] = Color.White;
                 m_ico = AbilityIconString(Hero.Genji, Button.Jump);
-                m_str = "Mobility";
+                m_str = LANG_STR[2][7];
                 break;
             case (8):
                 m_color[0] = Color.Purple;
                 m_color[1] = Color.SkyBlue;
                 m_ico = AbilityIconString(Hero.Echo, Button.Ultimate);
-                m_str = "Mirage";
+                m_str = LANG_STR[2][8];
                 break;
         }
-        m_in -= chosen_mut; // remove the chosen mutator from the array
     }
 
     if (s_rand_mcd)

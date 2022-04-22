@@ -1,8 +1,8 @@
 import "../workshop-scripts/macros.del";
-// import "settings.json";
+import "settings.json";
 
 // import "../workshop-scripts/ruler.del";
-import "dbgsettings.json";
+// import "dbgsettings.json";
 import "debug.del";
 
 import "movement/bhop.del";
@@ -26,8 +26,8 @@ import "pickups/mutators/.mmain.del";
 
 globalvar Number S_MATCH_TIME_LIMIT; // maximum match time
 globalvar Number S_PICKUP_RAD; // minimum radius to collect a buff
-globalvar Number S_GAMEMODE; // chosen gamemode
-// globalvar Number[] S_LANG; // chosen language
+// globalvar Number S_GAMEMODE; // chosen gamemode
+globalvar Number[] S_LANG; // chosen language
 globalvar Boolean match_started; // has the match started
 playervar Boolean bhopping; // is the player bhopping
 playervar Boolean info; // information toggle
@@ -44,18 +44,14 @@ rule: "[Main] :: Initial Global"
     DisableCompletion();
     DisableAnnouncer();
 
-    CreateHudText(all, null, MatchTime() % 60 >= 10 
-                             ? <"<0>:<1>",  Floor(MatchTime() / 60), Floor(MatchTime() % 60)> 
-                             : <"<0>:0<1>", Floor(MatchTime() / 60), Floor(MatchTime() % 60)>, " \n\n\n\n\n\n\n\n", Location.Top, 0.2);
-
     SetMatchTime(1);
 
     match_started = false;
 
-    // S_LANG = WorkshopSettingCombo("General",                                 "Language / Idioma / 言語 / 언어", 0, ["English", "Español", "日本語", "한국어"], 0);
-    S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2v2v2v2"], 1);
-    S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 8, 60, 1) * 60;
-    S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 2);
+    S_LANG = WorkshopSettingCombo("General",                                 "Language / Idioma / 言語 / 언어", 0, ["English", "Español", "日本語", "한국어"], 0);
+    // S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2v2v2v2"], 1);
+    S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 8, 60, 2) * 60;
+    S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 3);
 
     s_sec_enabled = WorkshopSettingToggle("Secondary Fire",                  "Enable Secondary (On)", true, 1);
     S_SEC_PSPEED = WorkshopSettingReal("Secondary Fire",                     "Projectile Speed (90)", 90, 1, 500, 3);
@@ -86,10 +82,10 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[5] = WorkshopSettingToggle("Electro Buff",                  "Spawn Electro (On)", true, 1);
     S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro Spawn Time (100)", 100, 5, 600, 2);
     S_BUFF_AMMO[5] = WorkshopSettingInteger("Electro Buff",                  "Electro Ammo (16)", 16, 1, 1000, 3);
-    S_ELECTRO_ESIZE = WorkshopSettingReal("Electro Buff",                    "Electro Primary Explosion Size (1.5)", 1.75, 1, 500, 4);
-    S_ELECTRO_MESIZE = WorkshopSettingReal("Electro Buff",                   "Electro Mine Explosion Size (6.5)", 6.5, 1, 500, 5);
+    S_ELECTRO_ESIZE = WorkshopSettingReal("Electro Buff",                    "Electro Primary Explosion Size (1.75)", 1.75, 1, 10, 4);
+    S_ELECTRO_MESIZE = WorkshopSettingReal("Electro Buff",                   "Electro Mine Explosion Size (6.5)", 6.5, 1, 20, 5);
     S_ELECTRO_DELAY = WorkshopSettingReal("Electro Buff",                    "Electro Mine Idle Explosion Time (5)", 5, 1, 500, 6);
-    S_ELECTRO_PSPEED = WorkshopSettingReal("Electro Buff",                   "Electro Mine Projectile Speed (70)", 70, 1, 500, 7);
+    S_ELECTRO_PSPEED = WorkshopSettingReal("Electro Buff",                   "Electro Mine Projectile Speed (70)", 70, 1, 300, 7);
 
     s_spawn_buff[6] = WorkshopSettingToggle("Spark Buff",                    "Spawn Spark (On)", true, 1);
     S_BUFF_CD[6] = WorkshopSettingInteger("Spark Buff",                      "Spark Spawn Time (125)", 125, 5, 600, 2);
@@ -97,12 +93,12 @@ rule: "[Main] :: Initial Global"
     S_SPRK_PRIESIZE = WorkshopSettingReal("Spark Buff",                      "Spark Primary Explosion Size (1.75)", 1.75, 1, 10, 5);
     S_SPRK_PSPEED = WorkshopSettingReal("Spark Buff",                        "Spark Projectile Speed (20)", 20, 1, 500, 4);
     S_SPRK_PESIZE = WorkshopSettingReal("Spark Buff",                        "Spark Projectile Explosion Size (3.5)", 3.5, 1, 500, 5);
-    S_SPRK_HIT_PESIZE = S_SPRK_PESIZE * 2;
     S_SPRK_HITBOX_SIZE = WorkshopSettingReal("Spark Buff",                   "Spark Projectile Hitbox Size (0.45)", 0.45, 0.5, 10, 7);
+    S_SPRK_HIT_PESIZE = S_SPRK_PESIZE * 2;
 
-    s_spawn_buff[8] = WorkshopSettingToggle("Pylon Buff",                    "Spawn Pylon (On)", true, 1);
-    S_BUFF_CD[8] = WorkshopSettingInteger("Pylon Buff",                      "Pylon Spawn Time (125)", 125, 5, 600, 2);
-    S_BUFF_AMMO[8] = WorkshopSettingInteger("Pylon Buff",                    "Maximum Available Pylons", 6, 1, 10, 3);
+    s_spawn_buff[8] = WorkshopSettingToggle("Nebula Buff",                   "Spawn Nebula (On)", true, 1);
+    S_BUFF_CD[8] = WorkshopSettingInteger("Nebula Buff",                     "Nebula Spawn Time (125)", 125, 5, 600, 2);
+    S_BUFF_AMMO[8] = WorkshopSettingInteger("Nebula Buff",                   "Nubla Ammo", 100, 1, 1000, 3);
 
     s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "Spawn Volt (On)", true, 1);
     S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt Spawn Time (165)", 165, 5, 600, 2);
@@ -121,7 +117,7 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[2] = WorkshopSettingToggle("Buckshot Buff",                 "Spawn Buckshot (On)", true, 1);
     S_BUFF_CD[2] = WorkshopSettingInteger("Buckshot Buff",                   "Buckshot Spawn Time (210)", 210, 5, 600, 2);
     S_BUFF_AMMO[2] = WorkshopSettingInteger("Buckshot Buff",                 "Buckshot Ammo (30)", 30, 1, 1000, 3);
-    S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "Buckshot Spread (Lower is Tighter) (1.25)", 1.25, 0.1, 20, 4);
+    S_BUCKSHOT_SPREAD = WorkshopSettingReal("Buckshot Buff",                 "Buckshot Spread (Lower is Tighter) (0.8)", 0.8, 0.1, 20, 4);
     S_BUCKSHOT_CHARGE_SPD = WorkshopSettingReal("Buckshot Buff",             "Buckshot Charge Speed (0.5)", 0.5, 0.1, 5, 5);
 
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
@@ -133,19 +129,14 @@ rule: "[Main] :: Initial Global"
     s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
     S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
-    S_M_CREATION = WorkshopSettingInteger("Mutators",                        "Mutator Creation Time (15)", 15, 1, 600, 3);
+    S_M_CREATION = WorkshopSettingInteger("Mutators",                        "Mutator Creation Time (15)", 15, 1, 600, 4);
+    S_M_DURATION = WorkshopSettingInteger("Mutators",                        "Mutator Duration (40)", 40, 5, 600, 5);
+
+    Number credit = WorkshopSettingCombo("Credit",                           "Credit", 0, ["scort - Main Dev", "saruyo - JP Localization"], 0);
 
     if (!s_buffs_enabled)
         for (Number i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
-
-    CreateHudText(all, null, "ㅤInstagib | Created by scort#11221 ", null, Location.Right, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
-    CreateHudText(all, null, "ㅤv2.0 | Code: APPPX ", null, Location.Right, 0.1, Color.White, Color.White, Color.White, HudTextRev.VisibleTo);
-    CreateHudText(local.life_kills >= 5 ? local : null, null, <" \n<0> Kill Streak", local.life_kills>, local.streak_str, Location.Left, 100, Color.White, Color.White, local.streak_color != null ? local.streak_color : RainbowColor(), HudTextRev.VisibleToSortOrderStringAndColor);
-    
-    CreateInWorldText(local, local.xhair, 
-    Update(EyePosition(local) + 100 * ((-0.190) * DirectionFromAngles(HorizontalAngleFromDirection(Facing(local)), VerticalAngleFromDirection(Facing(local)) - 90) + 3 * Facing(local))), 
-    2, Clipping.DoNotClip, InworldTextRev.VisibleToPositionStringAndColor, color_arr[local.buff_held]);
 }
 
 rule: "[Main] :: Start Match"

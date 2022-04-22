@@ -28,7 +28,7 @@ globalvar String[] buff_txt; // buff timer text shown in the players HUD
 globalvar Vector[] buff_pos; // array of set buff positions
 playervar Boolean has_buff; // whether the player owns a buff
 playervar Number buff_held; // currently held buff index
-globalvar Number buff_i; // index of the buff (this probably shouldnt be a globalvar but it seems to be working fine, what could possibly go wrong)
+globalvar Number buff_i; // index of the buff for the player to pick up (this probably shouldnt be a globalvar but it seems to be working fine, what could possibly go wrong)
 playervar String buff_str; // string of the held buff
 globalvar Any buff_trail; // beam effect for firing weapon with a buff
 playervar Color buff_color; // the given buff color to the player 
@@ -45,46 +45,46 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     switch (buff_i)
     {
         case (0):
-            buff_str = "Wallbang";
+            buff_str = LANG_STR[0][0];
             xhair = "≫                   ≪";
             break;
         case (1):
-            buff_str = "Ricochet";
+            buff_str = LANG_STR[0][1];
             xhair = "ᄼ                   ᄾ";
             break;
         case (2):
-            buff_str = "Buckshot";
+            buff_str = LANG_STR[0][2];
             xhair = "〔                   〕";
             break;
         case (3):
-            buff_str = "Prism";
+            buff_str = LANG_STR[0][3];
             xhair = "▲                   ▼";
             break;
         case (4):
             DisallowButton(player, Button.PrimaryFire);
-            buff_str = "Ballista";
+            buff_str = LANG_STR[0][4];
             xhair = "∈                   ∋";
             break;
         case (5):
-            buff_str = "Electro";
+            buff_str = LANG_STR[0][5];
             xhair = "⁅                   ⁆";
             break;
         case (6):
-            buff_str = "Spark";
+            buff_str = LANG_STR[0][6];
             xhair = "※                   ※";
             break;
         case (7):
             DisallowButton(player, Button.PrimaryFire);
-            buff_str = "Arc";
+            buff_str = LANG_STR[0][7];
             xhair = "ᅏ                   ᅑ";
             break;
         case (8):
-            buff_str = "Pylon";
+            buff_str = LANG_STR[0][8];
             xhair = "ㅐ                   ㅐ";
             break;
         case (9):
             DisallowButton(player, Button.PrimaryFire);
-            buff_str = "Volt";
+            buff_str = LANG_STR[0][9];
             xhair = "ᅣ                   ᅧ";
             break;
     }
@@ -174,9 +174,9 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
 
                 break;
             case (8):
-                LogToInspector("Pylon cooldown started");
-                pyl_pb = 0;
-                ChaseVariableOverTime(pyl_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
+                LogToInspector("Nebula cooldown started");
+                neb_pb = 0;
+                ChaseVariableOverTime(neb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
 
                 break;
             case (9):
@@ -234,8 +234,8 @@ void CreateOrb() "[Buff] :: Create Orb"
             StopChasingVariable(arc_pb);
             break;
         case (8):
-            LogToInspector("Pylon Orb Created");
-            StopChasingVariable(pyl_pb);
+            LogToInspector("Nebula Orb Created");
+            StopChasingVariable(neb_pb);
             break;
         case (9):
             LogToInspector("Volt Orb Created");
