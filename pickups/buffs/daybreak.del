@@ -1,26 +1,26 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number S_PYL_RADIUS;
-globalvar Number S_PYL_TIME;
-playervar Vector pyl_hit;
-playervar Vector pyl_norm;
-playervar Any[] pyl_effects;
-globalvar Number pyl_pb;
+globalvar Number S_NEB_RADIUS;
+globalvar Number S_NEB_TIME;
+playervar Vector neb_hit;
+playervar Vector neb_norm;
+playervar Any[] neb_effects;
+globalvar Number neb_pb;
 
-disabled rule: "---------------- Pylon ----------------"{}
+disabled rule: "---------------- Nebula ----------------"{}
 
-rule: "[Buff] :: Pylon : Create Orb"
+rule: "[Buff] :: Nebula : Create Orb"
 if (match_started)
 if (valid_map)
 if (s_spawn_buff[8])
-if (pyl_pb == 100)
+if (neb_pb == 100)
 {
     buff_i = 8;
     CreateOrb();
 }
 
-rule: "[Buff] :: Pylon : Collect"
+rule: "[Buff] :: Nebula : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
 if (!has_buff || buff_enabled[8])
@@ -33,25 +33,16 @@ if (!IsFiringPrimary())
     CollectBuff();
 }
 
-rule: "[Buff] :: Pylon Fire Action"
+rule: "[Buff] :: Nebula Fire Action"
 Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    Vector pyl_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], pyl_hitpos, 0.2);
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, pyl_hitpos, color_arr[8], EffectRev.None);
+    Vector neb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], neb_hitpos, 0.2);
+    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, neb_hitpos, color_arr[8], EffectRev.None);
     buff_trail = LastCreatedEntity();
 
     Wait(0.25);
     DestroyEffect(buff_trail);
-}
-
-playervar Boolean pyl_armed;
-playervar Boolean pyl_active;
-rule: "[Buff] :: Pylon Placement Mode"
-Event.OngoingPlayer
-if (pyl_armed)
-{
-    
 }
