@@ -31,36 +31,58 @@ if (!IsFiringPrimary())
     CollectBuff();
 }
 
-rule: "[Buff] :: Ballista : Action"
+playervar Any[] bal_eff;
+rule: "[Buff] :: Ballista : Charge"
 Event.OngoingPlayer
 if (buff_enabled[4])
-if (IsPrimaryHeld())
+if (IsReloadHeld())
 if (IsAlive())
 {
-    bal_chrg = 0;
-    ChaseVariableOverTime(bal_chrg, 110, S_BAL_CRATE, TimeChaseReevaluation.None);
-    WaitUntil(!IsPrimaryHeld() || IsReloadHeld(), 99999);
-
-    // cancel
-    if (IsReloadHeld())
+    while (IsReloadHeld())
     {
-        StopChasingVariable(bal_chrg);
-        bal_chrg = 0;
-        Abort();
+        if (HorizontalSpeedOf() > 5.14)
+            ResetSpeed();
+
+        // SetMoveSpeed(player, Max(100 - bal_chrg , 50));
+        SetMoveSpeed(player, 100 - bal_chrg);
+
+        // (value + (min + max) / duration * onetick, min, max)
+        bal_chrg = Clamp(bal_chrg + (0 + 100) / S_BAL_CRATE * 0.016, 0, 100);
+        MinWait();
     }
 
-    // fire
-    AllowButton(player, Button.PrimaryFire);
-    PressButton(player, Button.PrimaryFire);
+    SetMoveSpeed(player, 100);
+}
 
-    if (IsFiringPrimary() && bal_chrg > 10)
-        buff_ammo[4]--;
+rule: "[Buff] :: Ballista : Charge Decay"
+Event.OngoingPlayer
+if (buff_enabled[4])
+if (bal_chrg > 0)
+if (!IsReloadHeld())
+{
+    if (bal_chrg <= 1)
+        DestroyEffect(bal_eff);
 
-    StopChasingVariable(bal_chrg);
-    bal_chrg = 0;
-
+    bal_chrg = Clamp(bal_chrg + (0 - 100) / (S_BAL_CRATE * 3) * 0.016, 0, 100);
     MinWait();
-    DisallowButton(player, Button.PrimaryFire);
-    Wait(1);
     LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Ballista : Fire"
+Event.OngoingPlayer
+if (buff_enabled[4])
+if (IsAlive())
+if (IsFiringPrimary())
+if (bal_chrg > 0)
+{
+    buff_ammo[4]--;
+
+    BallistaReset();
+}
+
+void BallistaReset() playervar "[Buff] :: Ballista : Reset"
+{
+    bal_chrg = 0;
+    DestroyEffect(bal_eff);
+    SetMoveSpeed(player, 100);
 }
