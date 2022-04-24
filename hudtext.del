@@ -38,14 +38,14 @@ rule: "[Main] :: HUD Text and Effects"
         LANG_STR[1] = ["Bullets pierce through surfaces",
                       "Bullets ricochet off surfaces",
                       "Shotgun that fires in a large spread, Hold Reload to charge shots for more bullets",
-                      "Shotgun that bounces off surfaces, Press Reload to laugh a projectile that kills any enemies in view of the projectile once shot",
-                      "Fire a charged beam that penetrates every surface in front and behind the player",
+                      "Shotgun that bounces off surfaces, Press Reload to launch a projectile that kills any enemies in view of the projectile once shot",
+                      "Fire a beam that penetrates every surface in front and behind the player, Hold Reload to charge shots",
                       "Press Reload to launch 3 explosive spires that detonate when shot",
                       "Press Reload to launch an explosive projectile that detonates with a large radius once shot",
                       "Long range consistent reflective laser that bounces on surfaces",
                       "Press Reload to create a stream of explosive dust that detonates once either side is shot",
                       "Short range consistent laser"];
-        LANG_STR[2] = ["Seer", "Dummy", "Stealth", "Poison", "Berserk", "Leech", "Denial", "Mobility", "Mirage"];
+        LANG_STR[2] = ["Seer ", "Dummy ", "Stealth ", "Poison ", "Berserk ", "Replicate ", "Denial ", "Mobility ", "Mirage "];
         LANG_STR[3] = []; // tbd, need to work on it still
         LANG_STR[4] = "Ammo: ";
         LANG_STR[5] = ["Hold Reload to charge shots", 
@@ -61,11 +61,7 @@ rule: "[Main] :: HUD Text and Effects"
         LANG_STR[10] = ["Killing Spree", "Rampage", "Dominating", "Unstoppable", "Godlike", "Divine", "Empyreal"];
         LANG_STR[11] = ["Movement", "Kill Streak", " is spawning", "In-use by "];
     }
-    else if (S_LANG == 1) // es
-    {
-
-    }
-    else if (S_LANG == 2) // jp
+    else if (S_LANG == 1) // jp
     {
         // alt wallbang: "壁を貫通をする"
         LANG_STR[0] = ["貫通", "跳弾", "散弾", "プリズム", "バリスタ", "エレクトロー", "火花", "アーク", "星雲", "ボルト"];
@@ -79,7 +75,7 @@ rule: "[Main] :: HUD Text and Effects"
                       "表面で跳ね返る長距離の一貫した反射レーザー",
                       "どちらかの側が撃たれると爆発する爆発性の粉塵の流れは、流れの反対側にテレポートするために使用することができる",
                       "短距離のあるレーザー"];
-        LANG_STR[2] = ["シア", "モデル", "ステルス", "毒", "バサーク", "蛭", "否定", "モビリティ", "ミラージュ"];
+        LANG_STR[2] = ["シア", "モデル", "ステルス", "毒", "バサーク", "リプリケート", "否定", "モビリティ", "ミラージュ"];
         LANG_STR[3] = []; // tbd, need to work on it still
         LANG_STR[4] = "弾薬： ";
         LANG_STR[5] = ["リロードを押したショットを充電する", 
@@ -93,9 +89,13 @@ rule: "[Main] :: HUD Text and Effects"
                       "隠すのために近接攻撃を押し続ける「チャットが無効になっている」",
                       "インタラクトを押し続けると、現在バフが外す"]; 
         LANG_STR[10] = ["キリング・スプリー", "ランページ", "ドミネーティング", "アンストパブル", "ゴドライク", "ディバイン", "エンピリーアル"];
-        LANG_STR[11] = ["ムーブメント", "キルストリーク", " がスポーンしている", " の使用中"];
+        LANG_STR[11] = ["ムーブメント", "キルストリーク", "がスポーンしている", "の使用中"];
     }
-    else                  // kr
+    else if (S_LANG == 2) // kr
+    {
+
+    }
+    else                  // es
     {
 
     }
@@ -282,19 +282,19 @@ if (s_buffs_enabled)
         <" <0> <1><2><3> / <4>", 
         AbilityIconString(Hero.Symmetra, Button.Ultimate), LANG_STR[0][4], LANG_STR[4], local.buff_ammo[4], local.max_ammo[4]>, 
         Location.Top, 1, TextColor: color_arr[4]);
+        CreateHudText(local.buff_enabled[4] ? local : null, null, null, 
+        <" <0>", LANG_STR[5][0]>, 
+        Location.Top, 1.1, TextColor: color_arr[4]);
 
-        // really ugly. dont care!
         CreateProgressBarHudText(local.buff_enabled[4] ? local : null, 
-        local.bal_chrg - 10, 
-        <"<0>%", local.bal_chrg < 10 
-                    ? "0" 
-                    : Ceiling(local.bal_chrg - 10)>,
+        local.bal_chrg, 
+        <"<0>%", Ceiling(local.bal_chrg)>,
         Location.Top, 1.2, 
         // color
-        local.bal_chrg == 110 
+        local.bal_chrg == 100 
             ? ColorPulse(255, 50, 145, 1000, 35) 
             : color_arr[4], 
-        local.bal_chrg == 110 
+        local.bal_chrg == 100 
             ? ColorPulse(255, 50, 145, 1000, 35) 
             : color_arr[4]);
 
@@ -467,13 +467,16 @@ if (s_buffs_enabled)
 
     if (s_spawn_m)
     {
-        CreateHudText(m_inworld ? all : null, null, " \n", null, Location.Left, 11.9, null, null);
-        CreateHudText(m_inworld ? all : null, m_ico, m_str, m_pb != 100 && 
+        CreateHudText(m_inworld || m_usr != null ? all : null, m_ico, m_str, m_pb != 100 && 
         m_cd <= S_M_CREATION 
             ? <"<0>%", Floor(m_pb)> 
-            : IconString(Icon.Checkmark), 
+            : !IsTrueForAny(all, Curr().has_mut) 
+                ? IconString(Icon.Checkmark)
+                : S_LANG == 0 // check language for appropriate string order
+                    ? <"<0><1>", LANG_STR[11][3], m_usr>
+                    : <"<0><1>", m_usr, LANG_STR[11][3]>, 
 
-        Location.Left, 12, m_color[0], Color.White, Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
+        Location.Right, 0.1, m_color[0], m_color[0], Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
 
         CreateProgressBarHudText(local.has_mut ? local : null, local.m_tleft, <"<0> <1>", m_ico, m_str>, Location.Right, 0.2, m_color[0], m_color[0], ProgressBarHudEvaluation.VisibleToValuesAndColor);
 
