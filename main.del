@@ -1,8 +1,8 @@
 import "../workshop-scripts/macros.del";
-import "settings.json";
+// import "settings.json";
 
 // import "../workshop-scripts/ruler.del";
-// import "dbgsettings.json";
+import "dbgsettings.json";
 import "debug.del";
 
 import "movement/bhop.del";
@@ -48,7 +48,7 @@ rule: "[Main] :: Initial Global"
 
     match_started = false;
 
-    S_LANG = WorkshopSettingCombo("General",                                 "Language / Idioma / 言語 / 언어", 0, ["English", "Español", "日本語", "한국어"], 0);
+    S_LANG = WorkshopSettingCombo("General",                                 "Language / 言語 / 언어 / Idioma / ", 0, ["English", "日本語", "한국어", "Español"], 0);
     // S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2v2v2v2"], 1);
     S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 8, 60, 2) * 60;
     S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 3);
@@ -123,16 +123,21 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
     S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
-    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (10)", 10, 5, 50, 4);
-    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (2)", 2, 0.5, 20, 5);
+    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (30)", 30, 5, 50, 4);
+    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Time (4)", 4, 0.5, 20, 5);
 
     s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
     S_M_CD = WorkshopSettingInteger("Mutators",                              "Mutator Spawn Time (180)", 180, 5, 600, 3);
     S_M_CREATION = WorkshopSettingInteger("Mutators",                        "Mutator Creation Time (15)", 15, 1, 600, 4);
-    S_M_DURATION = WorkshopSettingInteger("Mutators",                        "Mutator Duration (40)", 40, 5, 600, 5);
+    S_M_DURATION = WorkshopSettingInteger("Mutators",                        "Mutator Duration (30)", 30, 5, 600, 5);
 
-    Number credit = WorkshopSettingCombo("Credit",                           "Credit", 0, ["scort - Main Dev", "saruyo - JP Localization"], 0);
+    # please do not remove any credits from this list unless you have completely changed the relevant contents
+    Number[] credit;
+    credit[0] = WorkshopSettingCombo("Credit",                               "Main Developer", 0, ["scort#11221"], 0);
+    credit[1] = WorkshopSettingCombo("Credit",                               "JP Localization", 0, ["saruyo"], 1);
+    credit[2] = WorkshopSettingCombo("Credit",                               "KR Localization", 0, ["-"], 2);
+    credit[3] = WorkshopSettingCombo("Credit",                               "ES Localization", 0, ["-"], 3);
 
     if (!s_buffs_enabled)
         for (Number i = 0; i < s_spawn_buff.Length; i++)
@@ -239,8 +244,7 @@ if (has_buff)
 
 rule: "[Main] :: Start Primary Override"
 Event.OngoingPlayer
-if (buff_enabled[4] || 
-    buff_enabled[7] || 
+if (buff_enabled[7] || 
     buff_enabled[9])
 {
     pri_override = true;
@@ -248,7 +252,6 @@ if (buff_enabled[4] ||
 
 rule: "[Main] :: Stop Primary Override"
 Event.OngoingPlayer
-if (!buff_enabled[4])
 if (!buff_enabled[7])
 if (!buff_enabled[9])
 {
