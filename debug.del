@@ -5,6 +5,8 @@ globalvar Boolean[] buff_debug; // array of buffs to give
 
 rule: "Global Debug"
 {
+    EnableInspectorRecording();
+
     for (Number i = 0; i < 20; i++)
         LogToInspector("!!! DEBUG FILE IS IMPORTED !!!");
 
@@ -49,8 +51,8 @@ rule: "Global Debug"
     // buff world information
     for (Number i = 0; i < buff_pos.Length; i++)
     {
-        CreateInWorldText(host, <"<0>, <1>\n<2>\n<3>\n\n\n\n\n", 
-        Once(i), 
+        CreateInWorldText(host, <"<0> (<1>), <2>\n<3>\n<4>\n\n\n\n\n", 
+        Once(i), LANG_STR[0][Once(i)],
         buff_cd[Once(i)],
         Once(buff_pos[i]),
         DistanceBetween(PositionOf(host) + Up(), Once(buff_pos[i]))>, 
