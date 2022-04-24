@@ -46,46 +46,45 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     {
         case (0):
             buff_str = LANG_STR[0][0];
-            xhair = "≫                   ≪";
+            xhair = "≫                     ≪";
             break;
         case (1):
             buff_str = LANG_STR[0][1];
-            xhair = "ᄼ                   ᄾ";
+            xhair = "ᄼ                     ᄾ";
             break;
         case (2):
             buff_str = LANG_STR[0][2];
-            xhair = "〔                   〕";
+            xhair = "〔                     〕";
             break;
         case (3):
             buff_str = LANG_STR[0][3];
-            xhair = "▲                   ▼";
+            xhair = "▲                     ▼";
             break;
         case (4):
-            DisallowButton(player, Button.PrimaryFire);
             buff_str = LANG_STR[0][4];
-            xhair = "∈                   ∋";
+            xhair = "∈                     ∋";
             break;
         case (5):
             buff_str = LANG_STR[0][5];
-            xhair = "⁅                   ⁆";
+            xhair = "⁅                     ⁆";
             break;
         case (6):
             buff_str = LANG_STR[0][6];
-            xhair = "※                   ※";
+            xhair = "※                     ※";
             break;
         case (7):
             DisallowButton(player, Button.PrimaryFire);
             buff_str = LANG_STR[0][7];
-            xhair = "ᅏ                   ᅑ";
+            xhair = "ᅏ                     ᅑ";
             break;
         case (8):
             buff_str = LANG_STR[0][8];
-            xhair = "ㅐ                   ㅐ";
+            xhair = "ㅐ                     ㅐ";
             break;
         case (9):
             DisallowButton(player, Button.PrimaryFire);
             buff_str = LANG_STR[0][9];
-            xhair = "ᅣ                   ᅧ";
+            xhair = "ᅣ                     ᅧ";
             break;
     }
 
