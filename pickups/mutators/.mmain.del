@@ -18,6 +18,7 @@ globalvar Boolean m_inuse; // is a mutator currently in use by a player
 globalvar Number m_cd; // remaining time for the mutator to spawn
 globalvar String m_ico; // icon for the mutator
 globalvar String m_str; // string for the mutator
+globalvar Player m_usr; // current player that owns the mutator
 
 playervar Boolean has_mut; // does the player have the mutator
 playervar Boolean[] m_enabled; // which mutator is enabled
@@ -35,7 +36,7 @@ if (m_in.Length > 0)
     m_inworld = true;
     can_pickup_m = false;
 
-    BigMessage(all, <"<0> <1>", m_str, LANG_STR[11][2]>);
+    BigMessage(all, <"<0><1>", m_str, LANG_STR[11][2]>);
 
     m_pb = 0;
     m_in_timer = false;
@@ -65,6 +66,7 @@ if (IsAlive())
     can_pickup_m = false;
     m_inworld = false;
     has_mut = true;
+    m_usr = player;
     m_enabled[chosen_mut] = true;
 
     m_tleft = 100;
@@ -78,12 +80,14 @@ if (has_mut)
 if (m_tleft == 0)
 {
     has_mut = false;
+    m_usr = null;
     m_in -= chosen_mut; // remove the chosen mutator from the array
+    SetMutatorPosition();
     StartMutatorTimer();
 }
 
 globalvar Number rand;
-void StartMutatorTimer() "[Mutator] :: Set new position and reset time"
+void SetMutatorPosition() "[Mutator] :: Set new position and reset time"
 {
     // get a random position from the m_pos array in pickups/init.del
     Vector chosen_m_pos = m_loc.Random(); 
@@ -151,7 +155,10 @@ void StartMutatorTimer() "[Mutator] :: Set new position and reset time"
                 break;
         }
     }
+}
 
+void StartMutatorTimer() "[Mutator] :: Reset timer"
+{
     if (s_rand_mcd)
     {
         rand = RandomInteger(0, 120);

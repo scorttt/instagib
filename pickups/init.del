@@ -466,6 +466,7 @@ rule: "[Main] :: Gamemode Init"
         
         if (s_spawn_m)
         {
+            SetMutatorPosition();
             StartMutatorTimer();
         }
     }
