@@ -31,8 +31,7 @@ playervar Number buff_held; // currently held buff index
 globalvar Number buff_i; // index of the buff for the player to pick up (this probably shouldnt be a globalvar but it seems to be working fine, what could possibly go wrong)
 playervar String buff_str; // string of the held buff
 globalvar Any buff_trail; // beam effect for firing weapon with a buff
-playervar Color buff_color; // the given buff color to the player 
-globalvar Any[] collected_buff_effect; // good aura around a player with a buff
+playervar Color buff_color; // the given buff color to the player
 globalvar Boolean valid_map; // whether buffs can spawn on a map
 globalvar Color[] color_arr; // global array of colors
 playervar Number[] max_ammo; // maximum buff ammo
