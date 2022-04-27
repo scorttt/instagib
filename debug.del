@@ -79,6 +79,7 @@ Event.OnPlayerJoin
             buff_held = i; // if multiple buffs are given this will break manual buff removal, dont care enough to fix it
             buff_enabled[i] = true;
             buff_ammo[i] = 999999;
+            buff_color = color_arr[i];
         }
     }
 
