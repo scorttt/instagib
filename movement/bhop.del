@@ -33,6 +33,7 @@ Event.OngoingPlayer
 if (s_bhop_enabled)
 if (IsInAir())
 if (HorizontalSpeedOf() > 5.14)
+if (bal_chrg == 0)
 {
     ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, S_BHOP_SPEED_RATE, RateChaseReevaluation.None);
     is_chasing = true;
@@ -42,6 +43,7 @@ if (HorizontalSpeedOf() > 5.14)
 rule: "[Bhop] :: Update Speed"
 Event.OngoingPlayer
 if (is_chasing)
+if (bal_chrg == 0)
 {
     SetMoveSpeed(player, bhop_speed);
     Wait(0.064);
@@ -58,7 +60,7 @@ if (is_chasing && bhop_speed == S_BHOP_MAX_SPEED || bhop_speed == 100)
 
 rule: "[Bhop] :: Stop chasing"
 Event.OngoingPlayer
-if (is_chasing || bhop_speed == S_BHOP_MAX_SPEED) 
+if (is_chasing || bhop_speed == S_BHOP_MAX_SPEED || bal_chrg > 0) 
 if (HorizontalSpeedOf() < 5.14)
 {
     ResetSpeed();

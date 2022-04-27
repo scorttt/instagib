@@ -3,8 +3,10 @@ import ".bmain.del";
 
 globalvar Number bal_pb;
 playervar Number bal_chrg;
+playervar Any[] bal_eff;
+playervar Boolean can_charge;
 globalvar Number S_BAL_CRATE;
-globalvar Number S_BAL_MAXSIZE;
+globalvar Number S_BAL_SIZE;
 
 disabled rule: "---------------- Ballista ----------------" {}
 
@@ -31,44 +33,44 @@ if (!IsFiringPrimary())
     CollectBuff();
 }
 
-playervar Any[] bal_eff;
 rule: "[Buff] :: Ballista : Charge"
 Event.OngoingPlayer
 if (buff_enabled[4])
 if (IsReloadHeld())
+if (can_charge)
+if (bal_chrg < 100)
 if (IsAlive())
 {
-    while (IsReloadHeld())
+    // todo: add fancy beam effects when charging
+
+    while (IsReloadHeld() && bal_chrg < 100)
     {
-        if (HorizontalSpeedOf() > 5.14)
-            ResetSpeed();
-
-        // SetMoveSpeed(player, Max(100 - bal_chrg , 50));
-        SetMoveSpeed(player, 100 - bal_chrg);
-
-        // (value + (min + max) / duration * onetick, min, max)
-        bal_chrg = Clamp(bal_chrg + (0 + 100) / S_BAL_CRATE * 0.016, 0, 100);
+        AddNumberOverTime(bal_chrg, S_BAL_CRATE, 0, 100);
+        SetMoveSpeed(player, Max(100 - bal_chrg, 15));
         MinWait();
-
-        if (IsFiringPrimary())
-            break;
     }
-
-    SetMoveSpeed(player, 100);
 }
 
 rule: "[Buff] :: Ballista : Charge Decay"
 Event.OngoingPlayer
 if (buff_enabled[4])
 if (bal_chrg > 0)
-if (!IsReloadHeld())
+if (!IsReloadHeld() && bal_chrg < 100)
 {
-    if (bal_chrg <= 1)
-        DestroyEffect(bal_eff);
+    if (bal_chrg != 100)
+        WaitIfTrue(0.25);
+    else
+        WaitIfTrue(5);
 
-    bal_chrg = Clamp(bal_chrg + (0 - 100) / (S_BAL_CRATE * 1.5) * 0.016, 0, 100);
-    MinWait();
-    LoopIfConditionIsTrue();
+    SetMoveSpeed(player, 100);
+    can_charge = false;
+    while (bal_chrg > 0)
+    {
+        SubtractNumberOverTime(bal_chrg, 1, 0, 100);
+        MinWait();
+    }
+
+    can_charge = true;
 }
 
 rule: "[Buff] :: Ballista : Fire"
@@ -76,16 +78,31 @@ Event.OngoingPlayer
 if (buff_enabled[4])
 if (IsAlive())
 if (IsFiringPrimary())
-if (bal_chrg > 0)
+if (bal_chrg == 100)
 {
     buff_ammo[4]--;
-
     BallistaReset();
+
+    Vector eye_pos = EyePosition();
+    Vector facing = Facing();
+
+    for (Number i = 1; i < 101; i++)
+    {
+        Vector pos = eye_pos + facing * (i * S_BAL_SIZE);
+
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[4], pos, S_BAL_SIZE);
+
+        if (PlayersWithinRadius(pos, S_BAL_SIZE, Team.All).Length > 0) // check for players
+            Kill(RemoveFromArray(PlayersWithinRadius(pos, S_BAL_SIZE, Team.All), player), player);
+
+        MinWait();
+    }
 }
 
 void BallistaReset() playervar "[Buff] :: Ballista : Reset"
 {
     bal_chrg = 0;
-    DestroyEffect(bal_eff);
     SetMoveSpeed(player, 100);
+    DestroyEffect(bal_eff);
+    can_charge = true;
 }
