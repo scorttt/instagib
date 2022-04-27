@@ -48,7 +48,7 @@ rule: "[Main] :: Initial Global"
 
     match_started = false;
 
-    S_LANG = WorkshopSettingCombo("General",                                 "Language / 言語 / 언어 / Idioma / ", 0, ["English", "日本語", "한국어", "Español"], 0);
+    S_LANG = WorkshopSettingCombo("General",                                 "Language / 言語 / 언어 / Idioma / ", 0, ["English", "日本語", "한국어 (TBD)", "Español (TBD)"], 0);
     // S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Freeze Tag", "2v2v2v2"], 1);
     S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 8, 60, 2) * 60;
     S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 3);
@@ -122,9 +122,9 @@ rule: "[Main] :: Initial Global"
 
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
-    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
-    S_BAL_MAXSIZE = WorkshopSettingReal("Ballista Buff",                     "Ballista Maximum Size (30)", 30, 5, 50, 4);
-    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Time (4)", 4, 0.5, 20, 5);
+    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (2)", 2, 1, 1000, 3);
+    S_BAL_SIZE = WorkshopSettingReal("Ballista Buff",                        "Ballista Size (10)", 10, 1, 50, 4);
+    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Speed (4)", 4, 0.5, 20, 5);
 
     s_spawn_m = WorkshopSettingToggle("Mutators",                            "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
@@ -175,7 +175,6 @@ Event.OnPlayerJoin
     DisallowButton(player, Button.Ability1);
     DisallowButton(player, Button.Ability2);
 
-    CreateEffect(bhopping ? all : null, Effect.Soldier76SprintingEffect, Color.White, player, 1);
     CreateEffect(IsAlive() && has_buff ? all : null, Effect.GoodAura, buff_color, player, 0.5, EffectRev.VisibleToPositionRadiusAndColor);
 
     bhop_speed = 100;
@@ -184,6 +183,7 @@ Event.OnPlayerJoin
     xhair = "";
     charge_str = "○ ○ ○ ○ ○ ";
     spread = S_BUCKSHOT_SPREAD;
+    can_charge = true;
     sec_eyepos = Vector(-10000, -10000, -10000);
     sprk_eyepos = Vector(-10000, -10000, -10000);
     electro_eyepos1 = Vector(-10000, -10000, -10000);
