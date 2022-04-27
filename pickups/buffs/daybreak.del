@@ -4,7 +4,6 @@ import ".bmain.del";
 globalvar Number S_NEB_RADIUS;
 globalvar Number S_NEB_TIME;
 playervar Vector neb_hit;
-playervar Vector neb_norm;
 playervar Any[] neb_effects;
 globalvar Number neb_pb;
 
