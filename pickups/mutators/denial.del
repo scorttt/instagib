@@ -18,17 +18,25 @@ if (m_enabled[6])
     LogToInspector(<"Denial removed from <0>", m_usr>);
     RemoveMutator();
 
-    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, player, 1);
-    ClearStatus(player, Status.Unkillable);
+    ApplyImpulse(player, DirectionTowards(Attacker(), player) + Vector(0, 0.3, 0), 25, Relative.ToWorld, ContraryMotion.Cancel);
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, PositionOf() + Up() + Facing(), 1);
+    PlayEffect(all, PlayEffect.TracerRecallDisappearEffect, Color.Team1, PositionOf() + Up() + Facing());
+    SetStatus(player, null, Status.PhasedOut, 999999999);
+
     StartCamera(player, Update(EyePosition()), Update(EyePosition() + Facing()));
     SetInvisible(player, InvisibleTo.All);
     pri_override = true;
 
-    Wait(3);
+    Wait(5);
 
     pri_override = false;
+    ClearStatus(player, Status.Unkillable);
+    ClearStatus(player, Status.PhasedOut);
     SetInvisible(player, InvisibleTo.None);
-    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, player, 1);
     StopCamera(player);
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, PositionOf() + Up() + Facing(), 1);
+    PlayEffect(all, PlayEffect.TracerRecallReappearEffect, Color.Team1, PositionOf() + Up() + Facing());
     Heal(player, null, 999999999);
 }
