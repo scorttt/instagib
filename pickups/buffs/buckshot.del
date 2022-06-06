@@ -1,7 +1,6 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number buckshot_pb;
 globalvar Number S_BUCKSHOT_SPREAD;
 globalvar Number S_BUCKSHOT_CHARGE_SPD;
 globalvar String[] charge_arr;
@@ -12,6 +11,18 @@ playervar String nocharge_str;
 playervar Number spread;
 
 disabled rule: "---------------- Buckshot ----------------"{}
+
+rule: "[Buff] :: Buckshot : Global Init"
+{
+    charge_arr = ["● ● ● ● ● ", "○ ○ ○ ○ ○ "];
+}
+
+rule: "[Buff] :: Buckshot : Init"
+Event.OnPlayerJoin
+{
+    charge_str = "○ ○ ○ ○ ○ ";
+    spread = S_BUCKSHOT_SPREAD;
+}
 
 rule: "[Buff] :: Buckshot : Create Orb"
 if (match_started)
@@ -134,6 +145,18 @@ if (IsFiringPrimary())
         ////////////
         // player //
         ////////////
+
+        // bottom left
+        buckshot_hp_player[i][0] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * mult) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + bs_spread[1] * mult) 
+        * 100, AllLivingPlayers(), player, false);
+
+        // top left
+        buckshot_hp_player[i][1] = RayCastHitPlayer(EyePosition(), EyePosition() + 
+        WorldVectorOf(Vector(TangentFromDegrees(bs_spread[1] * mult) * 100, 0, 0), player) + 
+        DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() - bs_spread[1] * mult) 
+        * 100, AllLivingPlayers(), player, false);
 
         // bottom right
         buckshot_hp_player[i][2] = RayCastHitPlayer(EyePosition(), EyePosition() + 
