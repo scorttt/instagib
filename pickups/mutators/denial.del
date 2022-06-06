@@ -1,0 +1,34 @@
+import "../../main.del";
+import ".mmain.del";
+
+rule: "[Mutator] :: Denial : Set Status"
+Event.OngoingPlayer
+if (has_mut)
+if (m_enabled[6])
+{
+    LogToInspector(<"Denial given to <0>", m_usr>);
+    SetStatus(player, null, Status.Unkillable, 999999999);
+}
+
+rule : "[Mutator] :: Denial : Remove Status"
+Event.OnDamageTaken
+if (has_mut)
+if (m_enabled[6])
+{
+    LogToInspector(<"Denial removed from <0>", m_usr>);
+    RemoveMutator();
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, player, 1);
+    ClearStatus(player, Status.Unkillable);
+    StartCamera(player, Update(EyePosition()), Update(EyePosition() + Facing()));
+    SetInvisible(player, InvisibleTo.All);
+    pri_override = true;
+
+    Wait(3);
+
+    pri_override = false;
+    SetInvisible(player, InvisibleTo.None);
+    PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, player, 1);
+    StopCamera(player);
+    Heal(player, null, 999999999);
+}
