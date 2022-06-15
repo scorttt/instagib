@@ -3,15 +3,15 @@ import "../main.del";
 globalvar Number S_BHOP_MAX_SPEED;
 globalvar Number S_BHOP_SPEED_RATE;
 globalvar Boolean s_bhop_enabled;
-playervar Number bhop_speed;
-playervar Boolean is_chasing;
+
+playervar Boolean bhopping; // is the player bhopping
+playervar Number bhop_speed; // bhop speed multiplier
 
 disabled rule: "---------------- Bhop ----------------"{}
 
 void ResetSpeed() playervar "[Bhop] :: Reset Speed"
 {
     StopChasingVariable(bhop_speed);
-    is_chasing = false;
     bhopping = false;
     bhop_speed = 100;
     SetMoveSpeed(player, bhop_speed);
@@ -32,36 +32,32 @@ rule: "[Bhop] :: Airborne"
 Event.OngoingPlayer
 if (s_bhop_enabled)
 if (IsInAir())
-if (HorizontalSpeedOf() > 5.14)
-if (bal_chrg == 0)
+if (HorizontalSpeedOf() > 6.93)
 {
     ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, S_BHOP_SPEED_RATE, RateChaseReevaluation.None);
-    is_chasing = true;
     bhopping = true;
 }
 
 rule: "[Bhop] :: Update Speed"
 Event.OngoingPlayer
-if (is_chasing)
-if (bal_chrg == 0)
+if (bhopping)
 {
     SetMoveSpeed(player, bhop_speed);
     Wait(0.064);
     LoopIfConditionIsTrue();
 }
 
-rule: "[Bhop] :: Update is_chasing"
+rule: "[Bhop] :: Stop Chasing"
 Event.OngoingPlayer
-if (is_chasing && bhop_speed == S_BHOP_MAX_SPEED || bhop_speed == 100)
+if (bhop_speed == 100 || bhopping && bhop_speed == S_BHOP_MAX_SPEED)
 {
     StopChasingVariable(bhop_speed);
-    is_chasing = false;
 }
 
 rule: "[Bhop] :: Stop chasing"
 Event.OngoingPlayer
-if (is_chasing || bhop_speed == S_BHOP_MAX_SPEED || bal_chrg > 0) 
-if (HorizontalSpeedOf() < 5.14)
+if (bhopping || bhop_speed == S_BHOP_MAX_SPEED) 
+if (HorizontalSpeedOf() < 6.93)
 {
     ResetSpeed();
 }
@@ -73,4 +69,16 @@ if (bhop_speed > 100)
 {
     WaitIfTrue(0.25);
     ResetSpeed();
+}
+
+rule: "[Bhop] :: Air Drag Reduction (T1mur4TR)"
+Event.OngoingPlayer
+if (bhopping)
+if (IsInAir())
+{
+    ApplyImpulse(player, VelocityOf() * Vector(1, 0, 1), 30.792 / 1000 * Max(HorizontalSpeedOf() - 6.5, 0), Relative.ToWorld, ContraryMotion.Incorporate);
+
+    // this rule fucks the server load which is why there is a longer wait than usual
+    Wait(0.064);
+    LoopIfConditionIsTrue();
 }
