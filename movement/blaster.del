@@ -2,26 +2,32 @@ import "../main.del";
 
 globalvar Number S_SEC_PSPEED;
 globalvar Number S_SEC_RADIUS;
+globalvar Number S_SEC_STRENGTH;
 globalvar Boolean s_sec_enabled;
 playervar Vector sec_eyepos;
 playervar Any sec_orb;
 playervar Vector sec_rc_start;
 playervar Vector sec_rc_end;
-disabled rule: "---------------- Secondary Fire ----------------"{}
+disabled rule: "---------------- Blaster ----------------"{}
 
-rule: "[Secondary Fire] :: Projectile"
+rule: "[Blaster] :: Init"
+Event.OnPlayerJoin
+{
+    sec_eyepos = Vector(-10000, -10000, -10000);
+}
+
+rule: "[Blaster] :: Projectile"
 Event.OngoingPlayer
 if (s_sec_enabled)
 if (IsButtonHeld(player, Button.SecondaryFire))
 if (IsAlive())
 {
     sec_rc_start = EyePosition();
-    sec_rc_end = EyePosition() + Facing() * 100;
+    sec_rc_end = EyePosition() + Facing() * 300;
 
     PlayEffect(all, PlayEffect.RingExplosionSound, null, player, 50);
 
-    DestroyEffect(sec_orb[0]);
-    DestroyEffect(sec_orb[1]);
+    DestroyEffect(sec_orb);
 
     sec_eyepos = EyePosition();
 
@@ -36,24 +42,22 @@ if (IsAlive())
     LoopIfConditionIsTrue();
 }
 
-rule: "[Secondary Fire] :: Projectile Impulse"
+rule: "[Blaster] :: Projectile Impulse"
 Event.OngoingPlayer
 if (DistanceBetween(sec_eyepos, RayCastHitPosition(sec_rc_start, sec_rc_end, EnemyPlayers(), player)) < 0.5)
 {
-    // sec_in_air = false;
     StopChasingVariable(sec_eyepos);
 
     Any[] players = FilteredArray(AllLivingPlayers(), DistanceBetween(Curr(), sec_eyepos) <= S_SEC_RADIUS);
 
     for (Number i = 0; i < players.Length; i++)
     {
-        ApplyImpulse(players[i], DirectionTowards(sec_eyepos, players[i] + Vector(0, 2, 0)), 15, Relative.ToWorld, ContraryMotion.Incorporate);
+        ApplyImpulse(players[i], DirectionTowards(sec_eyepos, players[i] + Vector(0, 2, 0)), S_SEC_STRENGTH, Relative.ToWorld, ContraryMotion.Incorporate);
     }
 
     PlayEffect(all, PlayEffect.GoodExplosion, Color.Red, sec_eyepos, S_SEC_RADIUS);
 
-    DestroyEffect(sec_orb[0]);
-    DestroyEffect(sec_orb[1]);
+    DestroyEffect(sec_orb);
 
     sec_eyepos = Vector(-10000, -10000, -10000);
 }
