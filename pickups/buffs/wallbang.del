@@ -2,11 +2,10 @@ import "../../main.del";
 import ".bmain.del";
 
 globalvar Number S_NUM_WALLBANGS;
-globalvar Number wallbang_pb;
 
-disabled rule: "---------------- Wallbang ----------------"{}
+disabled rule: "---------------- Pierce ----------------"{}
 
-rule: "[Buff] :: Wallbang : Create Orb"
+rule: "[Buff] :: Pierce : Create Orb"
 if (match_started)
 if (valid_map)
 if (s_spawn_buff[0])
@@ -16,7 +15,7 @@ if (wallbang_pb == 100)
     CreateOrb();
 }
 
-rule: "[Buff] :: Wallbang : Collect"
+rule: "[Buff] :: Pierce : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
 if (!has_buff || buff_enabled[0])
@@ -29,9 +28,8 @@ if (!IsFiringPrimary())
     CollectBuff();
 }
 
-
 // playervar Any dbg_eff;
-rule: "[Buff] :: Wallbang : Action"
+rule: "[Buff] :: Pierce : Action"
 Event.OngoingPlayer
 if (buff_enabled[0])
 if (buff_ammo[0] > 0)
@@ -46,9 +44,9 @@ if (IsFiringPrimary())
     Any[] hp_player = [];
 
     Any offset = (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
-    Vector first_hp = RayCastHitPosition(eye_pos, eye_pos + Facing() * 100, AllLivingPlayers(), player, true);
+    Vector first_hp = RayCastHitPosition(eye_pos, eye_pos + Facing() * 300, AllLivingPlayers(), player, true);
 
-    if (DistanceBetween(eye_pos, first_hp) < 100)
+    if (DistanceBetween(eye_pos, first_hp) < 300)
     {
         for (Number i = 0; i < S_NUM_WALLBANGS + 1; i++)
         {
@@ -56,14 +54,14 @@ if (IsFiringPrimary())
                 eye_pos = hp[i - 1];
 
             // enter + exit raycast
-            hp[i] =        RayCastHitPosition(eye_pos + Facing(), eye_pos + Facing()                         * 100, AllLivingPlayers(), player, true);
-            hp_player[i] = RayCastHitPlayer  (hp[i],              hp[i]   + Facing()                         * 100, AllLivingPlayers(), player, true);
+            hp[i] =        RayCastHitPosition(eye_pos + Facing(), eye_pos + Facing()                         * 300, AllPlayers(), player, true);
+            hp_player[i] = RayCastHitPlayer  (hp[i],              hp[i]   + Facing()                         * 300, AllLivingPlayers(), player, true);
             exit_hp[i] =   RayCastHitPosition(hp[i],              hp[i]   + DirectionTowards(hp[i], eye_pos) * DistanceBetween(hp[i], eye_pos), null, null, true);
 
-            if (DistanceBetween(exit_hp[i], eye_pos) > 0.4)
+            // raidus check if the exit hit position is nearby the last hit position to prevent the exit hit pos to hit the player
+            if (DistanceBetween(exit_hp[i], eye_pos) > 0.05)
             {
-                PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], exit_hp[i] + offset, 0.2);
-
+                PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], exit_hp[i] + offset, 0.5);
                 // // debug shit
                 // CreateEffect(all, Effect.Sphere, Color.Red, exit_hp[i], 0.2, EffectRev.None);
                 // dbg_eff[i][1] = LastCreatedEntity();
@@ -71,13 +69,11 @@ if (IsFiringPrimary())
                 // dbg_eff[i][3] = LastTextID();
             }
 
-            if (DistanceBetween(hp[i], eye_pos) > 99) // i do not like this
+            if (DistanceBetween(hp[i], eye_pos) > 299) // i do not like this
                 break;
 
-            // if (hp_player[i] != null/*  && hp_player[i] != player */)
-                Kill(hp_player[i], player);
-
-            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.2);
+            Kill(hp_player[i], player);
+            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.5);
 
             // // debug shit
             // CreateEffect(all, Effect.Sphere, i < S_NUM_WALLBANGS ? Color.Blue : Color.Green, hp[i], 0.2, EffectRev.None);

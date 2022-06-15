@@ -1,7 +1,6 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number prism_pb;
 
 disabled rule: "---------------- Prism ----------------"{}
 
@@ -33,7 +32,7 @@ Event.OngoingPlayer
 if (buff_enabled[3])
 if (IsFiringPrimary())
 {
-    Vector prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    Vector prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, prism_hit, color_arr[3], EffectRev.None);
     buff_trail = LastCreatedEntity();

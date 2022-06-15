@@ -1,7 +1,6 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number electro_pb;
 
 // logic
 globalvar Number S_ELECTRO_PSPEED;
@@ -18,6 +17,14 @@ playervar Boolean mines_placed;
 playervar Number mine_det;
 
 disabled rule: "---------------- Electro ----------------"{}
+
+rule: "[Buff] :: Electro : Init"
+Event.OnPlayerJoin
+{
+    electro_eyepos1 = Vector(-10000, -10000, -10000);
+    electro_eyepos2 = Vector(-10000, -10000, -10000);
+    electro_eyepos3 = Vector(-10000, -10000, -10000);
+}
 
 rule: "[Buff] :: Electro : Create Orb"
 if (match_started)
@@ -47,7 +54,7 @@ Event.OngoingPlayer
 if (buff_enabled[5])
 if (IsFiringPrimary())
 {
-    electro_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    electro_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, electro_hitpos, color_arr[5], EffectRev.None);
     buff_trail = LastCreatedEntity();
@@ -83,16 +90,16 @@ if (IsAlive())
     // first mine //
     buff_ammo[5]--;
 
-    electro_m_hitpos[0] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
+    electro_m_hitpos[0] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
     DestroyEffect(electro_m_effect[0]);
 
     electro_eyepos1 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos1, electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos1, electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 5, Color.Team1);
     electro_m_effect[0][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[0][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos1, electro_m_hitpos[0], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -103,16 +110,16 @@ if (IsAlive())
     // second mine //
     buff_ammo[5]--;
 
-    electro_m_hitpos[1] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
+    electro_m_hitpos[1] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
     DestroyEffect(electro_m_effect[1]);
 
     electro_eyepos2 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos2, electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos2, electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 5, Color.Team1);
     electro_m_effect[1][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[1][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos2, electro_m_hitpos[1], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -123,16 +130,16 @@ if (IsAlive())
     // third mine //
     buff_ammo[5]--;
 
-    electro_m_hitpos[2] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, null);
+    electro_m_hitpos[2] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
     PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
 
     DestroyEffect(electro_m_effect[2]);
 
     electro_eyepos3 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos3, electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * S_ELECTRO_MESIZE, Color.Team1);
+    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos3, electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 5, Color.Team1);
     electro_m_effect[2][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.BadAura, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[2][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos3, electro_m_hitpos[2], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -162,8 +169,7 @@ void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Spikes"
         for (Number j = 0; j < CountOf(players[i]); j++)
             Kill(players[i][j], player);
 
-        DestroyEffect(electro_m_effect[i][0]);
-        DestroyEffect(electro_m_effect[i][1]);
+        DestroyEffect(electro_m_effect[i]);
 
         PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_m_hitpos[i], S_ELECTRO_MESIZE);
         PlayEffect(all, PlayEffect.ExplosionSound, Position: electro_m_hitpos[i], Radius: 50);

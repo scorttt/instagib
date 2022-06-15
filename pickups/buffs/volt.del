@@ -2,7 +2,6 @@ import "../../main.del";
 import ".bmain.del";
 
 globalvar Number S_VLT_DIST;
-globalvar Number vlt_pb;
 
 playervar Any[] vlt_effects;
 
@@ -36,6 +35,7 @@ Event.OngoingPlayer
 if (buff_enabled[9])
 if (IsPrimaryHeld())
 if (IsAlive())
+if (!HasStatus(player, Status.PhasedOut))
 {
     if (EntityExists(vlt_effects))
         DestroyEffect(vlt_effects);

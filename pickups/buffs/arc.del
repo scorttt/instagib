@@ -1,7 +1,6 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number arc_pb;
 globalvar Number S_ARC_MOD;
 playervar Any arc_effects;
 
@@ -34,6 +33,8 @@ rule: "[Buff] :: Arc : Action - Fire"
 Event.OngoingPlayer
 if (buff_enabled[7])
 if (IsPrimaryHeld())
+if (IsAlive())
+if (!HasStatus(player, Status.PhasedOut))
 {
     // this code will turn into pure vomit
     // TODO: make arc hit bounce using similar code as ricochet
@@ -42,7 +43,7 @@ if (IsPrimaryHeld())
 
     WaitIfTrue(0.05); // brief hold
     Boolean hit = false;
-    Vector arc_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    Vector arc_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
     MinWait();
 
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), arc_hit, color_arr[7], EffectRev.VisibleToPositionRadiusAndColor);
@@ -59,8 +60,8 @@ if (IsPrimaryHeld())
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[7])
     {
         buff_ammo[7]--;
-        arc_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player));
-        Player arc_player = Update(RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player));
+        arc_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player));
+        Player arc_player = Update(RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player));
 
         if (DistanceBetween(EyePosition(), arc_hit) < 99)
         {

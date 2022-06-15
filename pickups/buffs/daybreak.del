@@ -5,7 +5,6 @@ globalvar Number S_NEB_RADIUS;
 globalvar Number S_NEB_TIME;
 playervar Vector neb_hit;
 playervar Any[] neb_effects;
-globalvar Number neb_pb;
 
 disabled rule: "---------------- Nebula ----------------"{}
 
@@ -37,7 +36,7 @@ Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    Vector neb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+    Vector neb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], neb_hitpos, 0.2);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, neb_hitpos, color_arr[8], EffectRev.None);
     buff_trail = LastCreatedEntity();

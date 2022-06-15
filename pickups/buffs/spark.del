@@ -1,7 +1,6 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number sprk_pb;
 globalvar Number S_SPRK_PSPEED;
 globalvar Number S_SPRK_PESIZE;
 globalvar Number S_SPRK_HIT_PESIZE;
@@ -15,6 +14,12 @@ playervar Any sprk_orb;
 playervar Boolean sprk_inair;
 
 disabled rule: "---------------- Spark ----------------"{}
+
+rule: "[Buff] :: Spark : Init"
+Event.OnPlayerJoin
+{
+    sprk_eyepos = Vector(-10000, -10000, -10000);
+}
 
 rule: "[Buff] :: Spark : Create Orb"
 if (match_started)
@@ -47,7 +52,7 @@ if (IsFiringPrimary())
 {   
     if (!sprk_check)
     {
-        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 100, AllLivingPlayers(), player);
+        sprk_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
 
         // Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_PRIESIZE && IsInLineOfSight(sprk_hit, Curr()));
         // Kill(players, player);
@@ -77,7 +82,7 @@ if (IsAlive())
 {
     sprk_inair = true;
     sprk_rc_start = EyePosition();
-    sprk_rc_end = EyePosition() + Facing() * 100;
+    sprk_rc_end = EyePosition() + Facing() * 300;
     PlayEffect(all, PlayEffect.RingExplosionSound, null, player, 50);
 
     DestroyEffect(sprk_orb);
