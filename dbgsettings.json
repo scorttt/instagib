@@ -14,7 +14,7 @@
       },
       "Deathmatch": {
         "Enabled Maps": [
-          "Workshop Island (Night)"
+          "Workshop Chamber"
         ]
       }
     },
@@ -26,7 +26,7 @@
         "Cassidy": {
           "Damage Dealt": 500,
           "Damage Received": 500,
-          "Movement Speed": 115,
+          "Movement Speed": 135,
           "No Ammunition Requirement": true,
           "Quick Melee": false,
           "Secondary Fire": false,
