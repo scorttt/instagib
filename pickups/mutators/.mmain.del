@@ -1,14 +1,15 @@
 import "../../main.del";
 
-globalvar Boolean s_spawn_m; // mutator can spawn
+// everything mutator related is a text book definition of spaghetti code. too bad! surely this wont bite me in the ass later :)
+globalvar Boolean s_enable_m; // mutator can spawn
 globalvar Boolean s_rand_mcd; // mutator timer is randomized
+globalvar Boolean[] s_spawn_mut; // allowed mutators
 globalvar Number S_M_CD; // constant for all mutators
 globalvar Number S_M_CREATION; // constant for the mutator to spawn after m_cd runs low
-globalvar Number S_M_DURATION;
+globalvar Number S_M_DURATION; // constant for the mutator duration
 globalvar Number chosen_mut; // chosen id of the mutator
 globalvar Vector[] m_loc; // array of all possible mutator locations
-globalvar Number[] m_in; // index of the available mutator
-globalvar Color[] m_color; // color of the currently spawned mutator 
+globalvar Color[] m_color; // color of the currently spawned mutator, 0: category color 1: mutator color
 globalvar Vector m_pos; // final position of the mutator
 globalvar Number m_pb; // progress bar control var for S_M_CREATION
 globalvar Boolean can_pickup_m; // can the mutator be collected
@@ -16,8 +17,8 @@ globalvar Boolean m_in_timer; // is the mutator timer running
 globalvar Boolean m_inworld; // is the mutator currently in the world
 globalvar Boolean m_inuse; // is a mutator currently in use by a player
 globalvar Number m_cd; // remaining time for the mutator to spawn
-globalvar String m_ico; // icon for the mutator
-globalvar String m_str; // string for the mutator
+globalvar String m_ico; // current mutator icon string
+globalvar String m_str; // current mutator name string
 globalvar Player m_usr; // current player that owns the mutator
 
 playervar Boolean has_mut; // does the player have the mutator
@@ -29,7 +30,7 @@ disabled rule: "---------------- Mutator ----------------"{}
 rule: "[Mutator] :: Create Collectable"
 if (match_started)
 if (valid_map)
-if (s_spawn_m)
+if (s_enable_m)
 if (m_cd <= 0)
 if (m_in.Length > 0)
 {
@@ -74,16 +75,28 @@ if (IsAlive())
 
 }
 
-rule: "[Mutator] :: Remove Mutator"
-Event.OngoingPlayer
-if (has_mut)
-if (m_tleft == 0)
+void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
 {
+    for (Number i = 0; i < 9; i++)
+        m_enabled[i] = false;
+
+    PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], player, 1);
+
     has_mut = false;
     m_usr = null;
     m_in -= chosen_mut; // remove the chosen mutator from the array
+    StopForcingPlayerOutlines(all, player);
+
     SetMutatorPosition();
     StartMutatorTimer();
+}
+
+rule: "[Mutator] :: Remove Mutator"
+Event.OngoingPlayer
+if (m_tleft == 0 || IsDead())
+if (has_mut)
+{
+    RemoveMutator();
 }
 
 globalvar Number rand;
@@ -135,7 +148,7 @@ void SetMutatorPosition() "[Mutator] :: Set new position and reset time"
                 m_ico = AbilityIconString(Hero.Moira, Button.SecondaryFire);
                 m_str = LANG_STR[2][5];
                 break;
-            case (6):
+            case (6): // denial
                 m_color[0] = Color.Purple;
                 m_color[1] = Color.Violet;
                 m_ico = AbilityIconString(Hero.Baptiste, Button.Ability2);
