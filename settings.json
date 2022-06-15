@@ -21,6 +21,7 @@
         "Hollywood",
         "King's Row",
         "Kanezaka",
+        "Route 66",
         "Malevento",
         "Dorado",
         "Petra",
@@ -31,16 +32,26 @@
   "Heroes": {
     "General": {
       "Enabled Heroes": [
-        "Cassidy"
+        "Cassidy",
+        "Sojourn"
       ],
       "Cassidy": {
         "Damage Dealt": 500,
         "Damage Received": 500,
-        "Movement Speed": 115,
+        "Movement Speed": 125,
         "No Ammunition Requirement": true,
         "Quick Melee": false,
         "Secondary Fire": false,
         "Ultimate Ability (Deadeye)": false
+      },
+      "Sojourn": {
+        "Damage Dealt": 500,
+        "Damage Received": 500,
+        "Movement Speed": 125,
+        "No Ammunition Requirement": true,
+        "Quick Melee": false,
+        "Primary Fire": false,
+        "Ultimate Ability (Overclock)": false
       }
     }
   },
