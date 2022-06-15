@@ -17,25 +17,34 @@ globalvar Number[] S_BUFF_AMMO; // setting array of maximum buff ammo the player
 globalvar Boolean[] s_spawn_buff; // setting array of buffs allowed to spawn
 globalvar Boolean s_buffs_enabled; // setting whether buffs are allowed
 globalvar Boolean s_rand_buff_pos; // setting whether buffs randomly spawn in different locations each round
-globalvar Boolean s_cd_ip_timer; // setting whether buff spawn effects are visible
-
 globalvar Boolean[] can_pickup_buff; // array of buff indices that can be collected
 playervar Boolean[] buff_enabled; // array of the enabled buff index
 globalvar Boolean[] buff_timer; // array of whether a buff cooldown is running
 globalvar Number[] buff_cd; // array of current buff cooldowns
-playervar Number[] buff_ammo; // array of buff indices ammo
 globalvar String[] buff_txt; // buff timer text shown in the players HUD
 globalvar Vector[] buff_pos; // array of set buff positions
+playervar Number[] buff_ammo; // array of buff indices ammo
 playervar Boolean has_buff; // whether the player owns a buff
 playervar Number buff_held; // currently held buff index
 globalvar Number buff_i; // index of the buff for the player to pick up (this probably shouldnt be a globalvar but it seems to be working fine, what could possibly go wrong)
 playervar String buff_str; // string of the held buff
 globalvar Any buff_trail; // beam effect for firing weapon with a buff
 playervar Color buff_color; // the given buff color to the player
-globalvar Boolean valid_map; // whether buffs can spawn on a map
-globalvar Color[] color_arr; // global array of colors
 playervar Number[] max_ammo; // maximum buff ammo
-playervar String xhair;
+
+
+// progress bar/effect size control vars. fuck you blizzard let me chase indicies
+globalvar Number wallbang_pb;
+globalvar Number ricochet_pb;
+globalvar Number buckshot_pb;
+globalvar Number prism_pb;
+globalvar Number bal_pb;
+globalvar Number electro_pb;
+globalvar Number sprk_pb;
+globalvar Number arc_pb;
+globalvar Number neb_pb;
+globalvar Number vlt_pb;
+
 
 disabled rule: "---------------- Buff ----------------"{}
 
@@ -44,49 +53,32 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     switch (buff_i)
     {
         case (0):
-            buff_str = LANG_STR[0][0];
-            xhair = "≫                     ≪";
             break;
         case (1):
-            buff_str = LANG_STR[0][1];
-            xhair = "ᄼ                     ᄾ";
             break;
         case (2):
-            buff_str = LANG_STR[0][2];
-            xhair = "〔                     〕";
             break;
         case (3):
-            buff_str = LANG_STR[0][3];
-            xhair = "▲                     ▼";
             break;
         case (4):
-            buff_str = LANG_STR[0][4];
-            xhair = "∈                     ∋";
             break;
         case (5):
-            buff_str = LANG_STR[0][5];
-            xhair = "⁅                     ⁆";
             break;
         case (6):
-            buff_str = LANG_STR[0][6];
-            xhair = "※                     ※";
             break;
         case (7):
             DisallowButton(player, Button.PrimaryFire);
-            buff_str = LANG_STR[0][7];
-            xhair = "ᅏ                     ᅑ";
+            pri_override = true;
             break;
         case (8):
-            buff_str = LANG_STR[0][8];
-            xhair = "ㅐ                     ㅐ";
             break;
         case (9):
             DisallowButton(player, Button.PrimaryFire);
-            buff_str = LANG_STR[0][9];
-            xhair = "ᅣ                     ᅧ";
+            pri_override = true;
             break;
     }
 
+    buff_str = LANG_STR[0][buff_i];
     buff_held = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
@@ -121,64 +113,64 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
     {
         buff_timer[buff_i] = true; // start timer
 
-        switch (buff_i) // progress bar control
+        switch (buff_i) // progress bar/effect size control
         {
             case (0):
-                LogToInspector("Wallbang cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][0]>);
                 wallbang_pb = 0;
                 ChaseVariableOverTime(wallbang_pb, 100, S_BUFF_CD[0], TimeChaseReevaluation.None);
 
                 break;
             case (1):
-                LogToInspector("Ricochet cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][1]>);
                 ricochet_pb = 0;
                 ChaseVariableOverTime(ricochet_pb, 100, S_BUFF_CD[1], TimeChaseReevaluation.None);
 
                 break;
             case (2):
-                LogToInspector("Buckshot cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][2]>);
                 buckshot_pb = 0;
                 ChaseVariableOverTime(buckshot_pb, 100, S_BUFF_CD[2], TimeChaseReevaluation.None);
 
                 break;
             case (3):
-                LogToInspector("Prism cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][3]>);
                 prism_pb = 0;
                 ChaseVariableOverTime(prism_pb, 100, S_BUFF_CD[3], TimeChaseReevaluation.None);
 
                 break;
             case (4):
-                LogToInspector("Ballista cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][4]>);
                 bal_pb = 0;
                 ChaseVariableOverTime(bal_pb, 100, S_BUFF_CD[4], TimeChaseReevaluation.None);
             
                 break;
             case (5):
-                LogToInspector("Electro cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][5]>);
                 electro_pb = 0;
                 ChaseVariableOverTime(electro_pb, 100, S_BUFF_CD[5], TimeChaseReevaluation.None);
             
                 break;
             case (6):
-                LogToInspector("Spark cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][6]>);
                 sprk_pb = 0;
                 ChaseVariableOverTime(sprk_pb, 100, S_BUFF_CD[6], TimeChaseReevaluation.None);
 
                 break;
             case (7):
-                LogToInspector("Arc cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][7]>);
                 arc_pb = 0;
                 ChaseVariableOverTime(arc_pb, 100, S_BUFF_CD[7], TimeChaseReevaluation.None);
 
                 break;
             case (8):
-                LogToInspector("Nebula cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][8]>);
                 neb_pb = 0;
                 ChaseVariableOverTime(neb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
 
                 break;
             case (9):
-                LogToInspector("Volt cooldown started");
+                LogToInspector(<"<0> cooldown started", LANG_STR[0][9]>);
                 vlt_pb = 0;
                 ChaseVariableOverTime(vlt_pb, 100, S_BUFF_CD[9], TimeChaseReevaluation.None);
 
@@ -195,48 +187,47 @@ void CreateOrb() "[Buff] :: Create Orb"
 
     PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i], 3);
     PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i] + Vector(0, -0.5, 0), 2);
-    PlayEffect(all, PlayEffect.RingExplosion, color_arr[buff_i], buff_pos[buff_i] + Vector(0, -1, 0), 1);
 
     switch (buff_i)
     {
         case (0):
-            LogToInspector("Wallbang Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][0]>);
             StopChasingVariable(wallbang_pb);
             break;
         case (1):
-            LogToInspector("Ricochet Orb Created"); 
+            LogToInspector(<"<0> created", LANG_STR[0][1]>);
             StopChasingVariable(ricochet_pb);
             break;
         case (2):
-            LogToInspector("Buckshot Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][2]>);
             StopChasingVariable(buckshot_pb);
             break;
         case (3):
-            LogToInspector("Prism Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][3]>);
             StopChasingVariable(prism_pb);
             break;
         case (4):
-            LogToInspector("Ballista Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][4]>);
             StopChasingVariable(bal_pb);
             break;
         case (5):
-            LogToInspector("Electro Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][5]>);
             StopChasingVariable(electro_pb);
             break;
         case (6):
-            LogToInspector("Spark Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][6]>);
             StopChasingVariable(sprk_pb);
             break;
         case (7):
-            LogToInspector("Arc Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][7]>);
             StopChasingVariable(arc_pb);
             break;
         case (8):
-            LogToInspector("Nebula Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][8]>);
             StopChasingVariable(neb_pb);
             break;
         case (9):
-            LogToInspector("Volt Orb Created");
+            LogToInspector(<"<0> created", LANG_STR[0][9]>);
             StopChasingVariable(vlt_pb);
             break;
     }
@@ -250,27 +241,12 @@ if (IsTrueForAll(buff_enabled, false) || IsTrueForAll(buff_ammo, Curr() <= 0))
         buff_enabled[i] = false;
 
     has_buff = false;
-    xhair = "";
+
+    WaitUntil(!IsPrimaryHeld(), 99999); // prevents automatic weapon firing after conditions are true
+    pri_override = false;
 }
 
-rule: "[Buff] :: Remove Current Buff Hotkey"
-Event.OngoingPlayer
-if (IsInteractHeld())
-if (has_buff)
-{
-    WaitIfTrue(1);
-
-    PlayEffect(all, PlayEffect.BadPickupEffect, color_arr[buff_held], PositionOf() + WorldVectorOf(Vector(0, 1, 1), player), 1);
-
-    buff_ammo[buff_held] = 0;
-    buff_enabled[buff_held] = false;
-    buff_color = null;
-
-    has_buff = false;
-    buff_held = -1;
-}
-
-rule: "[Buff] :: Wallbang Timer"
+rule: "[Buff] :: Pierce Timer"
 if (buff_timer[0])
 {
     buff_cd[0]--;
@@ -280,6 +256,7 @@ if (buff_timer[0])
                     : <"<0>:0<1>", Floor(buff_cd[0] / 60), Floor(buff_cd[0] % 60)>;
 
     Wait(1);
+
     LoopIfConditionIsTrue();
 }
 
@@ -304,7 +281,7 @@ if (buff_timer[2])
     buff_txt[2] = buff_cd[2] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[2] / 60), Floor(buff_cd[2] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[2] / 60), Floor(buff_cd[2] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
@@ -343,7 +320,7 @@ if (buff_timer[5])
     buff_txt[5] = buff_cd[5] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[5] / 60), Floor(buff_cd[5] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[5] / 60), Floor(buff_cd[5] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
@@ -356,7 +333,7 @@ if (buff_timer[6])
     buff_txt[6] = buff_cd[6] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[6] / 60), Floor(buff_cd[6] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[6] / 60), Floor(buff_cd[6] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
@@ -369,12 +346,12 @@ if (buff_timer[7])
     buff_txt[7] = buff_cd[7] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[7] / 60), Floor(buff_cd[7] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[7] / 60), Floor(buff_cd[7] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Daybreak Timer"
+rule: "[Buff] :: Neubla Timer"
 if (buff_timer[8])
 {
     buff_cd[8]--;
@@ -382,7 +359,7 @@ if (buff_timer[8])
     buff_txt[8] = buff_cd[8] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[8] / 60), Floor(buff_cd[8] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[8] / 60), Floor(buff_cd[8] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
@@ -395,7 +372,7 @@ if (buff_timer[9])
     buff_txt[9] = buff_cd[9] % 60 >= 10
                     ? <"<0>:<1>",  Floor(buff_cd[9] / 60), Floor(buff_cd[9] % 60)> 
                     : <"<0>:0<1>", Floor(buff_cd[9] / 60), Floor(buff_cd[9] % 60)>;
-    
+
     Wait(1);
     LoopIfConditionIsTrue();
 }
