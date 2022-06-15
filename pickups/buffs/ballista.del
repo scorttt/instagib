@@ -1,14 +1,19 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number bal_pb;
+globalvar Number S_BAL_CRATE;
+globalvar Number S_BAL_SIZE;
 playervar Number bal_chrg;
 playervar Any[] bal_eff;
 playervar Boolean can_charge;
-globalvar Number S_BAL_CRATE;
-globalvar Number S_BAL_SIZE;
-
+playervar Number chrg_rate;
 disabled rule: "---------------- Ballista ----------------" {}
+
+rule: "[Buff] :: Ballista : Init"
+Event.OnPlayerJoin
+{
+    can_charge = true;
+}
 
 rule: "[Buff] :: Ballista : Create Orb"
 if (match_started)
@@ -36,41 +41,26 @@ if (!IsFiringPrimary())
 rule: "[Buff] :: Ballista : Charge"
 Event.OngoingPlayer
 if (buff_enabled[4])
-if (IsReloadHeld())
 if (can_charge)
 if (bal_chrg < 100)
+if (bhopping || IsInAir())
 if (IsAlive())
 {
-    // todo: add fancy beam effects when charging
+    chrg_rate = S_BAL_CRATE / SpeedOf() * 5;
 
-    while (IsReloadHeld() && bal_chrg < 100)
-    {
-        AddNumberOverTime(bal_chrg, S_BAL_CRATE, 0, 100);
-        SetMoveSpeed(player, Max(100 - bal_chrg, 15));
-        MinWait();
-    }
+    AddOverTime(bal_chrg, chrg_rate, 0, 100, 0.032);
+
+    Wait(0.032);
+    LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Ballista : Charge Decay"
+rule: "[Buff] :: Ballista : Wallhacks"
 Event.OngoingPlayer
-if (buff_enabled[4])
-if (bal_chrg > 0)
-if (!IsReloadHeld() && bal_chrg < 100)
+if (bal_chrg >= 75)
+if (!m_enabled[0])
 {
-    if (bal_chrg != 100)
-        WaitIfTrue(0.25);
-    else
-        WaitIfTrue(5);
-
-    SetMoveSpeed(player, 100);
-    can_charge = false;
-    while (bal_chrg > 0)
-    {
-        SubtractNumberOverTime(bal_chrg, 1, 0, 100);
-        MinWait();
-    }
-
-    can_charge = true;
+    StopForcingPlayerOutlines(all, player);
+    StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
 }
 
 rule: "[Buff] :: Ballista : Fire"
@@ -78,31 +68,48 @@ Event.OngoingPlayer
 if (buff_enabled[4])
 if (IsAlive())
 if (IsFiringPrimary())
-if (bal_chrg == 100)
 {
+    can_charge = false;
     buff_ammo[4]--;
-    BallistaReset();
+
+    ApplyImpulse(player, Vector(0, 0.3, 0) + Facing() * -1, Max(bal_chrg / 100 * 40, 15), Relative.ToWorld, ContraryMotion.Cancel);
 
     Vector eye_pos = EyePosition();
     Vector facing = Facing();
+    Number final_size = Max(bal_chrg / 100 * S_BAL_SIZE, 1.5); // minimum size
+
+    BallistaReset();
 
     for (Number i = 1; i < 101; i++)
     {
-        Vector pos = eye_pos + facing * (i * S_BAL_SIZE);
+        Vector pos = eye_pos + facing * (i * final_size);
 
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[4], pos, S_BAL_SIZE);
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[4], pos, final_size);
+        PlayEffect(all, PlayEffect.BadExplosion, color_arr[4], pos, final_size);
+        PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, color_arr[4], pos, 100);
 
-        if (PlayersWithinRadius(pos, S_BAL_SIZE, Team.All).Length > 0) // check for players
-            Kill(RemoveFromArray(PlayersWithinRadius(pos, S_BAL_SIZE, Team.All), player), player);
+        Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), 
+        DistanceBetween(Curr(), pos) <= final_size || 
+        DistanceBetween(PositionOf(Curr()), pos) <= final_size || 
+        DistanceBetween(EyePosition(Curr())) <= final_size);
 
-        MinWait();
+        // Player[] players = RemoveFromArray(PlayersWithinRadius(pos, final_size, Team.All, RadiusLOS.Off), player);
+        for (Number j = 0; j < players.Length; j++)
+            Kill(players[j], player);
+
+        MinWait(); // delay for each explosion, necessary otherwise the server will lag upon firing
     }
+
+    // wait for the loop to finish, then waits again before allowing the ballista to be charged again (1.6 for the loop with MinWait() on OW1, 0.8 for OW2)
+    Wait(3.4); 
+    can_charge = true;
 }
 
 void BallistaReset() playervar "[Buff] :: Ballista : Reset"
 {
     bal_chrg = 0;
-    SetMoveSpeed(player, 100);
     DestroyEffect(bal_eff);
-    can_charge = true;
+
+    if (!m_enabled[0])
+        StopForcingPlayerOutlines(all, player);
 }
