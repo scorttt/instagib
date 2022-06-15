@@ -7,21 +7,20 @@ rule: "Global Debug"
 {
     EnableInspectorRecording();
 
-    for (Number i = 0; i < 20; i++)
-        LogToInspector("!!! DEBUG FILE IS IMPORTED !!!");
+    CreateHudText(all, null, <"<0>  DEBUG FILE IMPORTED <0>", IconString(Icon.Warning)>, null, Location.Right, 0, SubheaderColor: Color.Yellow);
 
-    s_dbg_fastspawn[0] = WorkshopSettingToggle("Debug",                 "Fast Buff Spawn", false, 3);
-    s_dbg_fastspawn[1] = WorkshopSettingToggle("Debug",                 "Fast Mutator Spawn", false, 4);
-    buff_debug[0] = WorkshopSettingToggle("Debug",                      "Give Wallbang", false, 5);
-    buff_debug[1] = WorkshopSettingToggle("Debug",                      "Give Ricochet", false, 6);
-    buff_debug[2] = WorkshopSettingToggle("Debug",                      "Give Buckshot", false, 7);
-    buff_debug[3] = WorkshopSettingToggle("Debug",                      "Give Prism", false, 8);
-    buff_debug[4] = WorkshopSettingToggle("Debug",                      "Give Ballista", false, 9);
-    buff_debug[5] = WorkshopSettingToggle("Debug",                      "Give Electro", false, 10);
-    buff_debug[6] = WorkshopSettingToggle("Debug",                      "Give Spark", false, 11);
-    buff_debug[7] = WorkshopSettingToggle("Debug",                      "Give Arc", false, 12);
-    buff_debug[8] = WorkshopSettingToggle("Debug",                      "Give Nebula", false, 13);
-    buff_debug[9] = WorkshopSettingToggle("Debug",                      "Give Volt", false, 14);
+    s_dbg_fastspawn[0] = WorkshopSettingToggle("General",                 "Fast Buff Spawn", false, -12);
+    s_dbg_fastspawn[1] = WorkshopSettingToggle("General",                 "Fast Mutator Spawn", false, -11);
+    buff_debug[0] = WorkshopSettingToggle("General",                      "Give Pierce", false, -10);
+    buff_debug[1] = WorkshopSettingToggle("General",                      "Give Ricochet", false, -9);
+    buff_debug[2] = WorkshopSettingToggle("General",                      "Give Buckshot", false, -8);
+    buff_debug[3] = WorkshopSettingToggle("General",                      "Give Prism", false, -7);
+    buff_debug[4] = WorkshopSettingToggle("General",                      "Give Ballista", false, -6);
+    buff_debug[5] = WorkshopSettingToggle("General",                      "Give Electro", false, -5);
+    buff_debug[6] = WorkshopSettingToggle("General",                      "Give Spark", false, -4);
+    buff_debug[7] = WorkshopSettingToggle("General",                      "Give Arc", false, -3);
+    buff_debug[8] = WorkshopSettingToggle("General",                      "Give Nebula", false, -2);
+    buff_debug[9] = WorkshopSettingToggle("General",                      "Give Volt", false, -1);
 
     if (s_dbg_fastspawn[0])
         for (Number i = 0; i < S_BUFF_CD.Length; i++)
@@ -35,7 +34,7 @@ rule: "Global Debug"
     }
 
     // server load, entity, and text information
-    ServerStats(buff_pos.Length + all.Length + 3);
+    ServerStats(buff_pos.Length + all.Length + 4);
 
     // world information
     CreateHudText(host, null, 
@@ -84,15 +83,31 @@ Event.OnPlayerJoin
     }
 
     // player information
-    CreateHudText(host, null, <" \n<0>:\nbhopping: <1>, bhop_speed: <2>\ndodges: <3>\n<4>\nhas mutator: <5>", 
-    player,
+    CreateHudText(host, null, <" \n<0>: <1>, <2>, <3>\nbhopping: <4>, bhop_speed: <5>, speed: <6>\ndodges: <7>\n<8>\nhas mutator: <9>", 
+    player, PositionOf(), Facing(), ThrottleOf(),
     bhopping, 
     bhop_speed,
+    HorizontalSpeedOf(),
     dodges,
     has_buff ? <"current buff: <0>", buff_str> : <"recent buff: <0>", buff_str>,
     has_mut
 
     >, null, Location.Right, 0.5);
+}
+
+rule: "Remove Buff Hotkey"
+Event.OngoingPlayer
+if (IsInteractHeld())
+if (has_buff)
+{
+    WaitIfTrue(1);
+
+    buff_ammo[buff_held] = 0;
+    buff_enabled[buff_held] = false;
+    buff_color = null;
+
+    has_buff = false;
+    buff_held = -1;
 }
 
 // rule: "Kill"
@@ -102,8 +117,10 @@ Event.OnPlayerJoin
 //     Kill();
 // }
 
+Player[] bots: FilteredArray(all, IsDummyBot(Curr()));
+Player[] humans: FilteredArray(all, !IsDummyBot(Curr()));
 rule: "Bots"
-if (FilteredArray(all, IsDummyBot(Curr())).Length < 8 - FilteredArray(all, !IsDummyBot(Curr())).Length)
+if (bots.Length < 8 - humans.Length)
 if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
 {
     CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null), Facing(host) * -1);
