@@ -12,16 +12,15 @@ rule: "[Dodge] :: Action"
 Event.OngoingPlayer
 if (s_dodge_enabled)
 if (dodges > 0)
+if (IsAlive())
 if (IsInAir())
 if (IsButtonHeld(player, Button.Ability1))
 {
-    throttle_of = ThrottleOf() + Vector(0, 0.6, 0);
+    // hacky fix for controller users
+    throttle_of = Vector(Near(ThrottleOf().X), 0.6, Near(ThrottleOf().Z));
 
     if (throttle_of == Vector(0, 0.6, 0))
         throttle_of = Vector(0, 0.6, 1);
-
-    if (bhop_speed < 120)
-        bhop_speed += S_BHOP_SPEED_RATE * 3;
 
     ApplyImpulse(player, throttle_of, S_DODGE_FORCE, Relative.ToPlayer, ContraryMotion.Cancel);
 
