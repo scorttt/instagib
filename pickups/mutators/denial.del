@@ -14,7 +14,7 @@ rule : "[Mutator] :: Denial : Remove Status"
 Event.OnDamageTaken
 if (has_mut)
 if (m_enabled[6])
-{
+{   
     LogToInspector(<"Denial removed from <0>", m_usr>);
     RemoveMutator();
 
@@ -22,15 +22,15 @@ if (m_enabled[6])
 
     PlayEffect(all, PlayEffect.BadPickupEffect, Color.Purple, PositionOf() + Up() + Facing(), 1);
     PlayEffect(all, PlayEffect.TracerRecallDisappearEffect, Color.Team1, PositionOf() + Up() + Facing());
+
     SetStatus(player, null, Status.PhasedOut, 999999999);
-
-    StartCamera(player, Update(EyePosition()), Update(EyePosition() + Facing()));
     SetInvisible(player, InvisibleTo.All);
+    StartCamera(player, Update(EyePosition()), Update(EyePosition() + Facing()));
+
     pri_override = true;
-
     Wait(5);
-
     pri_override = false;
+
     ClearStatus(player, Status.Unkillable);
     ClearStatus(player, Status.PhasedOut);
     SetInvisible(player, InvisibleTo.None);
