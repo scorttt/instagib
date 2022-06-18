@@ -8,7 +8,6 @@ import "debug.del";
 import "movement/bhop.del";
 import "movement/blaster.del";
 import "movement/dodge.del";
-import "killspree.del";
 import "hudtext.del";
 
 import "pickups/init.del";
@@ -98,7 +97,6 @@ rule: "[Main] :: Initial Global"
     S_SPRK_PSPEED = WorkshopSettingReal("Spark Buff",                        "Spark Projectile Speed (20)", 20, 1, 500, 4);
     S_SPRK_PESIZE = WorkshopSettingReal("Spark Buff",                        "Spark Projectile Explosion Size (3.5)", 3.5, 1, 500, 5);
     S_SPRK_HITBOX_SIZE = WorkshopSettingReal("Spark Buff",                   "Spark Projectile Hitbox Size (0.45)", 0.45, 0.5, 10, 7);
-    S_SPRK_HIT_PESIZE = S_SPRK_PESIZE * 3;
 
     s_spawn_buff[8] = WorkshopSettingToggle("Nebula Buff",                   "Spawn Nebula (On)", true, 1);
     S_BUFF_CD[8] = WorkshopSettingInteger("Nebula Buff",                     "Nebula Spawn Time (125)", 125, 5, 600, 2);
@@ -128,7 +126,7 @@ rule: "[Main] :: Initial Global"
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
     S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
     S_BAL_SIZE = WorkshopSettingReal("Ballista Buff",                        "Ballista Max Size (6)", 6, 1, 50, 4);
-    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (Higher is Slower) (30)", 30, 1, 1000, 5);
+    S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (Higher is Slower) (55)", 55, 1, 1000, 5);
 
     s_enable_m = WorkshopSettingToggle("Mutators",                           "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
@@ -208,6 +206,9 @@ Event.OnPlayerJoin
 
 void FireWeapon(in Button button, in Number delay)
 {
+    if (has_buff)
+        gun_pos = weapon_muzzle(EyePosition(), Facing());
+
     AllowButton(player, button);
     PressButton(player, button);
     MinWait();
@@ -285,10 +286,10 @@ if (MatchTime() <= 0)
     EnableCompletion();
 }
 
-rule: "[Main] :: Set Weapon Pos"
-Event.OngoingPlayer
-if (IsFiringPrimary())
-if (has_buff)
-{
-    gun_pos = weapon_muzzle(EyePosition(), Facing());
-}
+// rule: "[Main] :: Set Weapon Pos"
+// Event.OngoingPlayer
+// if (IsFiringPrimary())
+// if (has_buff)
+// {
+//     gun_pos = weapon_muzzle(EyePosition(), Facing());
+// }
