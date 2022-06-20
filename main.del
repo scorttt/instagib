@@ -109,7 +109,8 @@ rule: "[Main] :: Initial Global"
     S_BUFF_AMMO[9] = WorkshopSettingInteger("Volt Buff",                     "Volt Ammo (320)", 320, 1, 10000, 3);
     S_MAX_VLT_SPREAD = WorkshopSettingReal("Volt Buff",                      "Volt Maximum Spread (Lower is Tighter) (20)", 20, 0, 100, 4) / 100;
     S_MAX_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Maximum Distance (100)", 100, 1, 300, 5);
-    S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (5)", 5, 1, 300, 5);
+    S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (5)", 5, 1, 300, 6);
+    S_VLT_TIME = WorkshopSettingReal("Volt Buff",                            "Volt Overheat Time (5)", 5, 0.1, 10, 7);
 
     s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "Spawn Arc (On)", true, 1);
     S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc Spawn Time (195)", 195, 5, 600, 2);

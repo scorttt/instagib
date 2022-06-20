@@ -1,6 +1,7 @@
 import "../../main.del";
 import ".bmain.del";
 
+globalvar Number S_VLT_TIME;
 globalvar Number S_MAX_VLT_SPREAD;
 globalvar Number S_MAX_VLT_DIST;
 globalvar Number S_MIN_VLT_DIST;
@@ -32,25 +33,28 @@ if (!HasStatus(player, Status.PhasedOut))
     if (EntityExists(vlt_effects))
         DestroyEffect(vlt_effects);
 
+    Boolean hit = false;
+
     WaitIfTrue(0.05); // brief hold
     Vector vlt_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * vlt_dist, AllLivingPlayers(), player);
     MinWait();
 
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), vlt_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
     vlt_effects[0] = LastCreatedEntity();
-    CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
-    vlt_effects[1] = LastCreatedEntity();
-    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 100);
-    vlt_effects[2] = LastCreatedEntity();
-    CreateEffect(all, Effect.WinstonTeslaCannonSound, null, vlt_hit, 100);
-    vlt_effects[3] = LastCreatedEntity();
+    // CreateEffect(all, Effect.SymmetraProjectorSound, null, player, 100);
+    // vlt_effects[1] = LastCreatedEntity();
+    // CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 100);
+    // vlt_effects[2] = LastCreatedEntity();
+    // CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, vlt_hit, 100);
+    // vlt_effects[3] = LastCreatedEntity();
 
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[9] && !overheat)
     {
-        AddOverTime(vlt_temp, 3, 0, 100, 0.016);
-        SubtractOverTime(vlt_dist, 3, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.016);
+        AddOverTime(vlt_temp, S_VLT_TIME, 0, 100, 0.016);
+        SubtractOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.016);
 
-        buff_ammo[9] -= vlt_temp * 0.01;
+        // slow the rate of ammo depletion the longer fire is held
+        buff_ammo[9] -= Abs((vlt_temp - 100) * 0.0075);
 
         vlt_facing = WorldVectorOf(Vector(TangentFromDegrees(RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD)), 0, 0), player) + 
         DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD));
@@ -59,7 +63,14 @@ if (!HasStatus(player, Status.PhasedOut))
         Player vlt_player = RayCastHitPlayer(EyePosition(), EyePosition() + vlt_facing * vlt_dist, AllLivingPlayers(), player);
 
         if (DistanceBetween(EyePosition(), vlt_hit) < vlt_dist - 1)
+        {
+            hit = true;
             PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], vlt_hit, 0.25);
+        }
+        else 
+        {
+            hit = false;
+        }
 
         Kill(vlt_player, player);
         MinWait();
@@ -68,20 +79,33 @@ if (!HasStatus(player, Status.PhasedOut))
         {
             vlt_temp = 100;
             overheat = true;
+            PlayEffect(player, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, player, 100);
+            CreateEffect(player, Effect.TorbjornOverloadingSound, Color.White, player, 30);
+            vlt_effects[4] = LastCreatedEntity();
             break;
         }
     }
 
-    MinWait(); 
-    DestroyEffect(vlt_effects);
+    MinWait();
+    DestroyEffect(vlt_effects[0]);
+    DestroyEffect(vlt_effects[1]);
+    DestroyEffect(vlt_effects[2]);
+    DestroyEffect(vlt_effects[3]);
 
     if (overheat) // check if the player ended the loop because of overheating to prevent the player from automatically firing
     {
+        buff_ammo[9] = Ceiling(buff_ammo[9]);
+
         WaitUntil(!IsPrimaryHeld(), 99999);
+
         pri_override = false;
+
         WaitUntil(vlt_temp == 0, 99999);
+
         overheat = false;
         pri_override = true;
+        DestroyEffect(vlt_effects[4]);
+        PlayEffect(player, PlayEffect.BrigitteRepairPackArmorSound, Color.Team1, player, 100);
     }
 }
 
@@ -97,14 +121,15 @@ if (!IsPrimaryHeld() || overheat)
 
     while (vlt_temp > 0 && !IsPrimaryHeld() || overheat)
     {
-        SubtractOverTime(vlt_temp, 3, 0, 100, 0.032);
-        AddOverTime(vlt_dist, 3, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.032);
+        SubtractOverTime(vlt_temp, S_VLT_TIME, 0, 100, 0.032);
+        AddOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.032);
         Wait(0.032);
 
         if (vlt_temp == 0 && buff_enabled[9])
         {
             overheat = false;
             pri_override = true;
+            buff_ammo[9] = Ceiling(buff_ammo[9]);
             break;
         }
     }

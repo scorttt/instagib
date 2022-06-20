@@ -75,6 +75,7 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
         case (9):
             DisallowButton(player, Button.PrimaryFire);
             vlt_temp = 0;
+            vlt_dist = S_MAX_VLT_DIST;
             overheat = false;
             pri_override = true;
             break;
