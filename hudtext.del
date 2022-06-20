@@ -84,7 +84,7 @@ rule: "[Main] :: HUD Text and Effects"
         LANG_STR[6] = ["Charges: ", 
                        "Detonation in: ",
                        "Recharging",
-                       "Overheated"];
+                       "Overheat"];
 
         LANG_STR[7] = ["Bunny Hop", 
                        "Blaster", 
@@ -99,8 +99,7 @@ rule: "[Main] :: HUD Text and Effects"
                        "Buffs are pickups that are scattered throughout the map that modify how your weapon fires",
                        "Mutators are rare pickups that modify the player in significant ways"]; 
 
-        LANG_STR[10] = ["Movement", 
-                        "Kill Streak", 
+        LANG_STR[10] = ["Movement",  
                         " is spawning", 
                         "In-use by ",
                         "You picked up ",
@@ -177,11 +176,14 @@ rule: "[Main] :: HUD Text and Effects"
                        "",
                        ""]; 
 
-        LANG_STR[10] = ["ムーブメント", 
-                        "キルストリーク", 
+        LANG_STR[10] = ["ムーブメント",  
                         "がスポーンしている", 
-                        "の使用中"];
+                        "の使用中",
                      // ^ player go here
+                        "を手に入れた",
+                      // ^ pickup go here
+                        "Refilled ammo for "];
+
         LANG_STR[11] = ["",
                         "",
                         "",
@@ -241,7 +243,7 @@ if (s_buffs_enabled)
         {
             CreateHudText(local.buff_enabled[Once(i)] ? local : null, null, null, 
             <"<0> <1><2><3> / <4>", 
-            b_ico[Once(i)], LANG_STR[0][Once(i)], LANG_STR[4], Near(local.buff_ammo[Once(i)]), Near(local.max_ammo[Once(i)])>, 
+            b_ico[Once(i)], LANG_STR[0][Once(i)], LANG_STR[4], Ceiling(local.buff_ammo[Once(i)]), Ceiling(local.max_ammo[Once(i)])>, 
             Location.Top, 1, TextColor: color_arr[Once(i)]);
         }
     }
@@ -485,14 +487,18 @@ if (s_buffs_enabled)
         Location.Left, Sorting.volt, color_arr[9], color_arr[9]);
 
         CreateProgressBarHudText(local.buff_enabled[9] ? local : null, 
-        local.vlt_temp, local.overheat ? LANG_STR[6][3] : "",
+        local.vlt_temp, local.overheat ? LANG_STR[6][3] : <"<0>°", Floor(local.vlt_temp)>,
         Location.Top, 1.2, 
         !local.overheat ? CustomColor(
-            LinearInterpolate(255, 255, local.vlt_temp / 100),
-            LinearInterpolate(255, 0, local.vlt_temp / 100),
-            LinearInterpolate(255, 0, local.vlt_temp / 100),
-            LinearInterpolate(255, 255, local.vlt_temp / 100)) : Color.Red, 
-        Color.Red, ProgressBarHudEvaluation.VisibleToValuesAndColor);
+            LinearInterpolate(80, 255, local.vlt_temp / 100), // r
+            LinearInterpolate(185, 0, local.vlt_temp / 100),  // g
+            LinearInterpolate(255, 0, local.vlt_temp / 100),  // b
+            255) : CustomColor(175, 0, 0, 255),
+        !local.overheat ? CustomColor(
+            LinearInterpolate(80, 255, local.vlt_temp / 100), // r
+            LinearInterpolate(185, 0, local.vlt_temp / 100),  // g
+            LinearInterpolate(255, 0, local.vlt_temp / 100),  // b
+            255) : CustomColor(175, 0, 0, 255), ProgressBarHudEvaluation.VisibleToValuesAndColor);
 
         CreateEffect(vlt_pb == 100 ? all : null, Effect.Orb, color_arr[9], buff_pos[9], 2, EffectRev.VisibleTo);
         CreateInWorldText(vlt_pb == 100 ? all : null, IconString(Icon.Bolt), buff_pos[9] + Vector(0, 0.45, 0), 2, Clipping.ClipAgainstSurfaces, InworldTextRev.VisibleToAndPosition);
