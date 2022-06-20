@@ -5,29 +5,6 @@ globalvar Number S_NUM_WALLBANGS;
 
 disabled rule: "---------------- Pierce ----------------"{}
 
-rule: "[Buff] :: Pierce : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[0])
-if (wallbang_pb == 100)
-{
-    buff_i = 0;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Pierce : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[0])
-if (can_pickup_buff[0])
-if (DistanceBetween(buff_pos[0], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 0;
-    CollectBuff();
-}
-
 // playervar Any dbg_eff;
 rule: "[Buff] :: Pierce : Action"
 Event.OngoingPlayer
@@ -61,7 +38,7 @@ if (IsFiringPrimary())
             // raidus check if the exit hit position is nearby the last hit position to prevent the exit hit pos to hit the player
             if (DistanceBetween(exit_hp[i], eye_pos) > 0.05)
             {
-                PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], exit_hp[i] + offset, 0.5);
+                PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], exit_hp[i] + offset, 0.25);
                 // // debug shit
                 // CreateEffect(all, Effect.Sphere, Color.Red, exit_hp[i], 0.2, EffectRev.None);
                 // dbg_eff[i][1] = LastCreatedEntity();
@@ -73,7 +50,7 @@ if (IsFiringPrimary())
                 break;
 
             Kill(hp_player[i], player);
-            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.5);
+            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[0], hp[i] + offset, 0.25);
 
             // // debug shit
             // CreateEffect(all, Effect.Sphere, i < S_NUM_WALLBANGS ? Color.Blue : Color.Green, hp[i], 0.2, EffectRev.None);

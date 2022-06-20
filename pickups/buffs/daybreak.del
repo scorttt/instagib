@@ -8,36 +8,13 @@ playervar Any[] neb_effects;
 
 disabled rule: "---------------- Nebula ----------------"{}
 
-rule: "[Buff] :: Nebula : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[8])
-if (neb_pb == 100)
-{
-    buff_i = 8;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Nebula : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[8])
-if (can_pickup_buff[8])
-if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 8;
-    CollectBuff();
-}
-
 rule: "[Buff] :: Nebula Fire Action"
 Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
     Vector neb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], neb_hitpos, 0.2);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], neb_hitpos, 0.25);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, neb_hitpos, color_arr[8], EffectRev.None);
     buff_trail = LastCreatedEntity();
 

@@ -26,29 +26,6 @@ Event.OnPlayerJoin
     electro_eyepos3 = Vector(-10000, -10000, -10000);
 }
 
-rule: "[Buff] :: Electro : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[5])
-if (electro_pb == 100)
-{
-    buff_i = 5;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Electro : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[5])
-if (can_pickup_buff[5])
-if (DistanceBetween(buff_pos[5], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 5;
-    CollectBuff();
-}
-
 rule: "[Buff] :: Electro : Action - Primary"
 Event.OngoingPlayer
 if (buff_enabled[5])
@@ -97,9 +74,9 @@ if (IsAlive())
 
     electro_eyepos1 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos1, electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 5, Color.Team1);
+    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[0][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[0][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos1, electro_m_hitpos[0], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -117,9 +94,9 @@ if (IsAlive())
 
     electro_eyepos2 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos2, electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 5, Color.Team1);
+    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[1][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[1][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos2, electro_m_hitpos[1], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -137,9 +114,9 @@ if (IsAlive())
 
     electro_eyepos3 = EyePosition();
 
-    CreateBeamEffect(all, BeamType.ZaryaParticleBeam, electro_eyepos3, electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 5, Color.Team1);
+    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[2][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.5, 1, EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
     electro_m_effect[2][1] = LastCreatedEntity();
 
     ChaseVariableAtRate(electro_eyepos3, electro_m_hitpos[2], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
@@ -149,7 +126,7 @@ if (IsAlive())
     mines_placed = true;
 
     for (Number i = 0; i < 3; i++)
-        PlayEffect(all, PlayEffect.GoodExplosion, Color.SkyBlue, electro_m_hitpos[i], 0.1);
+        PlayEffect(all, PlayEffect.GoodPickupEffect, Color.SkyBlue, electro_m_hitpos[i], 1);
 
     mine_det = S_ELECTRO_DELAY;
     ChaseVariableOverTime(mine_det, 0, S_ELECTRO_DELAY, TimeChaseReevaluation.None);

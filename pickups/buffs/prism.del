@@ -4,36 +4,13 @@ import ".bmain.del";
 
 disabled rule: "---------------- Prism ----------------"{}
 
-rule: "[Buff] :: Prism : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[3])
-if (prism_pb == 100)
-{
-    buff_i = 3;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Prism : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[3])
-if (can_pickup_buff[3])
-if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 3;
-    CollectBuff();
-}
-
 rule: "[Buff] :: Prism : Fire Action"
 Event.OngoingPlayer
 if (buff_enabled[3])
 if (IsFiringPrimary())
 {
     Vector prism_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.2);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[3], prism_hit, 0.25);
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, prism_hit, color_arr[3], EffectRev.None);
     buff_trail = LastCreatedEntity();
 

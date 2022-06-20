@@ -24,29 +24,6 @@ Event.OnPlayerJoin
     spread = S_BUCKSHOT_SPREAD;
 }
 
-rule: "[Buff] :: Buckshot : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[2])
-if (buckshot_pb == 100)
-{
-    buff_i = 2;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Buckshot : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[2])
-if (can_pickup_buff[2])
-if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 2;
-    CollectBuff();
-}
-
 rule: "[Buff] :: Buckshot : Charge"
 Event.OngoingPlayer
 if (buff_enabled[2])
@@ -60,7 +37,7 @@ if (IsReloadHeld())
     PlayEffect(player, PlayEffect.BuffImpactSound, null, player, 50);
 
     charge_lvl++;
-    spread = spread + 0.35;
+    spread = spread + 0.2;
     buff_ammo[2]--;
 
     hascharge_str = StringSlice(charge_arr[0], 0, charge_lvl * 2);
@@ -198,14 +175,14 @@ if (IsFiringPrimary())
 
         for (Number j = 0; j < 8; j++)
         {
-            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[i][j], 0.2);
+            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_hp[i][j], 0.25);
 
             CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_hp[i][j], color_arr[2], EffectRev.None);
             buckshot_beam[i][j] = LastCreatedEntity();
         }
     }
 
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.2);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[2], buckshot_center, 0.25);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, buckshot_center, color_arr[2], EffectRev.None);
     buff_trail = LastCreatedEntity();

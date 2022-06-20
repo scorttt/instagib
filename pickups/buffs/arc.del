@@ -6,29 +6,6 @@ playervar Any arc_effects;
 
 disabled rule: "---------------- Arc ----------------"{}
 
-rule: "[Buff] :: Arc : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[7])
-if (arc_pb == 100)
-{
-    buff_i = 7;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Arc : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[7])
-if (can_pickup_buff[7])
-if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 7;
-    CollectBuff();
-}
-
 rule: "[Buff] :: Arc : Action - Fire"
 Event.OngoingPlayer
 if (buff_enabled[7])
@@ -65,7 +42,7 @@ if (!HasStatus(player, Status.PhasedOut))
 
         if (DistanceBetween(EyePosition(), arc_hit) < 99)
         {
-            PlayEffect(all, PlayEffect.BadExplosion, color_arr[7], arc_hit, 0.1);
+            PlayEffect(all, PlayEffect.BadExplosion, color_arr[7], arc_hit, 0.25);
             hit = true;
         }
         else
