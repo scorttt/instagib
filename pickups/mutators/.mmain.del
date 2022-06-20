@@ -37,7 +37,7 @@ if (m_in.Length > 0)
     m_inworld = true;
     can_pickup_m = false;
 
-    BigMessage(all, <"<0><1>", m_str, LANG_STR[11][2]>);
+    BigMessage(all, <"<0><1>", m_str, LANG_STR[10][2]>);
 
     m_pb = 0;
     m_in_timer = false;
@@ -85,7 +85,11 @@ void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
     has_mut = false;
     m_usr = null;
     m_in -= chosen_mut; // remove the chosen mutator from the array
-    StopForcingPlayerOutlines(all, player);
+
+    if (bal_chrg < 75)
+        StopForcingPlayerOutlines(all, player);
+    else 
+        StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
 
     SetMutatorPosition();
     StartMutatorTimer();

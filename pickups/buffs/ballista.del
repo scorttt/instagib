@@ -4,7 +4,6 @@ import ".bmain.del";
 globalvar Number S_BAL_CRATE;
 globalvar Number S_BAL_SIZE;
 playervar Number bal_chrg;
-playervar Any[] bal_eff;
 playervar Boolean can_charge;
 playervar Number chrg_rate;
 disabled rule: "---------------- Ballista ----------------" {}
@@ -13,29 +12,6 @@ rule: "[Buff] :: Ballista : Init"
 Event.OnPlayerJoin
 {
     can_charge = true;
-}
-
-rule: "[Buff] :: Ballista : Create Orb"
-if (match_started)
-if (valid_map)
-if (s_spawn_buff[4])
-if (bal_pb == 100)
-{
-    buff_i = 4;
-    CreateOrb();
-}
-
-rule: "[Buff] :: Ballista : Collect"
-Event.OngoingPlayer
-if (HasSpawned())
-if (!has_buff || buff_enabled[4])
-if (can_pickup_buff[4])
-if (DistanceBetween(buff_pos[4], PositionOf() + Up()) < S_PICKUP_RAD)
-if (IsAlive())
-if (!IsFiringPrimary())
-{
-    buff_i = 4;
-    CollectBuff();
 }
 
 rule: "[Buff] :: Ballista : Charge"
@@ -48,9 +24,9 @@ if (IsAlive())
 {
     chrg_rate = S_BAL_CRATE / SpeedOf() * 5;
 
-    AddOverTime(bal_chrg, chrg_rate, 0, 100, 0.032);
+    AddOverTime(bal_chrg, chrg_rate, 0, 100, 0.048);
 
-    Wait(0.032);
+    Wait(0.048);
     LoopIfConditionIsTrue();
 }
 
@@ -76,11 +52,11 @@ if (IsFiringPrimary())
 
     Vector eye_pos = EyePosition();
     Vector facing = Facing();
-    Number final_size = Max(bal_chrg / 100 * S_BAL_SIZE, 1.5); // minimum size
+    Number final_size = Max(bal_chrg / 100 * S_BAL_SIZE, 1); // minimum size
 
     BallistaReset();
 
-    for (Number i = 1; i < 101; i++)
+    for (Number i = 1; i < 201; i++)
     {
         Vector pos = eye_pos + facing * (i * final_size);
 
@@ -89,27 +65,27 @@ if (IsFiringPrimary())
         PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, color_arr[4], pos, 100);
 
         Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), 
-        DistanceBetween(Curr(), pos) <= final_size || 
-        DistanceBetween(PositionOf(Curr()), pos) <= final_size || 
-        DistanceBetween(EyePosition(Curr())) <= final_size);
+        DistanceBetween(PositionOf(Curr()) + Up(),              pos) <= final_size || 
+        DistanceBetween(PositionOf(Curr()) + Vector(0, 0.5, 0), pos) <= final_size ||
+        DistanceBetween(PositionOf(Curr()),                     pos) <= final_size);
 
-        // Player[] players = RemoveFromArray(PlayersWithinRadius(pos, final_size, Team.All, RadiusLOS.Off), player);
         for (Number j = 0; j < players.Length; j++)
             Kill(players[j], player);
 
-        MinWait(); // delay for each explosion, necessary otherwise the server will lag upon firing
+        MinWait(); // delay for each explosion, necessary otherwise the server will lag upon firing and adds delay between each explosion for a total of 3.2 seconds on OW1 (1.6 on ow2)
     }
 
-    // wait for the loop to finish, then waits again before allowing the ballista to be charged again (1.6 for the loop with MinWait() on OW1, 0.8 for OW2)
-    Wait(3.4); 
+    // waits again before allowing the ballista to be charged again
+    Wait(1.8); 
     can_charge = true;
 }
 
 void BallistaReset() playervar "[Buff] :: Ballista : Reset"
 {
     bal_chrg = 0;
-    DestroyEffect(bal_eff);
 
     if (!m_enabled[0])
         StopForcingPlayerOutlines(all, player);
+    else
+        StartForcingPlayerOutlines(all, player, true, m_color[1], OutlineType.Always);
 }
