@@ -37,7 +37,7 @@ if (m_in.Length > 0)
     m_inworld = true;
     can_pickup_m = false;
 
-    BigMessage(all, <"<0><1>", m_str, LANG_STR[10][2]>);
+    BigMessage(all, <"<0><1>", m_str, LANG_STR[10][1]>);
 
     m_pb = 0;
     m_in_timer = false;
