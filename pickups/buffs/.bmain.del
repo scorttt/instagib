@@ -74,6 +74,8 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
             break;
         case (9):
             DisallowButton(player, Button.PrimaryFire);
+            vlt_temp = 0;
+            overheat = false;
             pri_override = true;
             break;
     }
@@ -246,7 +248,7 @@ if (IsTrueForAll(buff_enabled, false) || IsTrueForAll(buff_ammo, Curr() <= 0))
     pri_override = false;
 }
 
-rule: "[Buff] :: Pierce Timer"
+rule: "[Buff] :: Pierce : Timer"
 if (buff_timer[0])
 {
     buff_cd[0]--;
@@ -260,7 +262,30 @@ if (buff_timer[0])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Ricochet Timer"
+rule: "[Buff] :: Pierce : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[0])
+if (wallbang_pb == 100)
+{
+    buff_i = 0;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Pierce : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[0])
+if (can_pickup_buff[0])
+if (DistanceBetween(buff_pos[0], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 0;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Ricochet : Timer"
 if (buff_timer[1])
 {
     buff_cd[1]--;
@@ -273,7 +298,30 @@ if (buff_timer[1])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Buckshot Timer"
+rule: "[Buff] :: Ricochet : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[1])
+if (ricochet_pb == 100)
+{
+    buff_i = 1;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Ricochet : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[1])
+if (can_pickup_buff[1])
+if (DistanceBetween(buff_pos[1], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 1;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Buckshot : Timer"
 if (buff_timer[2])
 {
     buff_cd[2]--;
@@ -286,7 +334,30 @@ if (buff_timer[2])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Prism Timer"
+rule: "[Buff] :: Buckshot : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[2])
+if (buckshot_pb == 100)
+{
+    buff_i = 2;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Buckshot : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[2])
+if (can_pickup_buff[2])
+if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 2;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Prism : Timer"
 if (buff_timer[3])
 {
     buff_cd[3]--;
@@ -299,7 +370,30 @@ if (buff_timer[3])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Ballista Timer"
+rule: "[Buff] :: Prism : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[3])
+if (prism_pb == 100)
+{
+    buff_i = 3;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Prism : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[3])
+if (can_pickup_buff[3])
+if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 3;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Ballista : Timer"
 if (buff_timer[4])
 {
     buff_cd[4]--;
@@ -312,7 +406,30 @@ if (buff_timer[4])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Electro Timer"
+rule: "[Buff] :: Ballista : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[4])
+if (bal_pb == 100)
+{
+    buff_i = 4;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Ballista : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[4])
+if (can_pickup_buff[4])
+if (DistanceBetween(buff_pos[4], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 4;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Electro : Timer"
 if (buff_timer[5])
 {
     buff_cd[5]--;
@@ -325,7 +442,30 @@ if (buff_timer[5])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Spark Timer"
+rule: "[Buff] :: Electro : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[5])
+if (electro_pb == 100)
+{
+    buff_i = 5;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Electro : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[5])
+if (can_pickup_buff[5])
+if (DistanceBetween(buff_pos[5], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 5;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Spark : Timer"
 if (buff_timer[6])
 {
     buff_cd[6]--;
@@ -338,7 +478,30 @@ if (buff_timer[6])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Arc Timer"
+rule: "[Buff] :: Spark : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[6])
+if (sprk_pb == 100)
+{
+    buff_i = 6;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Spark : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[6])
+if (can_pickup_buff[6])
+if (DistanceBetween(buff_pos[6], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 6;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Arc : Timer"
 if (buff_timer[7])
 {
     buff_cd[7]--;
@@ -351,7 +514,30 @@ if (buff_timer[7])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Neubla Timer"
+rule: "[Buff] :: Arc : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[7])
+if (arc_pb == 100)
+{
+    buff_i = 7;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Arc : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[7])
+if (can_pickup_buff[7])
+if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 7;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Neubla : Timer"
 if (buff_timer[8])
 {
     buff_cd[8]--;
@@ -364,7 +550,30 @@ if (buff_timer[8])
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Volt Timer"
+rule: "[Buff] :: Nebula : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[8])
+if (neb_pb == 100)
+{
+    buff_i = 8;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Nebula : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[8])
+if (can_pickup_buff[8])
+if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 8;
+    CollectBuff();
+}
+
+rule: "[Buff] :: Volt : Timer"
 if (buff_timer[9])
 {
     buff_cd[9]--;
@@ -375,4 +584,27 @@ if (buff_timer[9])
 
     Wait(1);
     LoopIfConditionIsTrue();
+}
+
+rule: "[Buff] :: Volt : Create Orb"
+if (match_started)
+if (valid_map)
+if (s_spawn_buff[9])
+if (vlt_pb == 100)
+{
+    buff_i = 9;
+    CreateOrb();
+}
+
+rule: "[Buff] :: Volt : Collect"
+Event.OngoingPlayer
+if (HasSpawned())
+if (!has_buff || buff_enabled[9]) 
+if (can_pickup_buff[9])
+if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
+if (IsAlive())
+if (!IsFiringPrimary())
+{
+    buff_i = 9;
+    CollectBuff();
 }

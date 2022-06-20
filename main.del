@@ -5,12 +5,14 @@ import "../workshop-scripts/macros.del";
 import "dbgsettings.json";
 import "debug.del";
 
+import "hudtext.del";
+
 import "movement/bhop.del";
 import "movement/blaster.del";
 import "movement/dodge.del";
-import "hudtext.del";
 
 import "pickups/init.del";
+
 import "pickups/buffs/.bmain.del";
 import "pickups/buffs/wallbang.del";
 import "pickups/buffs/ricochet.del";
@@ -35,7 +37,7 @@ globalvar Boolean match_started; // has the match started
 playervar Boolean info; // information toggle
 playervar Boolean pri_override; // disables primary fire (e.g. for owning volt or denial being in use)
 playervar Vector gun_pos; // arbitrary position of the gun, it should be the same for sojourn and cassidy
-globalvar Any LANG_STR; 
+
 Any weapon_muzzle(Vector start_pos, Vector dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
 
 disabled rule: "---------------- Main ----------------"{}
@@ -72,10 +74,10 @@ rule: "[Main] :: Initial Global"
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
 
-    s_spawn_buff[0] = WorkshopSettingToggle("Pierce Buff",                 "Spawn Pierce (On)", true, 1);
-    S_BUFF_CD[0] = WorkshopSettingInteger("Pierce Buff",                   "Pierce Spawn Time (75)", 75, 5, 600, 2);
-    S_BUFF_AMMO[0] = WorkshopSettingInteger("Pierce Buff",                 "Pierce Ammo (20)", 20, 1, 1000, 3);
-    S_NUM_WALLBANGS = WorkshopSettingInteger("Pierce Buff",                "Amount Of Surfaces to Pierce (4)", 4, 1, 16, 4);
+    s_spawn_buff[0] = WorkshopSettingToggle("Pierce Buff",                   "Spawn Pierce (On)", true, 1);
+    S_BUFF_CD[0] = WorkshopSettingInteger("Pierce Buff",                     "Pierce Spawn Time (75)", 75, 5, 600, 2);
+    S_BUFF_AMMO[0] = WorkshopSettingInteger("Pierce Buff",                   "Pierce Ammo (20)", 20, 1, 1000, 3);
+    S_NUM_WALLBANGS = WorkshopSettingInteger("Pierce Buff",                  "Amount Of Surfaces to Pierce (4)", 4, 1, 16, 4);
 
     s_spawn_buff[1] = WorkshopSettingToggle("Ricochet Buff",                 "Spawn Ricochet (On)", true, 1);
     S_BUFF_CD[1] = WorkshopSettingInteger("Ricochet Buff",                   "Ricochet Spawn Time (75)", 75, 5, 600, 2);
@@ -105,7 +107,9 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "Spawn Volt (On)", true, 1);
     S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt Spawn Time (165)", 165, 5, 600, 2);
     S_BUFF_AMMO[9] = WorkshopSettingInteger("Volt Buff",                     "Volt Ammo (320)", 320, 1, 10000, 3);
-    S_VLT_DIST = WorkshopSettingReal("Volt Buff",                            "Volt Maximum Distance (15)", 15, 1, 100, 3);
+    S_MAX_VLT_SPREAD = WorkshopSettingReal("Volt Buff",                      "Volt Maximum Spread (Lower is Tighter) (20)", 20, 0, 100, 4) / 100;
+    S_MAX_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Maximum Distance (100)", 100, 1, 300, 5);
+    S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (5)", 5, 1, 300, 5);
 
     s_spawn_buff[7] = WorkshopSettingToggle("Arc Buff",                      "Spawn Arc (On)", true, 1);
     S_BUFF_CD[7] = WorkshopSettingInteger("Arc Buff",                        "Arc Spawn Time (195)", 195, 5, 600, 2);
@@ -124,7 +128,7 @@ rule: "[Main] :: Initial Global"
 
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
-    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (5)", 5, 1, 1000, 3);
+    S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (3)", 3, 1, 1000, 3);
     S_BAL_SIZE = WorkshopSettingReal("Ballista Buff",                        "Ballista Max Size (6)", 6, 1, 50, 4);
     S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (Higher is Slower) (55)", 55, 1, 1000, 5);
 
@@ -190,18 +194,18 @@ Event.OnPlayerJoin
         CreateEffect(IsAlive() && has_mut ? all : null, Effect.BadAura, m_color[1], player, 0.5, EffectRev.VisibleToPositionRadiusAndColor);
     }
 
+    // check ballista and seer users and apply outlines to the new player
+    if (FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75).Length > 0)
+        StartForcingPlayerOutlines(player, FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75), true, color_arr[4], OutlineType.Always);
+    if (m_usr != null && m_usr.m_enabled[0])
+        StartForcingPlayerOutlines(player, m_usr, true, m_color[1], OutlineType.Always);
+
     DisableGameModeHud();
     StartScalingPlayer(player, 0.80);
 
     bhop_speed = 100;
     has_buff = false;
     has_mut = false;
-
-    // check ballista and seer users and apply outlines to the new player
-    if (FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75).Length > 0)
-        StartForcingPlayerOutlines(player, FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75), true, color_arr[4], OutlineType.Always);
-    if (m_usr != null && m_usr.m_enabled[0])
-        StartForcingPlayerOutlines(player, m_usr, true, m_color[1], OutlineType.Always);
 }
 
 void FireWeapon(in Button button, in Number delay)
@@ -214,7 +218,7 @@ void FireWeapon(in Button button, in Number delay)
     MinWait();
     DisallowButton(player, button);
     Wait(delay); // main fire rate delay, must not be lower than 0.5 for Cassidy and 0.7 (?) for Sojourn
-} 
+}
 
 rule: "[Main] :: Cassidy : Server Fire"
 Event.OngoingPlayer

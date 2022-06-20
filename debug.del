@@ -24,7 +24,7 @@ rule: "Global Debug"
 
     if (s_dbg_fastspawn[0])
         for (Number i = 0; i < S_BUFF_CD.Length; i++)
-            S_BUFF_CD[i] = 5;
+            S_BUFF_CD[i] = 1;
 
     if (s_dbg_fastspawn[1])
     {
@@ -79,6 +79,9 @@ Event.OnPlayerJoin
             buff_enabled[i] = true;
             buff_ammo[i] = 999999;
             buff_color = color_arr[i];
+
+            if (i == 9 || i == 7)
+                pri_override = true;
         }
     }
 
@@ -126,6 +129,7 @@ if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
     CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null), Facing(host) * -1);
 }
 rule: "Destroy Bots"
+Event.OngoingPlayer
 if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
 {
     DestroyAllDummyBots();
