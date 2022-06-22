@@ -15,7 +15,6 @@ globalvar Number m_pb; // progress bar control var for S_M_CREATION
 globalvar Boolean can_pickup_m; // can the mutator be collected
 globalvar Boolean m_in_timer; // is the mutator timer running
 globalvar Boolean m_inworld; // is the mutator currently in the world
-globalvar Boolean m_inuse; // is a mutator currently in use by a player
 globalvar Number m_cd; // remaining time for the mutator to spawn
 globalvar String m_ico; // current mutator icon string
 globalvar String m_str; // current mutator name string
