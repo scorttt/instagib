@@ -2,6 +2,7 @@ import "main.del";
 
 globalvar Boolean[] s_dbg_fastspawn; // collectable fast spawning. 0 = buff, 1 = mutator
 globalvar Boolean[] buff_debug; // array of buffs to give
+globalvar Number ammo_dbg; // ammo to give
 
 rule: "Global Debug"
 {
@@ -21,6 +22,7 @@ rule: "Global Debug"
     buff_debug[7] = WorkshopSettingToggle("General",                      "Give Arc", false, -3);
     buff_debug[8] = WorkshopSettingToggle("General",                      "Give Nebula", false, -2);
     buff_debug[9] = WorkshopSettingToggle("General",                      "Give Volt", false, -1);
+    ammo_dbg = WorkshopSettingInteger("General",                          "Give Ammo", 999999, 1, 999999, -0.9);
 
     if (s_dbg_fastspawn[0])
         for (Number i = 0; i < S_BUFF_CD.Length; i++)
@@ -77,7 +79,7 @@ Event.OnPlayerJoin
             has_buff = true;
             buff_held = i; // if multiple buffs are given this will break manual buff removal, dont care enough to fix it
             buff_enabled[i] = true;
-            buff_ammo[i] = 999999;
+            buff_ammo[i] = ammo_dbg;
             buff_color = color_arr[i];
 
             if (i == 9 || i == 7)
