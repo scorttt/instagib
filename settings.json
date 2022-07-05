@@ -38,7 +38,7 @@
       "Cassidy": {
         "Damage Dealt": 500,
         "Damage Received": 500,
-        "Movement Speed": 125,
+        "Movement Speed": 135,
         "No Ammunition Requirement": true,
         "Quick Melee": false,
         "Secondary Fire": false,
@@ -47,7 +47,7 @@
       "Sojourn": {
         "Damage Dealt": 500,
         "Damage Received": 500,
-        "Movement Speed": 125,
+        "Movement Speed": 135,
         "No Ammunition Requirement": true,
         "Quick Melee": false,
         "Primary Fire": false,
