@@ -1,0 +1,261 @@
+import "main.del";
+
+globalvar Any LANG_STR; 
+// 0 - buff names
+// 1 - buff descriptions
+// 2 - mutator names
+// 3 - mutator descriptions
+// 4 - ammo
+// 5 - special 1
+// 6 - special 2
+// 7 - mechanic names (bhop, blaster, dodge)
+// 8 - mechanic help (bhop, blaster, dodge)
+// 9 - info
+// 10 - toast/other strings
+// 11 - help 2
+
+rule: "[Main] :: Language : English"
+if (S_LANG == 0)
+{
+    LANG_STR[0] = ["Pierce", 
+                   "Ricochet", 
+                   "Buckshot", 
+                   "Prism", 
+                   "Ballista", 
+                   "Electro", 
+                   "Spark", 
+                   "Arc", 
+                   "Nebula", 
+                   "Volt"];
+
+    LANG_STR[1] = ["*: Bullets pierce surfaces",
+                   "*: Bullets ricochet off surfaces",
+                   "*: Spread shots",
+                   "*: Bullets split apart into multiple ricocheting bullets after hitting a surface",
+                   "*: Penetrating beam that ignores all surfaces, gain speed to charge for a larger radius shot",
+                   "*: Shots can create a chain reaction killing any nearby players from the victims",
+                   "*: Explosive shots",
+                   "* (Hold): Long range consistent reflective laser",
+                   "*: ",
+                   "* (Hold): Laser that becomes less efficient the longer you fire"];
+
+    LANG_STR[2] = ["Seer", 
+                   "Dummy", 
+                   "TBD", 
+                   "Poison", 
+                   "Berserk", 
+                   "Replicate", 
+                   "Denial", 
+                   "Mobility", 
+                   "Mirage"];
+
+    LANG_STR[3] = ["Shows all players through walls", 
+                   "Dummy Description", 
+                   "TBD Description", 
+                   "Poison Description", 
+                   "Removes fire rate delay, gives infinite buff ammo, and increases movement speed", 
+                   "Replicate Description", 
+                   "Prevents one death, removes the mutator upon use", 
+                   "Drastically improves all mobility options",
+                   "Mirage Description"];
+
+    LANG_STR[4] = "* Ammo: ";
+
+    LANG_STR[5] = ["*: Charge shots", 
+                   "*: Alternate fire"];
+
+    LANG_STR[6] = ["Charges: ", 
+                   "Detonation in: ",
+                   "Recharging",
+                   "Overheat"];
+
+    LANG_STR[7] = ["Movement",
+                   "Bunny Hop", 
+                   "Blaster", 
+                   "Dodge"];
+
+    LANG_STR[8] = ["Holding * while moving will allow you to gain speed", 
+                   "Press * to fire a projectile that knocks back players", 
+                   "Press * while in air to dodge in a direction"];
+
+    LANG_STR[9] = ["Hold * for help",
+                   "Hold * to hide (Chat is Disabled)",
+                   "Buffs are pickups that modify how your weapon fires",
+                   "Mutators are rare pickups that modify the player in significant ways"]; 
+
+    LANG_STR[10] = ["* is spawning", 
+                    "In-use by *",
+                    "* ammo depleted",
+                    "* ammo replenished",
+                    "Infinite"];
+
+    LANG_STR[11] = ["",
+                    "",
+                    "* (Hold): Charge shots",
+                    "",
+                    "",
+                    "*: Launch an explosive projectile that explodes shortly after hitting a surface",
+                    "*: Launch an explosive projectile that detonates with a large radius once shot",
+                    "",
+                    "*: ",
+                    ""];
+}
+
+// todo: bug michi for new localization
+rule: "[Main] :: Language : Japanese / 日本語"
+if (S_LANG == 1)
+{
+    // alt wallbang: "壁を貫通をする"
+    LANG_STR[0] = ["貫通", 
+                   "跳弾", 
+                   "散弾", 
+                   "プリズム", 
+                   "バリスタ", 
+                   "エレクトロ", 
+                   "火花", 
+                   "アーク", 
+                   "星雲", 
+                   "ボルト"];
+
+    LANG_STR[1] = ["*: 弾丸は表面を貫通する",
+                   "*: 弾丸が表面から跳弾",
+                   "*: ",
+                   "*: ",
+                   "*: ",
+                   "*: ",
+                   "*: ",
+                   "*: ",
+                   "*: ",
+                   "*: "];
+
+    LANG_STR[2] = ["シア", 
+                   "モデル", 
+                   "ステルス", 
+                   "毒", 
+                   "バーサーク", 
+                   "リプリケート", 
+                   "否定", 
+                   "モビリティ", 
+                   "ミラージュ"];
+
+    LANG_STR[3] = [];
+
+    LANG_STR[4] = "*の弾薬：";
+
+    LANG_STR[5] = ["*: 押したショットを充電する", 
+                   "*: 押して交互に発射する"];
+
+    LANG_STR[6] = ["チャージズ：", 
+                   "爆轟：",
+                   "リチャージ中",
+                   "オーバーヒート"];
+
+    LANG_STR[7] = ["ムーブメント",
+                   "バニーホッピ", 
+                   "ブラスター", 
+                   "往なす"];
+
+    LANG_STR[8] = ["*", 
+                   "*", 
+                   "*"];
+
+    LANG_STR[9] = ["*",
+                   "*",
+                   "",
+                   ""]; 
+
+    LANG_STR[10] = ["*がスポーンしている", 
+                    "*の使用中",
+                    "*の弾薬がなくなった",
+                    "*の弾薬を補充した",
+                    "無限"];
+
+    LANG_STR[11] = ["",
+                    "",
+                    "*: ",
+                    "",
+                    "",
+                    "*: ",
+                    "*: ",
+                    "",
+                    "*: ",
+                    ""];
+}
+
+rule: "[Main] :: Language : Korean / 한국어"
+if (S_LANG == 2)
+{
+    LANG_STR[0] = ["", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   ""];
+
+    LANG_STR[1] = ["",
+                   "",
+                   "",
+                   "",
+                   "",
+                   "",
+                   "",
+                   "",
+                   "",
+                   ""];
+
+    LANG_STR[2] = ["", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   "", 
+                   ""];
+
+    LANG_STR[3] = [];
+
+    LANG_STR[4] = "*";
+
+    LANG_STR[5] = ["", 
+                   ""];
+
+    LANG_STR[6] = ["", 
+                   "",
+                   "",
+                   ""];
+
+    LANG_STR[7] = ["",
+                   "", 
+                   "", 
+                   ""];
+
+    LANG_STR[8] = ["", 
+                   "", 
+                   ""];
+
+    LANG_STR[9] = ["",
+                   "",
+                   ""]; 
+
+    LANG_STR[10] = ["*", 
+                    "*",
+                    "*",
+                    "*",
+                    ""];
+
+    LANG_STR[11] = ["",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""];
+}
