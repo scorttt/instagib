@@ -54,7 +54,8 @@ if (!HasStatus(player, Status.PhasedOut))
         SubtractOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.016);
 
         // slow the rate of ammo depletion the longer fire is held
-        buff_ammo[9] -= Abs((vlt_temp - 100) * 0.00645);
+        if (!inf_ammo)
+            buff_ammo[9] -= Abs((vlt_temp - 100) * 0.00645);
 
         vlt_facing = WorldVectorOf(Vector(TangentFromDegrees(RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD)), 0, 0), player) + 
         DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD));
@@ -65,7 +66,7 @@ if (!HasStatus(player, Status.PhasedOut))
         if (DistanceBetween(EyePosition(), vlt_hit) < vlt_dist - 1)
         {
             hit = true;
-            PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], vlt_hit, 0.25);
+            PlayEffect(all, PlayEffect.BadExplosion, color_arr[9], vlt_hit, 0.5);
         }
         else 
         {

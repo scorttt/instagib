@@ -11,7 +11,9 @@ if (buff_enabled[1])
 if (buff_ammo[1] > 0)
 if (IsFiringPrimary())
 {
-    buff_ammo[1]--;
+    if (!inf_ammo)
+        buff_ammo[1]--;
+
     Vector eye_pos = EyePosition();
     Vector facing = Facing();
     Vector[] normals = [];
@@ -22,14 +24,6 @@ if (IsFiringPrimary())
     Any[] hp_player_ricochets = [];
     Any[] ricochet_effects = [];
     Player[] hp_players = [];
-    Player[] included_players = AllLivingPlayers();
-    Player[] excluded_players = Append(AllDeadPlayers(), player);
-
-    Vector first_hp = RayCastHitPosition(eye_pos, eye_pos + facing * 300, included_players, player);
-
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[1], first_hp, 0.25);
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, first_hp, color_arr[1], EffectRev.None);
-    buff_trail = LastCreatedEntity();
 
     // todo: fix the continuous bounce jank when hitting a player
     if (DistanceBetween(eye_pos, first_hp) < 300)
@@ -43,18 +37,18 @@ if (IsFiringPrimary())
             }
 
             # https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector/4019883#4019883
-            hp[i] =        RayCastHitPosition(eye_pos, eye_pos + facing * 300, included_players, player);
-            hp_player[i] = RayCastHitPlayer  (eye_pos, eye_pos + facing * 300, included_players, player);
-            normals[i] =   RayCastHitNormal  (eye_pos, eye_pos + facing * 300, included_players, player);
+            hp[i] =        RayCastHitPosition(eye_pos, eye_pos + facing * 300, AllLivingPlayers(), player);
+            hp_player[i] = RayCastHitPlayer  (eye_pos, eye_pos + facing * 300, AllLivingPlayers(), player);
+            normals[i] =   RayCastHitNormal  (eye_pos, eye_pos + facing * 300, AllLivingPlayers(), player);
 
             ricochets[i] =           facing - (2 * (normals[i] * Dot(facing, normals[i])));
-            hp_ricochets[i] =        RayCastHitPosition(hp[i], hp[i] + ricochets[i] * 300, included_players, player);
+            hp_ricochets[i] =        RayCastHitPosition(hp[i], hp[i] + ricochets[i] * 300, AllLivingPlayers(), player);
 
             CreateBeamEffect(all, BeamType.BadBeam, hp[i], hp_ricochets[i], color_arr[1], EffectRev.None);
             ricochet_effects[i] = LastCreatedEntity();
 
             // PlayEffect(all, PlayEffect.GoodExplosion, color_arr[1], hp[i], 0.1);
-            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[1], hp_ricochets[i], 0.25);
+            PlayEffect(all, PlayEffect.GoodExplosion, color_arr[1], hp_ricochets[i], 0.5);
 
             if (DistanceBetween(hp[i], hp_ricochets[i]) > 299)
                 break;
@@ -62,6 +56,5 @@ if (IsFiringPrimary())
     }
 
     Wait(0.25);
-    DestroyEffect(buff_trail);
     DestroyEffect(ricochet_effects);
 }

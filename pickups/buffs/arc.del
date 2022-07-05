@@ -36,7 +36,9 @@ if (!HasStatus(player, Status.PhasedOut))
 
     while (IsPrimaryHeld() && IsAlive() && buff_enabled[7])
     {
-        buff_ammo[7]--;
+        if (!inf_ammo)
+            buff_ammo[7]--;
+
         arc_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player));
         Player arc_player = Update(RayCastHitPlayer(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player));
 

@@ -4,20 +4,20 @@ import ".bmain.del";
 globalvar Number S_BAL_CRATE;
 globalvar Number S_BAL_SIZE;
 playervar Number bal_chrg;
-playervar Boolean can_charge;
+playervar Boolean bal_can_charge;
 playervar Number chrg_rate;
 disabled rule: "---------------- Ballista ----------------" {}
 
 rule: "[Buff] :: Ballista : Init"
 Event.OnPlayerJoin
 {
-    can_charge = true;
+    bal_can_charge = true;
 }
 
 rule: "[Buff] :: Ballista : Charge"
 Event.OngoingPlayer
 if (buff_enabled[4])
-if (can_charge)
+if (bal_can_charge)
 if (bal_chrg < 100)
 if (bhopping || IsInAir())
 if (IsAlive())
@@ -45,8 +45,10 @@ if (buff_enabled[4])
 if (IsAlive())
 if (IsFiringPrimary())
 {
-    can_charge = false;
-    buff_ammo[4]--;
+    bal_can_charge = false;
+
+    if (!inf_ammo)
+        buff_ammo[4]--;
 
     ApplyImpulse(player, Vector(0, 0.3, 0) + Facing() * -1, Max(bal_chrg / 100 * 40, 15), Relative.ToWorld, ContraryMotion.Cancel);
 
@@ -77,7 +79,7 @@ if (IsFiringPrimary())
 
     // waits again before allowing the ballista to be charged again
     Wait(1.8); 
-    can_charge = true;
+    bal_can_charge = true;
 }
 
 void BallistaReset() playervar "[Buff] :: Ballista : Reset"

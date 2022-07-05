@@ -20,29 +20,27 @@ Event.OnPlayerJoin
     sprk_eyepos = Vector(-10000, -10000, -10000);
 }
 
-Number sprk_check: Update(DistanceBetween(sprk_eyepos, Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos)))) <= S_SPRK_HITBOX_SIZE);
+Number sprk_check: Update(DistanceBetween(sprk_eyepos, Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), AllLivingPlayers(), player))) <= S_SPRK_HITBOX_SIZE);
 rule: "[Buff] :: Spark : Fire"
 Event.OngoingPlayer
 if (buff_enabled[6])
 if (IsFiringPrimary())
-{   
-    if (!sprk_check)
+{
+    if (sprk_check < 0.1)
     {
-        sprk_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player));
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_hit, S_SPRK_PRIESIZE);
+        if (!inf_ammo)
+            buff_ammo[6]--;
 
-        // for (Number i = 0; i < )
+        sprk_hit = first_hp;
+
+        Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_hit) <= S_SPRK_PRIESIZE), player);
+
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_hit, S_SPRK_PRIESIZE);
     }
     else
     {
-        sprk_hit = Update(RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), AllLivingPlayers(), player));
+        first_hp = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * DistanceBetween(EyePosition(), sprk_eyepos), AllLivingPlayers(), player);
     }
-
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, sprk_hit, color_arr[6], EffectRev.None);
-    buff_trail = LastCreatedEntity();
-
-    Wait(0.25);
-    DestroyEffect(buff_trail);
 }
 
 rule: "[Buff] :: Spark : Action - Launch Projectile"
@@ -51,9 +49,11 @@ if (buff_enabled[6])
 if (IsButtonHeld(player, Button.Reload))
 if (IsAlive())
 {
-    sprk_inair = true;
+    pri_override = true;
+
     sprk_rc_start = EyePosition();
     sprk_rc_end = EyePosition() + Facing() * 300;
+
     PlayEffect(all, PlayEffect.RingExplosionSound, null, player, 50);
 
     DestroyEffect(sprk_orb);
@@ -62,41 +62,43 @@ if (IsAlive())
 
     CreateEffect(all, Effect.Orb, color_arr[6], sprk_eyepos, 0.25);
     sprk_orb[0] = LastCreatedEntity();
-    CreateEffect(all, Effect.GoodAura, color_arr[6], sprk_eyepos, S_SPRK_HITBOX_SIZE);
+    CreateEffect(all, Effect.Sphere, color_arr[6], sprk_eyepos, S_SPRK_HITBOX_SIZE);
     sprk_orb[1] = LastCreatedEntity();
     CreateEffect(all, Effect.BadAura, color_arr[6], sprk_eyepos, 0.5);
     sprk_orb[2] = LastCreatedEntity();
-    CreateEffect(all, Effect.Ring, color_arr[6], sprk_eyepos, S_SPRK_PESIZE * 2);
-    sprk_orb[3] = LastCreatedEntity();
 
-    ChaseVariableAtRate(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player), S_SPRK_PSPEED, RateChaseReevaluation.None);
+    Wait(0.1);
+    ChaseVariableAtRate(sprk_eyepos, Update(RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player)), S_SPRK_PSPEED, RateChaseReevaluation.DestinationAndRate);
+    sprk_inair = true;
 
-    WaitUntil(!sprk_inair, 999999);
-    Wait(0.75);
+    Wait(0.4); // prevent the player from immediately firing once the projectile is launched
+    pri_override = false;
+    WaitUntil(!sprk_inair, 999999); // wait until the projectile has detonated
+    Wait(1); // prevent immediate projectile firing
     LoopIfConditionIsTrue();
 }
 
 void SparkProjectile(in Number size)
 {
-    buff_ammo[6]--;
+    if (!inf_ammo)
+        buff_ammo[6]--;
 
-    sprk_inair = false;
     StopChasingVariable(sprk_eyepos);
 
-    Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= size && IsInLineOfSight(Curr(), sprk_eyepos));
-    Kill(players, player);
+    Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), sprk_eyepos) <= size && IsInLineOfSight(Curr(), sprk_eyepos)), player);
 
     PlayEffect(all, PlayEffect.GoodExplosion, color_arr[6], sprk_eyepos, size);
 
     DestroyEffect(sprk_orb);
+    sprk_inair = false;
     sprk_eyepos = Vector(-10000, -10000, -10000);
 }
 
 rule: "[Buff] :: Spark : Action - Projectile Landed"
 Event.OngoingPlayer
-if (Update(DistanceBetween(sprk_eyepos, Update(RayCastHitPosition(sprk_rc_start, sprk_rc_end, null, player))) < 0.5))
+if (DistanceBetween(sprk_eyepos, RayCastHitPosition(sprk_rc_start, sprk_rc_end, AllLivingPlayers(), player)) < S_SPRK_HITBOX_SIZE)
 {
-    SparkProjectile(S_SPRK_PESIZE);
+    SparkProjectile(S_SPRK_PESIZE / 2);
 }
 
 rule: "[Buff] :: Spark : Action - Shot Projectile"
@@ -106,5 +108,5 @@ if (sprk_check) // projectile hitbox
 if (sprk_inair)
 if (IsFiringPrimary())
 {
-    SparkProjectile(S_SPRK_PESIZE * 3);
+    SparkProjectile(S_SPRK_PESIZE);
 }
