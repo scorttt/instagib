@@ -3,166 +3,119 @@ import ".bmain.del";
 
 
 // logic
+globalvar Number S_ELECTRO_PDELAY;
+globalvar Number S_ELECTRO_PGRAV;
 globalvar Number S_ELECTRO_PSPEED;
-globalvar Number S_ELECTRO_MESIZE;
-globalvar Number S_ELECTRO_ESIZE;
-globalvar Number S_ELECTRO_DELAY;
-playervar Vector electro_eyepos1;
-playervar Vector electro_eyepos2;
-playervar Vector electro_eyepos3;
-playervar Vector electro_m_hitpos;
-playervar Vector electro_m_effect;
-playervar Vector electro_hitpos;
-playervar Boolean mines_placed;
-playervar Number mine_det;
+globalvar Number S_ELECTRO_PDELTA;
+globalvar Number S_ELECTRO_PRAD;
+globalvar Number PROJ_SIZE;
+globalvar Vector proj_grav_vec;
+playervar Vector vel;
+playervar Vector proj_pos;
 
 disabled rule: "---------------- Electro ----------------"{}
 
 rule: "[Buff] :: Electro : Init"
-Event.OnPlayerJoin
 {
-    electro_eyepos1 = Vector(-10000, -10000, -10000);
-    electro_eyepos2 = Vector(-10000, -10000, -10000);
-    electro_eyepos3 = Vector(-10000, -10000, -10000);
+    WaitUntil(S_ELECTRO_PSPEED != 0, 1);
+    proj_grav_vec = Vector(0, S_ELECTRO_PGRAV, 0);
+    PROJ_SIZE = (0.25 + (S_ELECTRO_PSPEED / 100));
 }
 
-rule: "[Buff] :: Electro : Action - Primary"
+rule: "[Buff] :: Electro : Action - Primary Fire"
 Event.OngoingPlayer
 if (buff_enabled[5])
-if (IsFiringPrimary())
 {
-    electro_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
 
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, electro_hitpos, color_arr[5], EffectRev.None);
-    buff_trail = LastCreatedEntity();
-
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_hitpos, S_ELECTRO_ESIZE);
-
-    // Player[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), electro_hitpos) <= S_ELECTRO_ESIZE && IsInLineOfSight(electro_hitpos, Curr()));
-    // Kill(players, player);
-
-    // if (players.Length > 0)
-    //     buff_ammo[5]--;
-
-    // set off all mines if one is shot
-    if (mines_placed &&
-        (DistanceBetween(electro_hitpos, electro_m_hitpos[0]) <= S_ELECTRO_ESIZE + 0.5 || 
-         DistanceBetween(electro_hitpos, electro_m_hitpos[1]) <= S_ELECTRO_ESIZE + 0.5 || 
-         DistanceBetween(electro_hitpos, electro_m_hitpos[2]) <= S_ELECTRO_ESIZE + 0.5))
-    {
-        ExplodeMine();
-    }
-
-    Wait(0.25);
-    DestroyEffect(buff_trail);
 }
 
-rule: "[Buff] :: Electro : Action - Launch Spikes"
+Number proj_check: DistanceBetween(proj_pos, Update(RayCastHitPosition(proj_pos, proj_pos + (vel * 0.016) * 100, AllLivingPlayers(), player)));
+
+rule: "[Buff] :: Electro : Action - Launch Grenade"
 Event.OngoingPlayer
 if (buff_enabled[5])
-if (!mines_placed)
 if (IsButtonHeld(player, Button.Reload))
 if (IsAlive())
 {
-    // first mine //
-    buff_ammo[5]--;
+    if (!inf_ammo)
+        buff_ammo[5] -= 2;
 
-    electro_m_hitpos[0] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
-    PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
+    Any effect;
+    Boolean hit_surface = false;
+    Number fs_airtime = 0; // failsafe airtime, destroy the projectile after this time if the projectile does not hit a surface
+    Number airtime = 0; // airtime after the projectile hits a surface
+    proj_pos = EyePosition();
+    vel = Normalize(Facing() + Vector(0, S_ELECTRO_PDELTA, 0)) * S_ELECTRO_PSPEED;
 
-    DestroyEffect(electro_m_effect[0]);
+    DestroyEffect(effect);
 
-    electro_eyepos1 = EyePosition();
+    CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, Color.White, proj_pos, 45);
+    effect = LastCreatedEntity();
 
-    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[0][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos1 + DirectionTowards(electro_eyepos1, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[0][1] = LastCreatedEntity();
+    Vector[] normals = [];
+    Vector[] hp = [];
+    Vector[] hp_reflection = [];
+    Vector[] hp_player = [];
+    Vector[] reflection = [];
 
-    ChaseVariableAtRate(electro_eyepos1, electro_m_hitpos[0], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Wait(0.2);
-
-    // second mine //
-    buff_ammo[5]--;
-
-    electro_m_hitpos[1] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
-    PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
-
-    DestroyEffect(electro_m_effect[1]);
-
-    electro_eyepos2 = EyePosition();
-
-    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[1][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos2 + DirectionTowards(electro_eyepos2, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[1][1] = LastCreatedEntity();
-
-    ChaseVariableAtRate(electro_eyepos2, electro_m_hitpos[1], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    Wait(0.2);
-
-    // third mine //
-    buff_ammo[5]--;
-
-    electro_m_hitpos[2] = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, null);
-    PlayEffect(all, PlayEffect.BuffImpactSound, null, player, 50);
-
-    DestroyEffect(electro_m_effect[2]);
-
-    electro_eyepos3 = EyePosition();
-
-    CreateEffect(all, Effect.Orb, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[2][0] = LastCreatedEntity();
-    CreateEffect(mines_placed ? all : null, Effect.Sphere, color_arr[5], electro_eyepos3 + DirectionTowards(electro_eyepos3, Once(EyePosition())) * 0.75, 1, EffectRev.VisibleToPositionRadiusAndColor);
-    electro_m_effect[2][1] = LastCreatedEntity();
-
-    ChaseVariableAtRate(electro_eyepos3, electro_m_hitpos[2], S_ELECTRO_PSPEED, RateChaseReevaluation.DestinationAndRate);
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    WaitUntil(DistanceBetween(electro_eyepos1, electro_m_hitpos[0]) < 0.1 && DistanceBetween(electro_eyepos2, electro_m_hitpos[1]) < 0.1 && DistanceBetween(electro_eyepos3, electro_m_hitpos[2]) < 0.1, 9999);
-    mines_placed = true;
-
-    for (Number i = 0; i < 3; i++)
-        PlayEffect(all, PlayEffect.GoodPickupEffect, Color.SkyBlue, electro_m_hitpos[i], 1);
-
-    mine_det = S_ELECTRO_DELAY;
-    ChaseVariableOverTime(mine_det, 0, S_ELECTRO_DELAY, TimeChaseReevaluation.None);
-}
-
-void ExplodeMine() playervar "[Buff] :: Electro : Action - Explode Spikes"
-{
-    buff_ammo[5]--;
-    mines_placed = false;
-    StopChasingVariable(mine_det);
-
-    Player[] players = [];
-    for (Number i = 0; i < 3; i++)
+    // projectile loop
+    // loop while the projectile has not hit a surface and if the airtime < 5 seconds
+    while (proj_check >= PROJ_SIZE && fs_airtime < 5 && airtime < S_ELECTRO_PDELAY) 
     {
-        players[i] = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(Curr(), electro_m_hitpos[i]) && DistanceBetween(Curr(), electro_m_hitpos[i]) <= S_ELECTRO_MESIZE); // get players per mine
+        // 62.5 ticks = 1 second, 3750 ticks = 1 minute
+        vel += proj_grav_vec * 0.016; // update vel with grav vector each loop
+        proj_pos += vel * 0.016; // update proj_pos with vel vector each loop
+        fs_airtime += 0.016;
 
-        for (Number j = 0; j < CountOf(players[i]); j++)
-            Kill(players[i][j], player);
+        if (hit_surface)
+            airtime += 0.016;
 
-        DestroyEffect(electro_m_effect[i]);
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], proj_pos, PROJ_SIZE);
 
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], electro_m_hitpos[i], S_ELECTRO_MESIZE);
-        PlayEffect(all, PlayEffect.ExplosionSound, Position: electro_m_hitpos[i], Radius: 50);
+        // reflection loop (without this the for below would fire twice for whatever reason)
+        if (proj_check <= PROJ_SIZE) // surface hit
+        {
+            // i < arbitrary amount of vectors to store, in an ideal world this wouldnt matter if the math was for constant contact with one surface
+            for (Number i = 0; i < 12 && proj_check <= PROJ_SIZE; i++) // another check
+            {
+                # https://math.stackexchange.com/questions/13261/how-to-get-a-reflectionion-vector/3340378#3340378
+                if (i > 0)
+                {
+                    proj_pos = hp[i - 1];
+                    vel = reflection[i - 1];
+                }
 
-        electro_m_hitpos[i] = null;
+                // get hit pos and normal
+                hp[i] = RayCastHitPosition(proj_pos, proj_pos + vel * 300, AllLivingPlayers(), player, true);
+                normals[i] = RayCastHitNormal(proj_pos, proj_pos + vel * 300, AllLivingPlayers(), player, true);
+                hp_player[i] = RayCastHitPlayer(proj_pos, proj_pos + vel, AllLivingPlayers(), player, true);
+
+                // v - (2 * (v . n) * n)
+                reflection[i] = vel - (1.75 * (Dot(vel, normals[i])) * normals[i]);
+                hp_reflection[i] = RayCastHitPosition(hp[i], hp[i] + reflection[i] * 100, AllLivingPlayers(), player, true); // raycast from hit pos to reflection vector
+
+                if (hp_player[i] != null)
+                    break;
+            }
+
+            PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, proj_pos, 45);
+            PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 45);
+            fs_airtime = 0;
+            hit_surface = true;
+        }
+
+        MinWait();
     }
 
-    electro_eyepos1 = Vector(-10000, -10000, -10000);
-    electro_eyepos2 = Vector(-10000, -10000, -10000);
-    electro_eyepos3 = Vector(-10000, -10000, -10000);
-}
+    Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), proj_pos) <= S_ELECTRO_PRAD && IsInLineOfSight(Curr(), proj_pos)), player);
 
-rule: "[Buff] :: Electro : Action - Spikes Idle"
-Event.OngoingPlayer
-if (mines_placed)
-{
-    WaitIfTrue(S_ELECTRO_DELAY);
-    ExplodeMine();
+    // effects
+    PlayEffect(all, PlayEffect.EchoStickyBombExplosionEffect, Color.Team1, proj_pos, 0);
+    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], proj_pos, S_ELECTRO_PRAD);
+
+    PlayEffect(all, PlayEffect.WinstonJumpPackLandingSound, Color.White, proj_pos, 45);
+    PlayEffect(all, PlayEffect.SigmaHypersphereImplosionSound, Color.White, proj_pos, 45);
+    PlayEffect(all, PlayEffect.CassidyFlashbangExplosionSound, Color.White, proj_pos, 45);
+    PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 100);
+    DestroyEffect(effect);
 }
