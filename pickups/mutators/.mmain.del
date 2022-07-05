@@ -1,6 +1,6 @@
 import "../../main.del";
 
-// everything mutator related is a text book definition of spaghetti code. too bad! surely this wont bite me in the ass later :)
+// everything mutator related is a text book definition of spaghetti code. surely this wont bite me in the ass later :)
 globalvar Boolean s_enable_m; // mutator can spawn
 globalvar Boolean s_rand_mcd; // mutator timer is randomized
 globalvar Boolean[] s_spawn_mut; // allowed mutators
@@ -18,7 +18,7 @@ globalvar Boolean m_inworld; // is the mutator currently in the world
 globalvar Number m_cd; // remaining time for the mutator to spawn
 globalvar String m_ico; // current mutator icon string
 globalvar String m_str; // current mutator name string
-globalvar Player m_usr; // current player that owns the mutator
+globalvar Player | String m_usr; // current player that owns the mutator
 
 playervar Boolean has_mut; // does the player have the mutator
 playervar Boolean[] m_enabled; // which mutator is enabled
@@ -36,7 +36,7 @@ if (m_in.Length > 0)
     m_inworld = true;
     can_pickup_m = false;
 
-    BigMessage(all, <"<0><1>", m_str, LANG_STR[10][1]>);
+    BigMessage(all, StringReplace(LANG_STR[10][0], "*", m_str));
 
     m_pb = 0;
     m_in_timer = false;
@@ -46,12 +46,9 @@ if (m_in.Length > 0)
 
     can_pickup_m = true;
 
-    // ugly but it works
-    PlayEffect(all, PlayEffect.BadExplosion, m_color[1], m_pos, 2);
-    PlayEffect(all, PlayEffect.BadExplosion, m_color[0], m_pos, 10);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Down(), 75);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Down(), 50);
-    PlayEffect(all, PlayEffect.RingExplosion, m_color[0], m_pos + Down(), 25);
+    PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], m_pos, 2);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[1], m_pos, 4);
+    PlayEffect(all, PlayEffect.RingExplosion, m_color[1], m_pos + Vector(0, -0.5, 0), 3);
 }
 
 rule: "[Mutator] :: Collect Mutator"
@@ -62,6 +59,8 @@ if (can_pickup_m)
 if (DistanceBetween(m_pos, PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 {
+    SmallMessage(player, m_str);
+
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], m_pos, 1);
     can_pickup_m = false;
     m_inworld = false;
@@ -71,27 +70,58 @@ if (IsAlive())
 
     m_tleft = 100;
     ChaseVariableOverTime(m_tleft, 0, S_M_DURATION, TimeChaseReevaluation.None);
-
 }
 
 void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
 {
-    for (Number i = 0; i < 9; i++)
-        m_enabled[i] = false;
-
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], player, 1);
 
     has_mut = false;
     m_usr = null;
     m_in -= chosen_mut; // remove the chosen mutator from the array
 
-    if (bal_chrg < 75)
-        StopForcingPlayerOutlines(all, player);
-    else 
-        StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
-
     SetMutatorPosition();
     StartMutatorTimer();
+
+    for (Number i = 0; i < 9; i++) // brute force (and ugly) way to remove the mutator
+    {
+        if (m_enabled[i])
+        {
+            LogToInspector(<"<0> removed from <1>", LANG_STR[2][i], m_usr>);
+            m_enabled[i] = false;
+
+            switch (i)
+            {
+                case (0):
+                    if (bal_chrg < 75)
+                        StopForcingPlayerOutlines(all, player);
+                    else 
+                        StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
+                    break;
+                case (1):
+                    break;
+                case (2):
+                    break;
+                case (3):
+                    break;
+                case (4):
+                    delay = S_DELAY;
+                    inf_ammo = false;
+                    bhop_mult = 100;
+                    bhop_rate = S_BHOP_SPEED_RATE;
+                    bhop_speed = bhop_speed - 50;
+                    SetMoveSpeed(player, bhop_speed);
+
+                    break;
+                case (5):
+                    break;
+                case (7):
+                    break;
+                case (8):
+                    break;
+            }
+        }
+    }
 }
 
 rule: "[Mutator] :: Remove Mutator"

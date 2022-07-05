@@ -5,7 +5,9 @@ globalvar Number S_BHOP_SPEED_RATE;
 globalvar Boolean s_bhop_enabled;
 
 playervar Boolean bhopping; // is the player bhopping
-playervar Number bhop_speed; // bhop speed multiplier
+playervar Number bhop_speed; // bhop default speed multiplier
+playervar Number bhop_rate; // bhop speed rate
+playervar Number bhop_mult; // default movement speed multiplier (modified by mutators like berkserk and mobility)
 
 disabled rule: "---------------- Bhop ----------------"{}
 
@@ -13,7 +15,7 @@ void ResetSpeed() playervar "[Bhop] :: Reset Speed"
 {
     StopChasingVariable(bhop_speed);
     bhopping = false;
-    bhop_speed = 100;
+    bhop_speed = bhop_mult;
     SetMoveSpeed(player, bhop_speed);
 }
 
@@ -34,7 +36,7 @@ if (s_bhop_enabled)
 if (IsInAir())
 if (HorizontalSpeedOf() > 6.93)
 {
-    ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, S_BHOP_SPEED_RATE, RateChaseReevaluation.None);
+    ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, bhop_rate, RateChaseReevaluation.DestinationAndRate);
     bhopping = true;
 }
 
@@ -49,7 +51,7 @@ if (bhopping)
 
 rule: "[Bhop] :: Stop Chasing"
 Event.OngoingPlayer
-if (bhop_speed == 100 || bhopping && bhop_speed == S_BHOP_MAX_SPEED)
+if (bhop_speed == bhop_mult || bhopping && bhop_speed == S_BHOP_MAX_SPEED)
 {
     StopChasingVariable(bhop_speed);
 }
@@ -65,7 +67,7 @@ if (HorizontalSpeedOf() < 6.93)
 rule: "[Bhop] :: Stop if player is on ground"
 Event.OngoingPlayer
 if (IsOnGround())
-if (bhop_speed > 100)
+if (bhop_speed > bhop_mult)
 {
     WaitIfTrue(0.25);
     ResetSpeed();

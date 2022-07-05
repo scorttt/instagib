@@ -2,7 +2,7 @@ import "main.del";
 
 globalvar Boolean[] s_dbg_fastspawn; // collectable fast spawning. 0 = buff, 1 = mutator
 globalvar Boolean[] buff_debug; // array of buffs to give
-globalvar Number ammo_dbg; // ammo to give
+globalvar Boolean ammo_dbg; // infinite ammo bool
 
 rule: "Global Debug"
 {
@@ -12,27 +12,27 @@ rule: "Global Debug"
 
     s_dbg_fastspawn[0] = WorkshopSettingToggle("General",                 "Fast Buff Spawn", false, -12);
     s_dbg_fastspawn[1] = WorkshopSettingToggle("General",                 "Fast Mutator Spawn", false, -11);
-    buff_debug[0] = WorkshopSettingToggle("General",                      "Give Pierce", false, -10);
-    buff_debug[1] = WorkshopSettingToggle("General",                      "Give Ricochet", false, -9);
-    buff_debug[2] = WorkshopSettingToggle("General",                      "Give Buckshot", false, -8);
-    buff_debug[3] = WorkshopSettingToggle("General",                      "Give Prism", false, -7);
-    buff_debug[4] = WorkshopSettingToggle("General",                      "Give Ballista", false, -6);
-    buff_debug[5] = WorkshopSettingToggle("General",                      "Give Electro", false, -5);
-    buff_debug[6] = WorkshopSettingToggle("General",                      "Give Spark", false, -4);
-    buff_debug[7] = WorkshopSettingToggle("General",                      "Give Arc", false, -3);
-    buff_debug[8] = WorkshopSettingToggle("General",                      "Give Nebula", false, -2);
-    buff_debug[9] = WorkshopSettingToggle("General",                      "Give Volt", false, -1);
-    ammo_dbg = WorkshopSettingInteger("General",                          "Give Ammo", 999999, 1, 999999, -0.9);
+    buff_debug[0] = WorkshopSettingToggle("General",                      "Spawn With Pierce", false, -10);
+    buff_debug[1] = WorkshopSettingToggle("General",                      "Spawn With Ricochet", false, -9);
+    buff_debug[2] = WorkshopSettingToggle("General",                      "Spawn With Buckshot", false, -8);
+    buff_debug[3] = WorkshopSettingToggle("General",                      "Spawn With Prism", false, -7);
+    buff_debug[4] = WorkshopSettingToggle("General",                      "Spawn With Ballista", false, -6);
+    buff_debug[5] = WorkshopSettingToggle("General",                      "Spawn With Electro", false, -5);
+    buff_debug[6] = WorkshopSettingToggle("General",                      "Spawn With Spark", false, -4);
+    buff_debug[7] = WorkshopSettingToggle("General",                      "Spawn With Arc", false, -3);
+    buff_debug[8] = WorkshopSettingToggle("General",                      "Spawn With Nebula", false, -2);
+    buff_debug[9] = WorkshopSettingToggle("General",                      "Spawn With Volt", false, -1);
+    ammo_dbg = WorkshopSettingToggle("General",                           "Infinite Ammo", false, -0.9);
 
     if (s_dbg_fastspawn[0])
         for (Number i = 0; i < S_BUFF_CD.Length; i++)
-            S_BUFF_CD[i] = 1;
+            S_BUFF_CD[i] = 2;
 
     if (s_dbg_fastspawn[1])
     {
         s_rand_mcd = false;
-        S_M_CD = 5;
-        S_M_CREATION = 5;
+        S_M_CD = 2;
+        S_M_CREATION = 2;
     }
 
     // server load, entity, and text information
@@ -77,15 +77,18 @@ Event.OnPlayerJoin
         if (buff_debug[i])
         {
             has_buff = true;
-            buff_held = i; // if multiple buffs are given this will break manual buff removal, dont care enough to fix it
+            buff_held = i;
             buff_enabled[i] = true;
-            buff_ammo[i] = ammo_dbg;
             buff_color = color_arr[i];
+            buff_ammo[i] = S_BUFF_AMMO[i];
 
             if (i == 9 || i == 7)
                 pri_override = true;
         }
     }
+
+    if (ammo_dbg)
+        inf_ammo = true;
 
     // player information
     CreateHudText(host, null, <" \n<0>: <1>, <2>, <3>\nbhopping: <4>, bhop_speed: <5>, speed: <6>\ndodges: <7>\n<8>\nhas mutator: <9>", 
@@ -107,6 +110,7 @@ if (has_buff)
 {
     WaitIfTrue(1);
 
+    pri_override = false;
     buff_ammo[buff_held] = 0;
     buff_enabled[buff_held] = false;
     buff_color = null;
@@ -129,7 +133,9 @@ if (bots.Length < 8 - humans.Length)
 if (IsButtonHeld(host, Button.Interact) && !IsButtonHeld(host, Button.Crouch))
 {
     CreateDummyBot(HeroOf(host), OppositeTeamOf(TeamOf(host)), -1, RayCastHitPosition(EyePosition(host), EyePosition(host) + Facing(host) * 100, null, null), Facing(host) * -1);
+    // SetRespawnMaxTime(LastCreatedEntity(), 1);
 }
+
 rule: "Destroy Bots"
 Event.OngoingPlayer
 if (IsButtonHeld(host, Button.Crouch) && IsButtonHeld(host, Button.Interact))
