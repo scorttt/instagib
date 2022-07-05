@@ -13,11 +13,5 @@ Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())
 {
-    Vector neb_hitpos = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
-    PlayEffect(all, PlayEffect.GoodExplosion, color_arr[8], neb_hitpos, 0.25);
-    CreateBeamEffect(all, BeamType.BadBeam, gun_pos, neb_hitpos, color_arr[8], EffectRev.None);
-    buff_trail = LastCreatedEntity();
 
-    Wait(0.25);
-    DestroyEffect(buff_trail);
 }
