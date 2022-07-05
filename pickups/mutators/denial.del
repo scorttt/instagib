@@ -10,11 +10,11 @@ if (m_enabled[6])
     SetStatus(player, null, Status.Unkillable, 999999999);
 }
 
-rule : "[Mutator] :: Denial : Remove Status"
+rule : "[Mutator] :: Denial : Damage Taken: Remove Status"
 Event.OnDamageTaken
 if (has_mut)
 if (m_enabled[6])
-{   
+{
     LogToInspector(<"Denial removed from <0>", m_usr>);
     RemoveMutator();
 
