@@ -17,7 +17,7 @@ disabled rule: "---------------- Electro ----------------"{}
 
 rule: "[Buff] :: Electro : Init"
 {
-    WaitUntil(S_ELECTRO_PSPEED != 0, 1);
+    WaitUntil(S_ELECTRO_PSPEED != 0, 1); // check to prevent projectile fuckery if i copy workshop code with this file focused
     proj_grav_vec = Vector(0, S_ELECTRO_PGRAV, 0);
     PROJ_SIZE = (0.25 + (S_ELECTRO_PSPEED / 100));
 }
@@ -29,8 +29,8 @@ if (buff_enabled[5])
 
 }
 
-Number proj_check: DistanceBetween(proj_pos, Update(RayCastHitPosition(proj_pos, proj_pos + (vel * 0.016) * 100, AllLivingPlayers(), player)));
-
+Number tickdur: 0.016; // todo: change this to 0.008 when ow2 gets workshop (thank god blizzard finally doesnt use 62.5hz servers)
+Number proj_check: DistanceBetween(proj_pos, Update(RayCastHitPosition(proj_pos, proj_pos + (vel * 0.016) * 10, AllLivingPlayers(), player)));
 rule: "[Buff] :: Electro : Action - Launch Grenade"
 Event.OngoingPlayer
 if (buff_enabled[5])
@@ -50,7 +50,9 @@ if (IsAlive())
     DestroyEffect(effect);
 
     CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, Color.White, proj_pos, 45);
-    effect = LastCreatedEntity();
+    effect[0] = LastCreatedEntity();
+    CreateEffect(all, Effect.OrisaHaltTendrilSound, Color.White, proj_pos, 45);
+    effect[1] = LastCreatedEntity();
 
     Vector[] normals = [];
     Vector[] hp = [];
@@ -59,16 +61,15 @@ if (IsAlive())
     Vector[] reflection = [];
 
     // projectile loop
-    // loop while the projectile has not hit a surface and if the airtime < 5 seconds
-    while (proj_check >= PROJ_SIZE && fs_airtime < 5 && airtime < S_ELECTRO_PDELAY) 
+    while (fs_airtime < 2 && airtime < S_ELECTRO_PDELAY)
     {
         // 62.5 ticks = 1 second, 3750 ticks = 1 minute
-        vel += proj_grav_vec * 0.016; // update vel with grav vector each loop
-        proj_pos += vel * 0.016; // update proj_pos with vel vector each loop
-        fs_airtime += 0.016;
+        vel += proj_grav_vec * tickdur; // update vel with grav vector each loop
+        proj_pos += vel * tickdur; // update proj_pos with vel vector each loop
+        fs_airtime += tickdur;
 
         if (hit_surface)
-            airtime += 0.016;
+            airtime += tickdur;
 
         PlayEffect(all, PlayEffect.GoodExplosion, color_arr[5], proj_pos, PROJ_SIZE);
 
@@ -86,13 +87,13 @@ if (IsAlive())
                 }
 
                 // get hit pos and normal
-                hp[i] = RayCastHitPosition(proj_pos, proj_pos + vel * 300, AllLivingPlayers(), player, true);
-                normals[i] = RayCastHitNormal(proj_pos, proj_pos + vel * 300, AllLivingPlayers(), player, true);
+                hp[i] = RayCastHitPosition(proj_pos, proj_pos + vel * 10, AllLivingPlayers(), player, true);
+                normals[i] = RayCastHitNormal(proj_pos, proj_pos + vel * 10, AllLivingPlayers(), player, true);
                 hp_player[i] = RayCastHitPlayer(proj_pos, proj_pos + vel, AllLivingPlayers(), player, true);
 
                 // v - (2 * (v . n) * n)
-                reflection[i] = vel - (1.75 * (Dot(vel, normals[i])) * normals[i]);
-                hp_reflection[i] = RayCastHitPosition(hp[i], hp[i] + reflection[i] * 100, AllLivingPlayers(), player, true); // raycast from hit pos to reflection vector
+                reflection[i] = vel - (2 * (Dot(vel, normals[i])) * normals[i]);
+                hp_reflection[i] = RayCastHitPosition(hp[i], hp[i] + reflection[i] * 10, AllLivingPlayers(), player, true); // raycast from hit pos to reflection vector
 
                 if (hp_player[i] != null)
                     break;
@@ -100,11 +101,11 @@ if (IsAlive())
 
             PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, proj_pos, 45);
             PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 45);
-            fs_airtime = 0;
+            airtime = 0;
             hit_surface = true;
         }
 
-        MinWait();
+        Wait(tickdur);
     }
 
     Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), proj_pos) <= S_ELECTRO_PRAD && IsInLineOfSight(Curr(), proj_pos)), player);
@@ -118,4 +119,7 @@ if (IsAlive())
     PlayEffect(all, PlayEffect.CassidyFlashbangExplosionSound, Color.White, proj_pos, 45);
     PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 100);
     DestroyEffect(effect);
+
+    Wait(0.25);
+    LoopIfConditionIsTrue();
 }
