@@ -63,8 +63,7 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
         pri_override = true;
     }
 
-    buff_str[0] = LANG_STR[0][buff_i];
-    buff_str[1] = b_ico[buff_i];
+    buff_str = LANG_STR[0][buff_i];
     buff_held = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
@@ -74,11 +73,11 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
         buff_enabled[buff_i] = true;
         has_buff = true;
         LogToInspector(<"<0> given to <1>", buff_str, player>);
-        SmallMessage(player, <"<0> <1>", buff_str[1], buff_str[0]>);
+        SmallMessage(player, <"<0> <1>", b_ico[buff_i], buff_str>);
     }
     else 
     {
-        SmallMessage(player, StringReplace(LANG_STR[10][3], "*", <"<0> <1>", buff_str[1], buff_str[0]>));
+        SmallMessage(player, StringReplace(LANG_STR[10][3], "*", <"<0> <1>", b_ico[buff_i], buff_str>));
     }
 
     if (buff_ammo[buff_i] < 0)
@@ -463,7 +462,7 @@ if (buff_cd[7] == 0)
 rule: "[Buff] :: Arc : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[7])
+if (!has_buff || buff_enabled[7]) 
 if (can_pickup_buff[7])
 if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
@@ -500,7 +499,7 @@ if (buff_cd[8] == 0)
 rule: "[Buff] :: Nebula : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[8])
+if (!has_buff || buff_enabled[8]) 
 if (can_pickup_buff[8])
 if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
