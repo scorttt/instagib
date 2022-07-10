@@ -222,10 +222,10 @@ if (s_buffs_enabled)
         StringReplace(LANG_STR[5][1], "*", InputBindingString(Button.Reload)),
         Location.Top, 1.1, TextColor: color_arr[5]);
 
-        // // detonation
-        // CreateHudText(local.mines_placed ? local : null, null, null, 
-        // AltFont(<"<0><1>", LANG_STR[6][1], Ceiling(local.mine_det)>),
-        // Location.Top, 1.2, TextColor: color_arr[5]);
+        // armed
+        CreateHudText(local.t_airtime != 0 ? local : null, null, null, 
+        AltFont(<"<0><1>", LANG_STR[6][1], local.hit_surface ? Max(S_ELECTRO_PDELAY - local.airtime, 0.001) : Max(T_PDELAY - local.t_airtime, 0.001)>),
+        Location.Top, 1.2, TextColor: local.hit_surface ? Color.Red : color_arr[5], Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
 
         // in progress effects
         CreateEffect(all, Effect.GoodAura, color_arr[5], buff_pos[5], electro_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);

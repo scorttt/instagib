@@ -8,10 +8,14 @@ globalvar Number S_ELECTRO_PGRAV;
 globalvar Number S_ELECTRO_PSPEED;
 globalvar Number S_ELECTRO_PDELTA;
 globalvar Number S_ELECTRO_PRAD;
+globalvar Number T_PDELAY;
 globalvar Number PROJ_SIZE;
 globalvar Vector proj_grav_vec;
 playervar Vector vel;
 playervar Vector proj_pos;
+playervar Boolean hit_surface; 
+playervar Number airtime; // airtime after the projectile hits a surface
+playervar Number t_airtime; // total airtime, destroy the projectile after a set time regardless if it hit a surface or not
 
 disabled rule: "---------------- Electro ----------------"{}
 
@@ -20,17 +24,17 @@ rule: "[Buff] :: Electro : Init"
     WaitUntil(S_ELECTRO_PSPEED != 0, 1); // check to prevent projectile fuckery if i copy workshop code with this file focused
     proj_grav_vec = Vector(0, S_ELECTRO_PGRAV, 0);
     PROJ_SIZE = (0.25 + (S_ELECTRO_PSPEED / 100));
+    T_PDELAY = S_ELECTRO_PDELAY * 4;
 }
 
 rule: "[Buff] :: Electro : Action - Primary Fire"
 Event.OngoingPlayer
 if (buff_enabled[5])
 {
-
+    // i dont know what im going to do here yet
 }
 
-Number tickdur: 0.016; // todo: change this to 0.008 when ow2 gets workshop (thank god blizzard finally doesnt use 62.5hz servers)
-Number proj_check: DistanceBetween(proj_pos, Update(RayCastHitPosition(proj_pos, proj_pos + (vel * 0.016) * 10, AllLivingPlayers(), player)));
+Number proj_check: DistanceBetween(proj_pos, Update(RayCastHitPosition(proj_pos, proj_pos + (vel * tickdur) * 100, AllLivingPlayers(), player)));
 rule: "[Buff] :: Electro : Action - Launch Grenade"
 Event.OngoingPlayer
 if (buff_enabled[5])
@@ -41,9 +45,9 @@ if (IsAlive())
         buff_ammo[5] -= 2;
 
     Any effect;
-    Boolean hit_surface = false;
-    Number fs_airtime = 0; // failsafe airtime, destroy the projectile after this time if the projectile does not hit a surface
-    Number airtime = 0; // airtime after the projectile hits a surface
+    hit_surface = false;
+    t_airtime = 0;
+    airtime = 0;
     proj_pos = EyePosition();
     vel = Normalize(Facing() + Vector(0, S_ELECTRO_PDELTA, 0)) * S_ELECTRO_PSPEED;
 
@@ -61,12 +65,12 @@ if (IsAlive())
     Vector[] reflection = [];
 
     // projectile loop
-    while (fs_airtime < 2 && airtime < S_ELECTRO_PDELAY)
+    while (proj_check >= PROJ_SIZE && t_airtime < T_PDELAY && airtime < S_ELECTRO_PDELAY)
     {
         // 62.5 ticks = 1 second, 3750 ticks = 1 minute
         vel += proj_grav_vec * tickdur; // update vel with grav vector each loop
         proj_pos += vel * tickdur; // update proj_pos with vel vector each loop
-        fs_airtime += tickdur;
+        t_airtime += tickdur;
 
         if (hit_surface)
             airtime += tickdur;
@@ -87,27 +91,25 @@ if (IsAlive())
                 }
 
                 // get hit pos and normal
-                hp[i] = RayCastHitPosition(proj_pos, proj_pos + vel * 10, AllLivingPlayers(), player, true);
-                normals[i] = RayCastHitNormal(proj_pos, proj_pos + vel * 10, AllLivingPlayers(), player, true);
-                hp_player[i] = RayCastHitPlayer(proj_pos, proj_pos + vel, AllLivingPlayers(), player, true);
+                hp[i] = RayCastHitPosition(proj_pos, proj_pos + vel * 100, AllLivingPlayers(), player, true);
+                normals[i] = RayCastHitNormal(proj_pos, proj_pos + vel * 100, AllLivingPlayers(), player, true);
 
                 // v - (2 * (v . n) * n)
                 reflection[i] = vel - (2 * (Dot(vel, normals[i])) * normals[i]);
-                hp_reflection[i] = RayCastHitPosition(hp[i], hp[i] + reflection[i] * 10, AllLivingPlayers(), player, true); // raycast from hit pos to reflection vector
-
-                if (hp_player[i] != null)
-                    break;
+                hp_reflection[i] = RayCastHitPosition(hp[i], hp[i] + reflection[i] * 100, AllLivingPlayers(), player, true); // raycast from hit pos to reflection vector
             }
 
             PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, proj_pos, 45);
             PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 45);
-            airtime = 0;
             hit_surface = true;
         }
 
         Wait(tickdur);
     }
 
+    hit_surface = false;
+    t_airtime = 0;
+    airtime = 0;
     Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), proj_pos) <= S_ELECTRO_PRAD && IsInLineOfSight(Curr(), proj_pos)), player);
 
     // effects
