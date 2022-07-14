@@ -1,0 +1,63 @@
+import "../main.del";
+playervar Boolean can_fly;
+playervar Boolean is_flying;
+playervar Number jp_fuel;
+
+// super hacky but it works, since jump is already being used by auto hopping this is the only solution i can think of, may need to figure something else out
+rule: "[Jetpack] :: Can Fly? (Jump In Mid Air Detection)"
+Event.OngoingPlayer
+if (IsInAir())
+if (HorizontalSpeedOf() > min_speed)
+{
+    can_fly = false;
+    WaitUntil(!IsJumpHeld(), 99999);
+    can_fly = true;
+}
+
+rule: "[Jetpack] :: Start"
+Event.OngoingPlayer
+if (can_fly)
+if (IsJumpHeld())
+{
+    is_flying = true;
+    StartAccelerating(
+        player,
+        Normalize(ThrottleOf()) 
+      * Min(1, MagnitudeOf(ThrottleOf())) * Clamp(1 - Dot(Normalize(WorldVectorOf(ThrottleOf(), player, LocalVector.Rotation)), VelocityOf()) / (bhop_speed / 9.09), 0, 0.6) + Up()
+      * (1 - Min(1, MagnitudeOf(ThrottleOf())) * Clamp(1 - Dot(Normalize(WorldVectorOf(ThrottleOf(), player, LocalVector.Rotation)), VelocityOf()) / (bhop_speed / 9.09), 0, 0.6)),
+        37.28,
+        10000,
+        Relative.ToPlayer,
+        AccelerateRev.DirectionRateAndMaxSpeed);
+    // 17.5 -> 26.9 m/s^2 gravity
+    SetGravity(player, 153.714);
+    SetMoveSpeed(player, 10000);
+    ForceThrottle(player, 0, 0, 0, 0, 0, 0);
+
+    while (is_flying)
+    {
+        // TODO: fuel depletion
+        PlayEffect(all, PlayEffect.BadExplosion, Color.Orange, PositionOf(), 0.2);
+        PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf() - Vector(0, 0.25, 0), 0.25);
+        Wait(0.048);
+    }
+}
+
+rule: "[Jetpack] :: Stop"
+Event.OngoingPlayer
+if (!IsJumpHeld() || AltitudeOf() == 0)
+if (is_flying)
+{
+    is_flying = false;
+    StopAccelerating();
+    SetGravity(player, 100);
+    SetMoveSpeed(player, bhop_speed);
+    StopForcingThrottle();
+}
+
+rule: "[Jetpack] :: Grounded"
+Event.OngoingPlayer
+if (IsOnGround())
+{
+    can_fly = false;
+}

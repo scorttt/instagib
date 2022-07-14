@@ -9,6 +9,8 @@ playervar Number bhop_speed; // bhop default speed multiplier
 playervar Number bhop_rate; // bhop speed rate
 playervar Number bhop_mult; // default movement speed multiplier (modified by mutators like berkserk and mobility)
 
+Number min_speed: 6.93; // minimum bhop speed, adjust this along side the movement speed multiplier in custom game settings (usually the speed of walking backwards + strafing)
+
 disabled rule: "---------------- Bhop ----------------"{}
 
 void ResetSpeed() playervar "[Bhop] :: Reset Speed"
@@ -19,14 +21,22 @@ void ResetSpeed() playervar "[Bhop] :: Reset Speed"
     SetMoveSpeed(player, bhop_speed);
 }
 
+rule: "[Bhop] :: Init"
+Event.OnPlayerJoin
+{
+    bhop_mult = 100;
+    bhop_speed = bhop_mult;
+    bhop_rate = S_BHOP_SPEED_RATE;
+}
+
 rule: "[Bhop] :: Auto Hop"
 Event.OngoingPlayer
 if (s_bhop_enabled)
 if (IsOnGround())
-if (IsButtonHeld(player, Button.Jump))
+if (IsJumpHeld())
 {
     DisallowButton(player, Button.Jump);
-    MinWait();
+    Wait(tickdur);
     AllowButton(player, Button.Jump);
 }
 
@@ -34,7 +44,7 @@ rule: "[Bhop] :: Airborne"
 Event.OngoingPlayer
 if (s_bhop_enabled)
 if (IsInAir())
-if (HorizontalSpeedOf() > 6.93)
+if (HorizontalSpeedOf() > min_speed)
 {
     ChaseVariableAtRate(bhop_speed, S_BHOP_MAX_SPEED, bhop_rate, RateChaseReevaluation.DestinationAndRate);
     bhopping = true;
@@ -59,7 +69,7 @@ if (bhop_speed == bhop_mult || bhopping && bhop_speed == S_BHOP_MAX_SPEED)
 rule: "[Bhop] :: Stop chasing"
 Event.OngoingPlayer
 if (bhopping || bhop_speed == S_BHOP_MAX_SPEED) 
-if (HorizontalSpeedOf() < 6.93)
+if (HorizontalSpeedOf() < min_speed)
 {
     ResetSpeed();
 }
