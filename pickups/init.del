@@ -6,8 +6,6 @@ globalvar Boolean valid_map; // whether pickups can spawn on a map
 
 rule: "[Main] :: Pickup Init"
 {
-    m_in = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-
     color_arr =[CustomColor(255, 255, 0,   255),  // 0
                 CustomColor(100, 50,  255, 255),  // 1
                 CustomColor(0,   255, 0,   255),  // 2
