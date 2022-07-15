@@ -5,13 +5,22 @@ globalvar Number S_DODGE_AMT;
 globalvar Boolean s_dodge_enabled;
 playervar Vector throttle_of;
 playervar Number dodges;
+playervar Number max_dodges;
 
+// TODO: replace this with a charge system for Sojourn slides when OW2 is released (see notes)
 disabled rule: "---------------- Dodge ----------------"{}
+
+rule: "[Dodge] :: Init"
+Event.OnPlayerJoin
+{
+    max_dodges = S_DODGE_AMT;
+}
 
 rule: "[Dodge] :: Action"
 Event.OngoingPlayer
 if (s_dodge_enabled)
 if (dodges > 0)
+if (!is_flying)
 if (IsAlive())
 if (IsInAir())
 if (IsButtonHeld(player, Button.Ability1))
@@ -33,7 +42,7 @@ if (IsButtonHeld(player, Button.Ability1))
 rule: "[Dodge] :: On Ground"
 Event.OngoingPlayer
 if (IsOnGround())
-if (dodges < S_DODGE_AMT)
+if (dodges < max_dodges)
 {
     if (bhopping)
     {
@@ -41,5 +50,5 @@ if (dodges < S_DODGE_AMT)
         Wait(0.25);
     }
 
-    dodges = S_DODGE_AMT;
+    dodges = max_dodges;
 }
