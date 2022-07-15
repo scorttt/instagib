@@ -45,16 +45,30 @@ globalvar Number neb_pb;
 globalvar Number vlt_pb;
 
 
+enum Buff
+{
+    Wallbang,
+    Ricochet, 
+    Buckshot, 
+    Prism, 
+    Ballista, 
+    Electro,
+    Spark, 
+    Arc,
+    Idkyet, 
+    Volt
+}
+
 disabled rule: "---------------- Buff ----------------"{}
 
 void CollectBuff() playervar "[Buff] :: Buff Collection"
 {
-    if (buff_i == 7)
+    if (buff_i == Buff.Arc)
     {
         DisallowButton(player, Button.PrimaryFire);
         pri_override = true;
     }
-    else if (buff_i == 9)
+    else if (buff_i == Buff.Volt)
     {
         DisallowButton(player, Button.PrimaryFire);
         vlt_temp = 0;
@@ -63,7 +77,10 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
         pri_override = true;
     }
 
-    buff_str = LANG_STR[0][buff_i];
+    // without storing it in its own var the strings can be null or be set to an incorrect string in LANG_STR[] for WHATEVER FUCKING REASON
+    buff_str[0] = LANG_STR[0][buff_i];
+    buff_str[1] = b_ico[buff_i];
+
     buff_held = buff_i;
     can_pickup_buff[buff_i] = false;
     buff_color = color_arr[buff_i];
@@ -72,12 +89,12 @@ void CollectBuff() playervar "[Buff] :: Buff Collection"
     {
         buff_enabled[buff_i] = true;
         has_buff = true;
-        LogToInspector(<"<0> given to <1>", buff_str, player>);
-        SmallMessage(player, <"<0> <1>", b_ico[buff_i], buff_str>);
+        LogToInspector(<"<0> given to <1>", buff_str[0], player>);
+        SmallMessage(player, <"<0> <1>", buff_str[1], buff_str[0]>);
     }
     else 
     {
-        SmallMessage(player, StringReplace(LANG_STR[10][3], "*", <"<0> <1>", b_ico[buff_i], buff_str>));
+        SmallMessage(player, StringReplace(LANG_STR[10][3], "*", <"<0> <1>", buff_str[1], buff_str[0]>));
     }
 
     if (buff_ammo[buff_i] < 0)
@@ -104,45 +121,45 @@ void BuffCooldown() "[Buff] :: Start Buff Timer"
 
         switch (buff_i) // progress bar/effect size control
         {
-            case (0):
+            case (Buff.Wallbang):
                 wallbang_pb = 0;
-                ChaseVariableOverTime(wallbang_pb, 100, S_BUFF_CD[0], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(wallbang_pb, 100, S_BUFF_CD[Buff.Wallbang], TimeChaseReevaluation.None);
                 break;
-            case (1):
+            case (Buff.Ricochet):
                 ricochet_pb = 0;
-                ChaseVariableOverTime(ricochet_pb, 100, S_BUFF_CD[1], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(ricochet_pb, 100, S_BUFF_CD[Buff.Ricochet], TimeChaseReevaluation.None);
                 break;
-            case (2):
+            case (Buff.Buckshot):
                 buckshot_pb = 0;
-                ChaseVariableOverTime(buckshot_pb, 100, S_BUFF_CD[2], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(buckshot_pb, 100, S_BUFF_CD[Buff.Buckshot], TimeChaseReevaluation.None);
                 break;
-            case (3):
+            case (Buff.Prism):
                 prism_pb = 0;
-                ChaseVariableOverTime(prism_pb, 100, S_BUFF_CD[3], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(prism_pb, 100, S_BUFF_CD[Buff.Prism], TimeChaseReevaluation.None);
                 break;
-            case (4):
+            case (Buff.Ballista):
                 bal_pb = 0;
-                ChaseVariableOverTime(bal_pb, 100, S_BUFF_CD[4], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(bal_pb, 100, S_BUFF_CD[Buff.Ballista], TimeChaseReevaluation.None);
                 break;
-            case (5):
+            case (Buff.Electro):
                 electro_pb = 0;
-                ChaseVariableOverTime(electro_pb, 100, S_BUFF_CD[5], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(electro_pb, 100, S_BUFF_CD[Buff.Electro], TimeChaseReevaluation.None);
                 break;
-            case (6):
+            case (Buff.Spark):
                 sprk_pb = 0;
-                ChaseVariableOverTime(sprk_pb, 100, S_BUFF_CD[6], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(sprk_pb, 100, S_BUFF_CD[Buff.Spark], TimeChaseReevaluation.None);
                 break;
-            case (7):
+            case (Buff.Arc):
                 arc_pb = 0;
-                ChaseVariableOverTime(arc_pb, 100, S_BUFF_CD[7], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(arc_pb, 100, S_BUFF_CD[Buff.Arc], TimeChaseReevaluation.None);
                 break;
-            case (8):
+            case (Buff.Idkyet):
                 neb_pb = 0;
-                ChaseVariableOverTime(neb_pb, 100, S_BUFF_CD[8], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(neb_pb, 100, S_BUFF_CD[Buff.Idkyet], TimeChaseReevaluation.None);
                 break;
-            case (9):
+            case (Buff.Volt):
                 vlt_pb = 0;
-                ChaseVariableOverTime(vlt_pb, 100, S_BUFF_CD[9], TimeChaseReevaluation.None);
+                ChaseVariableOverTime(vlt_pb, 100, S_BUFF_CD[Buff.Volt], TimeChaseReevaluation.None);
                 break;
         }
     }
@@ -162,7 +179,7 @@ void CreateOrb() "[Buff] :: Create Orb"
 rule: "[Buff] :: Remove Buff"
 Event.OngoingPlayer
 if (has_buff)
-if (IsTrueForAll(buff_enabled, Curr() == false) || IsTrueForAll(buff_ammo, Curr() <= 0))
+if (IsTrueForAll(buff_ammo, Curr() <= 0))
 {
     for (Number i = 0; i < buff_enabled.Length; i++)
         buff_enabled[i] = false;
@@ -176,14 +193,14 @@ if (IsTrueForAll(buff_enabled, Curr() == false) || IsTrueForAll(buff_ammo, Curr(
 }
 
 rule: "[Buff] :: Pierce : Timer"
-if (buff_timer[0])
+if (buff_timer[Buff.Wallbang])
 {
-    buff_cd[0]--;
+    buff_cd[Buff.Wallbang]--;
 
-    buff_txt[0] = <"<0>:<1><2>", 
-                    Floor(buff_cd[0] / 60 % 60), 
-                    buff_cd[0] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[0] % 60)>;
+    buff_txt[Buff.Wallbang] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Wallbang] / 60 % 60), 
+                    buff_cd[Buff.Wallbang] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Wallbang] % 60)>;
 
     Wait(1);
 
@@ -193,35 +210,35 @@ if (buff_timer[0])
 rule: "[Buff] :: Pierce : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[0])
-if (buff_cd[0] == 0)
+if (s_spawn_buff[Buff.Wallbang])
+if (buff_cd[Buff.Wallbang] == 0)
 {
-    buff_i = 0;
+    buff_i = Buff.Wallbang;
     CreateOrb();
 }
 
 rule: "[Buff] :: Pierce : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[0])
-if (can_pickup_buff[0])
-if (DistanceBetween(buff_pos[0], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Wallbang])
+if (can_pickup_buff[Buff.Wallbang])
+if (DistanceBetween(buff_pos[Buff.Wallbang], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 0;
+    buff_i = Buff.Wallbang;
     CollectBuff();
 }
 
 rule: "[Buff] :: Ricochet : Timer"
-if (buff_timer[1])
+if (buff_timer[Buff.Ricochet])
 {
-    buff_cd[1]--;
+    buff_cd[Buff.Ricochet]--;
 
-    buff_txt[1] = <"<0>:<1><2>", 
-                    Floor(buff_cd[1] / 60 % 60), 
-                    buff_cd[1] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[1] % 60)>;
+    buff_txt[Buff.Ricochet] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Ricochet] / 60 % 60), 
+                    buff_cd[Buff.Ricochet] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Ricochet] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -230,35 +247,35 @@ if (buff_timer[1])
 rule: "[Buff] :: Ricochet : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[1])
-if (buff_cd[1] == 0)
+if (s_spawn_buff[Buff.Ricochet])
+if (buff_cd[Buff.Ricochet] == 0)
 {
-    buff_i = 1;
+    buff_i = Buff.Ricochet;
     CreateOrb();
 }
 
 rule: "[Buff] :: Ricochet : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[1])
-if (can_pickup_buff[1])
-if (DistanceBetween(buff_pos[1], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Ricochet])
+if (can_pickup_buff[Buff.Ricochet])
+if (DistanceBetween(buff_pos[Buff.Ricochet], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 1;
+    buff_i = Buff.Ricochet;
     CollectBuff();
 }
 
 rule: "[Buff] :: Buckshot : Timer"
-if (buff_timer[2])
+if (buff_timer[Buff.Buckshot])
 {
-    buff_cd[2]--;
+    buff_cd[Buff.Buckshot]--;
 
-    buff_txt[2] = <"<0>:<1><2>", 
-                    Floor(buff_cd[2] / 60 % 60), 
-                    buff_cd[2] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[2] % 60)>;
+    buff_txt[Buff.Buckshot] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Buckshot] / 60 % 60), 
+                    buff_cd[Buff.Buckshot] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Buckshot] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -267,35 +284,35 @@ if (buff_timer[2])
 rule: "[Buff] :: Buckshot : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[2])
-if (buff_cd[2] == 0)
+if (s_spawn_buff[Buff.Buckshot])
+if (buff_cd[Buff.Buckshot] == 0)
 {
-    buff_i = 2;
+    buff_i = Buff.Buckshot;
     CreateOrb();
 }
 
 rule: "[Buff] :: Buckshot : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[2])
-if (can_pickup_buff[2])
-if (DistanceBetween(buff_pos[2], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Buckshot])
+if (can_pickup_buff[Buff.Buckshot])
+if (DistanceBetween(buff_pos[Buff.Buckshot], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 2;
+    buff_i = Buff.Buckshot;
     CollectBuff();
 }
 
 rule: "[Buff] :: Prism : Timer"
-if (buff_timer[3])
+if (buff_timer[Buff.Prism])
 {
-    buff_cd[3]--;
+    buff_cd[Buff.Prism]--;
 
-    buff_txt[3] = <"<0>:<1><2>", 
-                    Floor(buff_cd[3] / 60 % 60), 
-                    buff_cd[3] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[3] % 60)>;
+    buff_txt[Buff.Prism] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Prism] / 60 % 60), 
+                    buff_cd[Buff.Prism] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Prism] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -304,35 +321,35 @@ if (buff_timer[3])
 rule: "[Buff] :: Prism : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[3])
-if (buff_cd[3] == 0)
+if (s_spawn_buff[Buff.Prism])
+if (buff_cd[Buff.Prism] == 0)
 {
-    buff_i = 3;
+    buff_i = Buff.Prism;
     CreateOrb();
 }
 
 rule: "[Buff] :: Prism : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[3])
-if (can_pickup_buff[3])
-if (DistanceBetween(buff_pos[3], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Prism])
+if (can_pickup_buff[Buff.Prism])
+if (DistanceBetween(buff_pos[Buff.Prism], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 3;
+    buff_i = Buff.Prism;
     CollectBuff();
 }
 
 rule: "[Buff] :: Ballista : Timer"
-if (buff_timer[4])
+if (buff_timer[Buff.Ballista])
 {
-    buff_cd[4]--;
+    buff_cd[Buff.Ballista]--;
 
-    buff_txt[4] = <"<0>:<1><2>", 
-                    Floor(buff_cd[4] / 60 % 60), 
-                    buff_cd[4] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[4] % 60)>;
+    buff_txt[Buff.Ballista] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Ballista] / 60 % 60), 
+                    buff_cd[Buff.Ballista] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Ballista] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -341,35 +358,35 @@ if (buff_timer[4])
 rule: "[Buff] :: Ballista : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[4])
-if (buff_cd[4] == 0)
+if (s_spawn_buff[Buff.Ballista])
+if (buff_cd[Buff.Ballista] == 0)
 {
-    buff_i = 4;
+    buff_i = Buff.Ballista;
     CreateOrb();
 }
 
 rule: "[Buff] :: Ballista : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[4])
-if (can_pickup_buff[4])
-if (DistanceBetween(buff_pos[4], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Ballista])
+if (can_pickup_buff[Buff.Ballista])
+if (DistanceBetween(buff_pos[Buff.Ballista], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 4;
+    buff_i = Buff.Ballista;
     CollectBuff();
 }
 
 rule: "[Buff] :: Electro : Timer"
-if (buff_timer[5])
+if (buff_timer[Buff.Electro])
 {
-    buff_cd[5]--;
+    buff_cd[Buff.Electro]--;
 
-    buff_txt[5] = <"<0>:<1><2>", 
-                    Floor(buff_cd[5] / 60 % 60), 
-                    buff_cd[5] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[5] % 60)>;
+    buff_txt[Buff.Electro] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Electro] / 60 % 60), 
+                    buff_cd[Buff.Electro] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Electro] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -378,35 +395,35 @@ if (buff_timer[5])
 rule: "[Buff] :: Electro : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[5])
-if (buff_cd[5] == 0)
+if (s_spawn_buff[Buff.Electro])
+if (buff_cd[Buff.Electro] == 0)
 {
-    buff_i = 5;
+    buff_i = Buff.Electro;
     CreateOrb();
 }
 
 rule: "[Buff] :: Electro : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[5])
-if (can_pickup_buff[5])
-if (DistanceBetween(buff_pos[5], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Electro])
+if (can_pickup_buff[Buff.Electro])
+if (DistanceBetween(buff_pos[Buff.Electro], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 5;
+    buff_i = Buff.Electro;
     CollectBuff();
 }
 
 rule: "[Buff] :: Spark : Timer"
-if (buff_timer[6])
+if (buff_timer[Buff.Spark])
 {
-    buff_cd[6]--;
+    buff_cd[Buff.Spark]--;
 
-    buff_txt[6] = <"<0>:<1><2>", 
-                    Floor(buff_cd[6] / 60 % 60), 
-                    buff_cd[6] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[6] % 60)>;
+    buff_txt[Buff.Spark] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Spark] / 60 % 60), 
+                    buff_cd[Buff.Spark] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Spark] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -415,35 +432,35 @@ if (buff_timer[6])
 rule: "[Buff] :: Spark : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[6])
-if (buff_cd[6] == 0)
+if (s_spawn_buff[Buff.Spark])
+if (buff_cd[Buff.Spark] == 0)
 {
-    buff_i = 6;
+    buff_i = Buff.Spark;
     CreateOrb();
 }
 
 rule: "[Buff] :: Spark : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[6])
-if (can_pickup_buff[6])
-if (DistanceBetween(buff_pos[6], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Spark])
+if (can_pickup_buff[Buff.Spark])
+if (DistanceBetween(buff_pos[Buff.Spark], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 6;
+    buff_i = Buff.Spark;
     CollectBuff();
 }
 
 rule: "[Buff] :: Arc : Timer"
-if (buff_timer[7])
+if (buff_timer[Buff.Arc])
 {
-    buff_cd[7]--;
+    buff_cd[Buff.Arc]--;
 
-    buff_txt[7] = <"<0>:<1><2>", 
-                    Floor(buff_cd[7] / 60 % 60), 
-                    buff_cd[7] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[7] % 60)>;
+    buff_txt[Buff.Arc] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Arc] / 60 % 60), 
+                    buff_cd[Buff.Arc] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Arc] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -452,72 +469,72 @@ if (buff_timer[7])
 rule: "[Buff] :: Arc : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[7])
-if (buff_cd[7] == 0)
+if (s_spawn_buff[Buff.Arc])
+if (buff_cd[Buff.Arc] == 0)
 {
-    buff_i = 7;
+    buff_i = Buff.Arc;
     CreateOrb();
 }
 
 rule: "[Buff] :: Arc : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[7]) 
-if (can_pickup_buff[7])
-if (DistanceBetween(buff_pos[7], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Arc]) 
+if (can_pickup_buff[Buff.Arc])
+if (DistanceBetween(buff_pos[Buff.Arc], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 7;
+    buff_i = Buff.Arc;
     CollectBuff();
 }
 
-rule: "[Buff] :: Neubla : Timer"
-if (buff_timer[8])
+rule: "[Buff] :: TBD : Timer"
+if (buff_timer[Buff.Idkyet])
 {
-    buff_cd[8]--;
+    buff_cd[Buff.Idkyet]--;
 
-    buff_txt[8] = <"<0>:<1><2>", 
-                    Floor(buff_cd[8] / 60 % 60), 
-                    buff_cd[8] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[8] % 60)>;
+    buff_txt[Buff.Idkyet] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Idkyet] / 60 % 60), 
+                    buff_cd[Buff.Idkyet] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Idkyet] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
 }
 
-rule: "[Buff] :: Nebula : Create Orb"
+rule: "[Buff] :: TBD : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[8])
-if (buff_cd[8] == 0)
+if (s_spawn_buff[Buff.Idkyet])
+if (buff_cd[Buff.Idkyet] == 0)
 {
-    buff_i = 8;
+    buff_i = Buff.Idkyet;
     CreateOrb();
 }
 
-rule: "[Buff] :: Nebula : Collect"
+rule: "[Buff] :: TBD : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[8]) 
-if (can_pickup_buff[8])
-if (DistanceBetween(buff_pos[8], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Idkyet]) 
+if (can_pickup_buff[Buff.Idkyet])
+if (DistanceBetween(buff_pos[Buff.Idkyet], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 8;
+    buff_i = Buff.Idkyet;
     CollectBuff();
 }
 
 rule: "[Buff] :: Volt : Timer"
-if (buff_timer[9])
+if (buff_timer[Buff.Volt])
 {
-    buff_cd[9]--;
+    buff_cd[Buff.Volt]--;
 
-    buff_txt[9] = <"<0>:<1><2>", 
-                    Floor(buff_cd[9] / 60 % 60), 
-                    buff_cd[9] % 60 < 10 ? "0" : "", 
-                    Floor(buff_cd[9] % 60)>;
+    buff_txt[Buff.Volt] = <"<0>:<1><2>", 
+                    Floor(buff_cd[Buff.Volt] / 60 % 60), 
+                    buff_cd[Buff.Volt] % 60 < 10 ? "0" : "", 
+                    Floor(buff_cd[Buff.Volt] % 60)>;
 
     Wait(1);
     LoopIfConditionIsTrue();
@@ -526,22 +543,22 @@ if (buff_timer[9])
 rule: "[Buff] :: Volt : Create Orb"
 if (match_started)
 if (valid_map)
-if (s_spawn_buff[9])
-if (buff_cd[9] == 0)
+if (s_spawn_buff[Buff.Volt])
+if (buff_cd[Buff.Volt] == 0)
 {
-    buff_i = 9;
+    buff_i = Buff.Volt;
     CreateOrb();
 }
 
 rule: "[Buff] :: Volt : Collect"
 Event.OngoingPlayer
 if (HasSpawned())
-if (!has_buff || buff_enabled[9]) 
-if (can_pickup_buff[9])
-if (DistanceBetween(buff_pos[9], PositionOf() + Up()) < S_PICKUP_RAD)
+if (!has_buff || buff_enabled[Buff.Volt]) 
+if (can_pickup_buff[Buff.Volt])
+if (DistanceBetween(buff_pos[Buff.Volt], PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 if (!IsFiringPrimary())
 {
-    buff_i = 9;
+    buff_i = Buff.Volt;
     CollectBuff();
 }
