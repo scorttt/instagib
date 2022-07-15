@@ -8,8 +8,8 @@ globalvar Any LANG_STR;
 // 4 - ammo
 // 5 - special 1
 // 6 - special 2
-// 7 - mechanic names (bhop, blaster, dodge)
-// 8 - mechanic help (bhop, blaster, dodge)
+// 7 - mechanic names and other related info (bhop, blaster, dodge, jetpack)
+// 8 - mechanic help (bhop, blaster, dodge, jetpack)
 // 9 - info
 // 10 - toast/other strings
 // 11 - help 2
@@ -25,14 +25,14 @@ if (S_LANG == 0)
                    "Electro", 
                    "Spark", 
                    "Arc", 
-                   "Nebula", 
+                   "TBD", 
                    "Volt"];
 
     LANG_STR[1] = ["*: Bullets pierce surfaces",
                    "*: Bullets ricochet off surfaces",
                    "*: Spread shots",
                    "*: Bullets split apart into multiple ricocheting bullets after hitting a surface",
-                   "*: Penetrating beam that ignores all surfaces, gain speed to charge for a larger radius shot",
+                   "*: High powered beam that ignores all surfaces",
                    "*: Shots can create a chain reaction killing any nearby players from the victims",
                    "*: Explosive shots",
                    "* (Hold): Long range consistent reflective laser",
@@ -46,7 +46,7 @@ if (S_LANG == 0)
                    "Berserk", 
                    "Replicate", 
                    "Denial", 
-                   "Mobility", 
+                   "Haste", 
                    "Mirage"];
 
     LANG_STR[3] = ["Shows all players through walls", 
@@ -67,19 +67,23 @@ if (S_LANG == 0)
     LANG_STR[6] = ["Charges: ", 
                    "Detonation in: ",
                    "Recharging",
-                   "Overheat"];
+                   "Overheat",
+                   "Not Ready",
+                   "Ready"];
 
     LANG_STR[7] = ["Movement",
                    "Bunny Hop", 
                    "Blaster", 
-                   "Dodge"];
+                   "Slide",
+                   "Jetpack"];
 
     LANG_STR[8] = ["Holding * while moving will allow you to gain speed", 
                    "Press * to fire a projectile that knocks back players", 
-                   "Press * while in air to dodge in a direction"];
+                   <"Holds <0> slide charges that recharge automatically on the ground", S_DODGE_AMT>,
+                   "Press * again while in the air to use a jet pack. Fuel recharges when not in use"];
 
-    LANG_STR[9] = ["Hold * for help",
-                   "Hold * to hide (Chat is Disabled)",
+    LANG_STR[9] = ["Hold * for info",
+                   "Release * to hide",
                    "Buffs are pickups that modify how your weapon fires",
                    "Mutators are rare pickups that modify the player in significant ways"]; 
 
@@ -87,25 +91,25 @@ if (S_LANG == 0)
                     "In-use by *",
                     "* ammo depleted",
                     "* ammo replenished",
-                    "Infinite"];
+                    "Infinite",
+                    "* duration expired"];
 
     LANG_STR[11] = ["",
                     "",
                     "* (Hold): Charge shots",
                     "",
-                    "",
-                    "*: Launch an explosive projectile that explodes shortly after hitting a surface",
+                    "Gain speed: Increases charge speed",
+                    "*: Launch a bouncing grenade that detonates shortly after hitting a surface",
                     "*: Launch an explosive projectile that detonates with a large radius once shot",
                     "",
                     "*: ",
                     ""];
 }
 
-// todo: bug michi for new localization
+// TODO: new localization
 rule: "[Main] :: Language : Japanese / 日本語"
 if (S_LANG == 1)
 {
-    // alt wallbang: "壁を貫通をする"
     LANG_STR[0] = ["貫通", 
                    "跳弾", 
                    "散弾", 
@@ -114,7 +118,7 @@ if (S_LANG == 1)
                    "エレクトロ", 
                    "火花", 
                    "アーク", 
-                   "星雲", 
+                   "TBD", 
                    "ボルト"];
 
     LANG_STR[1] = ["*: 弾丸は表面を貫通する",
@@ -135,7 +139,7 @@ if (S_LANG == 1)
                    "バーサーク", 
                    "リプリケート", 
                    "否定", 
-                   "モビリティ", 
+                   "ヘイスト", 
                    "ミラージュ"];
 
     LANG_STR[3] = [];
@@ -148,12 +152,15 @@ if (S_LANG == 1)
     LANG_STR[6] = ["チャージズ：", 
                    "爆轟：",
                    "リチャージ中",
-                   "オーバーヒート"];
+                   "オーバーヒート",
+                   "",
+                   ""];
 
     LANG_STR[7] = ["ムーブメント",
                    "バニーホッピ", 
                    "ブラスター", 
-                   "往なす"];
+                   "滑走",
+                   "ジェットパック"];
 
     LANG_STR[8] = ["*", 
                    "*", 
@@ -168,17 +175,18 @@ if (S_LANG == 1)
                     "*の使用中",
                     "*の弾薬がなくなった",
                     "*の弾薬を補充した",
-                    "無限"];
+                    "無限",
+                    "*の期限が切れた"];
 
     LANG_STR[11] = ["",
                     "",
-                    "*: ",
                     "",
                     "",
-                    "*: ",
-                    "*: ",
                     "",
-                    "*: ",
+                    "",
+                    "",
+                    "",
+                    "",
                     ""];
 }
 
