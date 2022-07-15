@@ -7,16 +7,16 @@ rule: "[Main] :: General HUD Text"
     CreateHudText(all, null, <"<0>:<1><2>", Floor(MatchTime() / 60 % 60), 
                                 MatchTime() % 60 < 10 ? "0" : "", 
                                 Floor(MatchTime() % 60)>,
-    " \n\n\n\n\n\n\n\n", Location.Top, 0.2);
+    null, Location.Top, 0.1);
+
+    // spacing
+    CreateHudText(all, null, null, " \n\n\n\n\n\n", Location.Top, 0.3);
 
     // help text
     if (s_sec_enabled || s_bhop_enabled || s_dodge_enabled || s_buffs_enabled || FilteredArray(s_spawn_buff, true).Length > 0)
     {
         CreateHudText(!local.info ? local : null, null, 
         <"<0>\n\n\n\n\n\n\n\n\n\n\n\n", StringReplace(LANG_STR[9][0], "*", InputBindingString(Button.Melee))>, 
-        null, Location.Left, 20);
-        CreateHudText(local.info ? local : null, null, 
-        <" \n<0>\n\n\n\n\n\n\n\n\n\n\n\n", StringReplace(LANG_STR[9][1], "*", InputBindingString(Button.Melee))>, 
         null, Location.Left, 20);
     }
 
@@ -45,6 +45,22 @@ rule: "[Main] :: General HUD Text"
         AbilityIconString(Hero.Soldier76, Button.Ability1), 
         LANG_STR[7][3],
         StringReplace(LANG_STR[8][2], "*", InputBindingString(Button.Ability1)), Location.Left, 18, Color.Gray, Color.Gray);
+
+        // TODO: uncomment and delete above when ow2 releases
+        // CreateHudText(local.info ? local : null, 
+        // AbilityIconString(Hero.Sojourn, Button.Ability1), 
+        // LANG_STR[7][3],
+        // LANG_STR[8][2], Location.Left, 18, Color.Gray, Color.Gray);
+    }
+
+    if (s_jetpack_enabled)
+    {
+        CreateHudText(local.info ? local : null, 
+        AbilityIconString(Hero.Pharah, Button.Ability1), 
+        LANG_STR[7][4],
+        StringReplace(LANG_STR[8][3], "*", InputBindingString(Button.Jump)), Location.Left, 19, Color.Orange, Color.Orange);
+
+        CreateProgressBarHudText(local, local.fuel * 100, null, Location.Top, 0.2, CustomColor(255, 100, 0, 255), Color.White, ProgressBarHudEvaluation.VisibleToValuesAndColor);
     }
 }
 
@@ -95,15 +111,15 @@ if (s_buffs_enabled)
     {
         // help
         CreateHudText(FilteredArray(all, Curr().info), 
-        b_ico[0], 
-        LANG_STR[0][0], 
-        StringReplace(LANG_STR[1][0], "*", InputBindingString(Button.PrimaryFire)), 
-        Location.Left, sorting[0], color_arr[0], color_arr[0]);
+        b_ico[Buff.Wallbang], 
+        LANG_STR[0][Buff.Wallbang], 
+        StringReplace(LANG_STR[1][Buff.Wallbang], "*", InputBindingString(Button.PrimaryFire)), 
+        Location.Left, sorting[0], color_arr[Buff.Wallbang], color_arr[Buff.Wallbang]);
 
         // in progress effects
-        CreateEffect(all, Effect.GoodAura, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-        CreateEffect(buff_cd[0] != 0 ? all : null, Effect.Sphere, color_arr[0], buff_pos[0], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-        CreateProgressBarInWorldText(buff_cd[0] != 0 ? all : null, wallbang_pb, null, buff_pos[0] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[0], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
+        CreateEffect(all, Effect.GoodAura, color_arr[Buff.Wallbang], buff_pos[Buff.Wallbang], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+        CreateEffect(buff_cd[Buff.Wallbang] != 0 ? all : null, Effect.Sphere, color_arr[Buff.Wallbang], buff_pos[Buff.Wallbang], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+        CreateProgressBarInWorldText(buff_cd[Buff.Wallbang] != 0 ? all : null, wallbang_pb, null, buff_pos[Buff.Wallbang] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[Buff.Wallbang], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
     }
 
     // ricochet
@@ -111,15 +127,15 @@ if (s_buffs_enabled)
     {
         // help
         CreateHudText(FilteredArray(all, Curr().info), 
-        b_ico[1], 
-        LANG_STR[0][1], 
-        StringReplace(LANG_STR[1][1], "*", InputBindingString(Button.PrimaryFire)), 
-        Location.Left, sorting[1], color_arr[1], color_arr[1]);
+        b_ico[Buff.Ricochet], 
+        LANG_STR[0][Buff.Ricochet], 
+        StringReplace(LANG_STR[1][Buff.Ricochet], "*", InputBindingString(Button.PrimaryFire)), 
+        Location.Left, sorting[1], color_arr[Buff.Ricochet], color_arr[Buff.Ricochet]);
 
         // in progress effects
-        CreateEffect(all, Effect.GoodAura, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-        CreateEffect(buff_cd[1] != 0 ? all : null, Effect.Sphere, color_arr[1], buff_pos[1], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-        CreateProgressBarInWorldText(buff_cd[1] != 0 ? all : null, ricochet_pb, null, buff_pos[1] + Vector(0, ricochet_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[1], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
+        CreateEffect(all, Effect.GoodAura, color_arr[Buff.Ricochet], buff_pos[Buff.Ricochet], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+        CreateEffect(buff_cd[Buff.Ricochet] != 0 ? all : null, Effect.Sphere, color_arr[Buff.Ricochet], buff_pos[Buff.Ricochet], ricochet_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
+        CreateProgressBarInWorldText(buff_cd[Buff.Ricochet] != 0 ? all : null, ricochet_pb, null, buff_pos[Buff.Ricochet] + Vector(0, ricochet_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[Buff.Ricochet], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
     }
 
     // buckshot
@@ -178,26 +194,36 @@ if (s_buffs_enabled)
         CreateHudText(FilteredArray(all, Curr().info), 
         b_ico[4], 
         LANG_STR[0][4], 
+        <"<0>\n<1>", 
         StringReplace(LANG_STR[1][4], "*", InputBindingString(Button.PrimaryFire)), 
+        LANG_STR[11][4]>,
         Location.Left, sorting[4], color_arr[4], color_arr[4]);
 
-        // charge
-        CreateProgressBarHudText(local.buff_enabled[4] && local.bal_can_charge ? local : null, 
-        local.bal_chrg, 
-        <"<0>%", Floor(local.bal_chrg)>,
-        Location.Top, 1.2, 
-        // color
-        local.bal_chrg == 100 
-            ? ColorPulse(255, 50, 145, 1000, 35) 
-            : color_arr[4], 
-        local.bal_chrg == 100 
-            ? ColorPulse(255, 50, 145, 1000, 35) 
-            : color_arr[4]);
+        // status not ready/ready
+        CreateHudText(local.buff_enabled[4] && local.bal_can_charge ? local : null, null, null, 
+        local.bal_chrg < S_BAL_MIN_CHRG ? AltFont(<"<0>", LANG_STR[6][4]>) : AltFont(<"<0>!", LANG_STR[6][5]>), 
+        Location.Top, 1.2, TextColor: color_arr[4]);
 
-        // charging
+        // recharging
         CreateHudText(local.buff_enabled[4] && !local.bal_can_charge ? local : null, null, " \n", 
         AltFont(<"<0>", LANG_STR[6][2]>), 
         Location.Top, 1.3, TextColor: color_arr[4]);
+
+        // charge pbar
+        CreateProgressBarHudText(local.buff_enabled[4] && local.bal_can_charge ? local : null, 
+        local.bal_chrg * 100, 
+        <"<0>%", Floor(local.bal_chrg * 100)>,
+        Location.Top, 1.4, 
+        local.bal_chrg == 1
+            ? ColorPulse(255, 50, 145, 1000, 35) 
+            : CustomColor(
+              LinearInterpolate(255, 255, local.bal_chrg),
+              LinearInterpolate(125,   50,  local.bal_chrg),
+              LinearInterpolate(185,  145, local.bal_chrg),
+              LinearInterpolate(255,  255, local.bal_chrg)),
+        local.bal_chrg == 1
+            ? ColorPulse(255, 50, 145, 1000, 35) 
+            : color_arr[4]);
 
         // in progress effects
         CreateEffect(all, Effect.GoodAura, color_arr[4], buff_pos[4], bal_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
@@ -339,7 +365,7 @@ if (s_buffs_enabled)
         Location.Left, 24, m_color[0], m_color[0], Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor);
 
         // mutator duration for user
-        CreateProgressBarHudText(local.has_mut ? local : null, local.m_tleft, <"<0> <1>", m_ico, m_str>, Location.Left, 25, m_color[0], m_color[0], ProgressBarHudEvaluation.VisibleToValuesAndColor);
+        CreateProgressBarHudText(local.has_mut ? local : null, local.m_tleft, <"<0> <1>", m_ico, m_str>, Location.Left, 25, m_color[1], m_color[0], ProgressBarHudEvaluation.VisibleToValuesAndColor);
 
         // mutator spawning
         CreateProgressBarInWorldText(m_inworld && m_pb != 100 ? all : null, m_pb, null, m_pos + Vector(0, m_pb * 0.0045, 0), 0, Clipping.DoNotClip, m_color[0], null, ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);

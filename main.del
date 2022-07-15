@@ -10,6 +10,7 @@ import "hudtext.del";
 import "movement/bhop.del";
 import "movement/blaster.del";
 import "movement/dodge.del";
+import "movement/jetpack.del";
 
 import "pickups/init.del";
 
@@ -28,13 +29,12 @@ import "pickups/mutators/.mmain.del";
 import "pickups/mutators/denial.del";
 import "pickups/mutators/seer.del";
 import "pickups/mutators/berserk.del";
-import "pickups/mutators/mobility.del";
+import "pickups/mutators/haste.del";
 
 globalvar Number S_MATCH_TIME_LIMIT; // maximum match time
 globalvar Number S_PICKUP_RAD; // minimum radius to collect a buff
 globalvar Number S_GAMEMODE; // chosen gamemode
 globalvar Number[] S_LANG; // chosen language
-globalvar Number S_HERO; // gamemode hero
 globalvar Number S_DELAY; // weapon fire delay
 globalvar Boolean match_started; // has the match started
 playervar Boolean info; // information toggle
@@ -44,6 +44,7 @@ playervar Number delay; // weapon fire delay for the player
 playervar Vector first_hp;
 
 Any weapon_muzzle(Vector start_pos, Vector dir): (start_pos + dir) + (WorldVectorOf(Vector(-1, -0.38, 0), player) * 0.14);
+Number tickdur: 0.016; // TODO: remove this macro and use 0.008 instead when ow2 is released (thank god blizzard finally doesnt use 62.5hz servers)
 
 disabled rule: "---------------- Main ----------------"{}
 
@@ -58,8 +59,7 @@ rule: "[Main] :: Initial Global"
     match_started = false;
 
     S_LANG = WorkshopSettingCombo("General",                                 "Language / 言語 / 언어", 0, ["English", "日本語", "한국어"], 0);
-    S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Team Deathmatch", "4TDM", "Limited Lives (TDM)", "Freeze Tag (TDM)", "Keepaway (FFA)", "Keepaway (TDM)", "Domination (TDM)", "Domination (4TDM)"], 1);
-    S_HERO = WorkshopSettingCombo("General",                                 "Hero", 0, ["Sojourn", "Cassidy"], 2);
+    S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Team Deathmatch", "4TDM", "Limited TDM", "Freeze Tag TDM", "Keepaway FFA", "Keepaway TDM", "Domination TDM", "Domination 4TDM"], 1);
     S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 1, 60, 3) * 60;
     S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 4);
     S_DELAY = WorkshopSettingReal("General",                                 "Weapon Fire Delay (1)", 1, 0.5, 2, 5);
@@ -76,6 +76,10 @@ rule: "[Main] :: Initial Global"
     s_bhop_enabled = WorkshopSettingToggle("Bunny Hopping",                  "Enable Bunny Hopping (On)", true, 1);
     S_BHOP_MAX_SPEED = WorkshopSettingInteger("Bunny Hopping",               "Maximum Speed Multiplier From Bunny Hopping (100000)", 100000, 110, 100000, 2);
     S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "Speed gain rate (13.5)", 13.5, 1, 100, 3);
+
+    s_jetpack_enabled = WorkshopSettingToggle("Jetpack",                     "Enable Jetpack (On)", true, 1);
+    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (1.5)", 1.5, 0.1, 1000, 2);
+    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Refill Time (5)", 5, 0.1, 1000, 3);
 
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
@@ -103,14 +107,15 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[4] = WorkshopSettingToggle("Ballista Buff",                 "Spawn Ballista (On)", true, 1);
     S_BUFF_CD[4] = WorkshopSettingInteger("Ballista Buff",                   "Ballista Spawn Time (240)", 240, 5, 600, 2);
     S_BUFF_AMMO[4] = WorkshopSettingInteger("Ballista Buff",                 "Ballista Ammo (3)", 3, 1, 1000, 3);
-    S_BAL_SIZE = WorkshopSettingReal("Ballista Buff",                        "Ballista Max Size (6)", 6, 1, 50, 4);
+    S_BAL_SIZE = WorkshopSettingReal("Ballista Buff",                        "Ballista Max Size (8)", 8, 1, 50, 4);
     S_BAL_CRATE = WorkshopSettingReal("Ballista Buff",                       "Ballista Charge Rate (Higher is Slower) (55)", 55, 1, 1000, 5);
+    S_BAL_MIN_CHRG = WorkshopSettingReal("Ballista Buff",                    "Ballista Minimum Charge (25)", 25, 10, 100, 6) / 100;
 
     s_spawn_buff[5] = WorkshopSettingToggle("Electro Buff",                  "Spawn Electro (On)", true, 1);
     S_BUFF_CD[5] = WorkshopSettingInteger("Electro Buff",                    "Electro Spawn Time (100)", 100, 5, 600, 2);
     S_BUFF_AMMO[5] = WorkshopSettingInteger("Electro Buff",                  "Electro Ammo (20)", 20, 1, 1000, 3);
-    S_ELECTRO_PDELAY = WorkshopSettingReal("Electro Buff",                   "Electro Grenade Delay After Hitting a surface (0.5)", 0.5, 0.1, 2, 4);
-    S_ELECTRO_PRAD = WorkshopSettingReal("Electro Buff",                     "Electro Grenade Radius (8)", 8, 1, 20, 5);
+    S_ELECTRO_PDELAY = WorkshopSettingReal("Electro Buff",                   "Electro Grenade Delay After Hitting a surface (0.5)", 0.5, 0.01, 2, 4);
+    S_ELECTRO_PRAD = WorkshopSettingReal("Electro Buff",                     "Electro Grenade Explosion Radius (8)", 8, 1, 20, 5);
     S_ELECTRO_PSPEED = WorkshopSettingReal("Electro Buff",                   "Electro Grenade Projectile Speed (25)", 25, 1, 50, 6);
     S_ELECTRO_PGRAV = WorkshopSettingReal("Electro Buff",                    "Electro Grenade Projecitile Gravity (-15)", -15, -100, 100, 7);
     S_ELECTRO_PDELTA = WorkshopSettingReal("Electro Buff",                   "Electro Grenade Projectile Delta (Vertical Offset) (0.1)", 0.1, -1, 1, 8);
@@ -128,17 +133,17 @@ rule: "[Main] :: Initial Global"
     S_BUFF_AMMO[7] = WorkshopSettingInteger("Arc Buff",                      "Arc Ammo (540)", 540, 1, 10000, 3);
     S_ARC_MOD = WorkshopSettingReal("Arc Buff",                              "Bounce Distance Divisor (2.5)", 2.5, 0.01, 10, 4);
 
-    s_spawn_buff[8] = WorkshopSettingToggle("Nebula Buff",                   "Spawn Nebula (On)", true, 1);
-    S_BUFF_CD[8] = WorkshopSettingInteger("Nebula Buff",                     "Nebula Spawn Time (125)", 125, 5, 600, 2);
-    S_BUFF_AMMO[8] = WorkshopSettingInteger("Nebula Buff",                   "Nubla Ammo", 100, 1, 1000, 3);
+    s_spawn_buff[8] = WorkshopSettingToggle("TBD Buff",                      "Spawn TBD Buff (On)", true, 1);
+    S_BUFF_CD[8] = WorkshopSettingInteger("TBD Buff",                        "TBD Spawn Time (125)", 125, 5, 600, 2);
+    S_BUFF_AMMO[8] = WorkshopSettingInteger("TBD Buff",                      "TBD Ammo", 100, 1, 1000, 3);
 
     s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "Spawn Volt (On)", true, 1);
     S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt Spawn Time (165)", 165, 5, 600, 2);
-    S_BUFF_AMMO[9] = WorkshopSettingReal("Volt Buff",                        "Volt Ammo (250)", 250, 1, 10000, 3);
+    S_BUFF_AMMO[9] = WorkshopSettingReal("Volt Buff",                        "Volt Ammo (150)", 150, 1, 10000, 3);
     S_MAX_VLT_SPREAD = WorkshopSettingReal("Volt Buff",                      "Volt Maximum Spread (Lower is Tighter) (20)", 20, 0, 100, 4) / 100;
     S_MAX_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Maximum Distance (100)", 100, 1, 300, 5);
-    S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (1)", 1, 0.5, 300, 6);
-    S_VLT_TIME = WorkshopSettingReal("Volt Buff",                            "Volt Overheat Time (5)", 5, 0.1, 10, 7);
+    S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (2)", 2, 1, 300, 6);
+    S_VLT_TIME = WorkshopSettingReal("Volt Buff",                            "Volt Overheat Time (3)", 3, 0.1, 10, 7);
 
     s_enable_m = WorkshopSettingToggle("Mutators",                           "Enable Mutators (On)", true, 1);
     s_rand_mcd = WorkshopSettingToggle("Mutators",                           "Randomize Relative Spawn Time (On)", true, 2);
@@ -146,17 +151,36 @@ rule: "[Main] :: Initial Global"
     S_M_CREATION = WorkshopSettingInteger("Mutators",                        "Mutator Creation Time (15)", 15, 1, 600, 4);
     S_M_DURATION = WorkshopSettingInteger("Mutators",                        "Mutator Duration (40)", 40, 5, 600, 5);
 
-    s_spawn_mut[6] = WorkshopSettingToggle("Mutators",                       "Spawn Denial (On)", true, 1);
+    s_spawn_mut[0] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Seer (On)", true, 0);
+    s_spawn_mut[1] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Dummy NYI (On)", true, 1);
+    s_spawn_mut[2] = WorkshopSettingToggle("Mutator Spawning",               "Spawn NYI (On)", true, 2);
+    s_spawn_mut[3] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Poison NYI (On)", true, 3);
+    s_spawn_mut[4] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Berserk (On)", true, 4);
+    s_spawn_mut[5] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Replicate NYI (On)", true, 5);
+    s_spawn_mut[6] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Denial (On)", true, 6);
+    s_spawn_mut[7] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Haste (On)", true, 7);
+    s_spawn_mut[8] = WorkshopSettingToggle("Mutator Spawning",               "Spawn Mirage NYI (On)", true, 8);
 
     # please do not remove any credit from this list unless you have completely changed the relevant contents
-    Number[] credit;
-    credit[0] = WorkshopSettingCombo("Credit",                               "Main Developer", 0, ["scort#11221"], 0);
-    credit[1] = WorkshopSettingCombo("Credit",                               "JP Localization", 0, ["saruyo"], 1);
-    credit[2] = WorkshopSettingCombo("Credit",                               "Air Drag", 0, ["T1mur4TR"], 2);
+    Number credit;
+    credit = WorkshopSettingCombo("Credit",                               "JP Localization", 0, ["saruyo"], 1);
+    credit = WorkshopSettingCombo("Credit",                               "Air Drag", 0, ["T1mur4TR"], 2);
 
     if (!s_buffs_enabled)
+    {
         for (Number i = 0; i < s_spawn_buff.Length; i++)
             s_spawn_buff[i] = false;
+    }
+
+    if (s_enable_m)
+    {
+        m_in = [];
+        for (Number i = 0; i < s_spawn_mut.Length; i++)
+        {
+            if (s_spawn_mut[i])
+                m_in = Append(m_in, i); // populate m_in with the indices of the mutators that are enabled
+        }
+    }
 }
 
 rule: "[Main] :: Start Match"
@@ -186,8 +210,7 @@ Event.OnPlayerJoin
     DisallowButton(player, Button.Ability1);
     DisallowButton(player, Button.Ability2);
 
-    if (S_HERO == 0)
-        SetAbilityResource(player, Button.SecondaryFire, 100);
+    SetAbilityResource(player, Button.SecondaryFire, 100);
 
     if (valid_map)
     {
@@ -195,26 +218,42 @@ Event.OnPlayerJoin
         CreateEffect(IsAlive() && has_mut ? all : null, Effect.BadAura, m_color[1], player, 0.5, EffectRev.VisibleToPositionRadiusAndColor);
     }
 
-    // check ballista and seer users and apply outlines to the new player
-    if (FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75).Length > 0)
-        StartForcingPlayerOutlines(player, FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 75), true, color_arr[4], OutlineType.Always);
-    if (m_usr != null && m_usr.m_enabled[0])
-        StartForcingPlayerOutlines(player, m_usr, true, m_color[1], OutlineType.Always);
-
     DisableGameModeHud();
     StartScalingPlayer(player, 0.80);
 
-    bhop_mult = 100;
-    bhop_speed = bhop_mult;
-    bhop_rate = S_BHOP_SPEED_RATE;
     delay = S_DELAY;
     has_buff = false;
     has_mut = false;
 }
 
+rule: "[Main] :: Player Dead"
+Event.OnDeath
+{
+    StopForcingPlayerOutlines(player, all);
+}
+
+rule: "[Main] :: Player Alive"
+Event.OngoingPlayer
+if (IsAlive())
+{
+    fuel = 1;
+    dodges = max_dodges;
+    // check ballista and seer users and apply outlines to the new player
+    if (FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 1).Length > 0)
+        StartForcingPlayerOutlines(player, FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 1), true, color_arr[4], OutlineType.Always);
+    if (m_usr != null && m_usr.m_enabled[0])
+        StartForcingPlayerOutlines(player, m_usr, true, m_color[1], OutlineType.Always);
+}
+
+// Since conditions are evaluated server side, `IsFiringPrimary()/IsFiringSecondary()` is the only condition that can make custom weapons while using default firing
+// However there is an issue where the condition is delayed depending on the map or server load, which causes shots to be offset caused by the weapons recoil
+// Because of this issue and without this workaround, shots will not be accurate to wherever the player is aiming upon the player pressing fire (may not be an issue in OW2)
+// An unfortunate consequence of this is that shots are now entirely based on network latency
+// But now since shots are now being entirely controlled server side, shots are no longer offset due to server load or a specific map being played
+// It works better than checking the player's aim position upon joining and adjusting the offset, and fixes a variety of issues relating to weird raycast issues without using hacky workarounds
 void FireWeapon(in Button button, in Number wait)
 {
-    // if (has_buff)
+    if (has_buff)
     {
         gun_pos = weapon_muzzle(EyePosition(), Facing());
         first_hp = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player, true);
@@ -222,7 +261,7 @@ void FireWeapon(in Button button, in Number wait)
 
     AllowButton(player, button);
     PressButton(player, button);
-    MinWait();
+    Wait(tickdur);
     DisallowButton(player, button);
     Wait(wait); // main fire rate delay, must not be lower than 0.5 for Cassidy and 0.7 (?) for Sojourn
 }
@@ -243,7 +282,7 @@ if (first_hp != null)
     DestroyEffect(buff_trail);
 }
 
-rule: "[Main] :: Cassidy : Server Fire"
+rule: "[Main] :: Server Fire"
 Event.OngoingPlayer
 Player.Cassidy
 if (!pri_override)
@@ -278,31 +317,27 @@ if (IsPrimaryHeld())
 // if (AbilityResource(player, Button.SecondaryFire) > 0)
 // {
 //     SetAbilityResource(player, Button.SecondaryFire, 100);
-//     Wait(0.5);
+//     Wait(0.05);
 //     LoopIfConditionIsTrue();
 // }
 
-rule: "[Main] :: Info Toggle"
+rule: "[Main] :: Info Hotkey"
 Event.OngoingPlayer
 if (IsMeleeHeld())
 {
-    WaitIfTrue(0.5);
-
-    info = !info;
-    if (info)
-        DisableTextChat(player);
-    else
-        EnableTextChat(player);
+    info = true;
+    DisableTextChat(player);
+    WaitUntil(!IsMeleeHeld(), 999999);
+    info = false;
+    EnableTextChat(player);
 }
 
 rule: "[Main] :: Automatically Force Hero"
 Event.OngoingPlayer
 if (!HasSpawned())
 {
-    if (S_HERO == 0)
-        ForcePlayerHero(player, Hero.Cassidy); // todo: change this to sojourn once OW2 gets workshop support
-    else
-        ForcePlayerHero(player, Hero.Cassidy);
+    // TODO: change this to sojourn once OW2 is released and OSTW gets workshop support
+    ForcePlayerHero(player, Hero.Cassidy);
 
     Wait(1);
     LoopIfConditionIsTrue();
