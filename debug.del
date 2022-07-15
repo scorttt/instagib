@@ -8,7 +8,7 @@ rule: "Global Debug"
 {
     EnableInspectorRecording();
 
-    CreateHudText(all, null, <"<0>  DEBUG FILE IMPORTED <0>", IconString(Icon.Warning)>, null, Location.Right, 0, SubheaderColor: Color.Yellow);
+    CreateHudText(all, null, <"<0>  DEBUG FILE IMPORTED  <0>", IconString(Icon.Warning)>, null, Location.Right, 0, SubheaderColor: Color.Yellow);
 
     s_dbg_fastspawn[0] = WorkshopSettingToggle("General",                 "Fast Buff Spawn", false, -12);
     s_dbg_fastspawn[1] = WorkshopSettingToggle("General",                 "Fast Mutator Spawn", false, -11);
@@ -77,10 +77,12 @@ Event.OnPlayerJoin
         if (buff_debug[i])
         {
             has_buff = true;
-            buff_held = i;
             buff_enabled[i] = true;
-            buff_color = color_arr[i];
             buff_ammo[i] = S_BUFF_AMMO[i];
+            buff_str[0] = LANG_STR[0][i];
+            buff_str[1] = b_ico[i];
+            buff_held = i;
+            buff_color = color_arr[i];
 
             if (i == 9 || i == 7)
                 pri_override = true;
