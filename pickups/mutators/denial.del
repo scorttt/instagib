@@ -1,18 +1,21 @@
 import "../../main.del";
 import ".mmain.del";
+playervar Any[] den_eff;
 
 rule: "[Mutator] :: Denial : Set Status"
 Event.OngoingPlayer
-if (has_mut)
 if (m_enabled[6])
 {
     LogToInspector(<"Denial given to <0>", m_usr>);
     SetStatus(player, null, Status.Unkillable, 999999999);
+    CreateEffect(all, Effect.EchoCloningEffect, Color.White, player);
+    den_eff[0] = LastCreatedEntity();
+    CreateEffect(player, Effect.BaptisteImmortalityFieldProtectedSound, Color.White, player, 100);
+    den_eff[1] = LastCreatedEntity();
 }
 
 rule : "[Mutator] :: Denial : Damage Taken: Remove Status"
 Event.OnDamageTaken
-if (has_mut)
 if (m_enabled[6])
 {
     LogToInspector(<"Denial removed from <0>", m_usr>);

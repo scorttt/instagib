@@ -1,0 +1,58 @@
+import "../../main.del";
+import ".mmain.del";
+
+playervar Boolean slamming; // if the player is slamming (lasts a bit longer than the slam actually occurs)
+
+rule: "[Mutator] :: Haste : Set Status"
+Event.OngoingPlayer
+if (m_enabled[7])
+{
+    max_dodges = S_DODGE_AMT + 4;
+    fuel = 1;
+    bhop_mult = 175;
+    bhop_rate = S_BHOP_SPEED_RATE * 1.75;
+    bhop_speed += 75;
+    SetMoveSpeed(player, bhop_speed);
+}
+
+rule: "[Mutator] :: Haste : Slam"
+Event.OngoingPlayer
+if (m_enabled[7])
+if (IsInAir())
+if (AltitudeOf() > 1)
+if (IsCrouchHeld())
+{
+    slamming = true;
+    StopJetpack();
+    ForceThrottle(player, 0, 0, 0, 0, 0, 0);
+    SetGravity(player, 1000000);
+    WaitUntil(IsOnGround() || IsDead(), 99999);
+    SetGravity(player, 100);
+    StopForcingThrottle();
+
+    if (IsAlive())
+    {
+        PlayEffect(all, PlayEffect.RingExplosion, Color.Gray, PositionOf(), 15);
+        PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf(), 15);
+
+        Any[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(EyePosition(), Curr()) && DistanceBetween(Curr(), PositionOf()) <= 15);
+        for (Number i = 0; i < players.Length; i++)
+        {
+            ApplyImpulse(players[i], DirectionTowards(PositionOf(), players[i] + Vector(0, 5, 0)), 17, Relative.ToWorld, ContraryMotion.Incorporate);
+        }
+
+        Wait(0.25);
+        slamming = false;
+
+        if (bal_chrg != 1)
+        {
+            StartForcingPlayerOutlines(players, player, true, Color.White, OutlineType.Always);
+            Wait(3);
+            StopForcingPlayerOutlines(players, player);
+        }
+    }
+    else 
+    {
+        slamming = false;
+    }
+}

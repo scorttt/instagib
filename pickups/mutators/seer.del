@@ -3,7 +3,6 @@ import ".mmain.del";
 
 rule: "[Mutator] :: Seer : Set Status"
 Event.OngoingPlayer
-if (has_mut)
 if (m_enabled[0])
 {
     LogToInspector(<"Seer given to <0>", m_usr>);

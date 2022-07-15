@@ -59,9 +59,10 @@ if (can_pickup_m)
 if (DistanceBetween(m_pos, PositionOf() + Up()) < S_PICKUP_RAD)
 if (IsAlive())
 {
-    SmallMessage(player, m_str);
+    SmallMessage(player, <"<0> <1>", m_ico, m_str>,);
 
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], m_pos, 1);
+    PlayEffect(all, PlayEffect.BuffExplosionSound, null, m_pos, 200);
     can_pickup_m = false;
     m_inworld = false;
     has_mut = true;
@@ -75,9 +76,7 @@ if (IsAlive())
 void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
 {
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], player, 1);
-
     has_mut = false;
-    m_usr = null;
     m_in -= chosen_mut; // remove the chosen mutator from the array
 
     SetMutatorPosition();
@@ -109,19 +108,29 @@ void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
                     inf_ammo = false;
                     bhop_mult = 100;
                     bhop_rate = S_BHOP_SPEED_RATE;
-                    bhop_speed = bhop_speed - 50;
+                    bhop_speed -= 50;
                     SetMoveSpeed(player, bhop_speed);
-
                     break;
                 case (5):
                     break;
+                case (6):
+                    if (EntityExists(den_eff))
+                        DestroyEffect(den_eff);
+                    break;
                 case (7):
+                    max_dodges = S_DODGE_AMT;
+                    bhop_mult = 100;
+                    bhop_rate = S_BHOP_SPEED_RATE;
+                    bhop_speed -= 75;
+                    SetMoveSpeed(player, bhop_speed);
                     break;
                 case (8):
                     break;
             }
         }
     }
+
+    m_usr = null;
 }
 
 rule: "[Mutator] :: Remove Mutator"
@@ -129,6 +138,7 @@ Event.OngoingPlayer
 if (m_tleft == 0 || IsDead())
 if (has_mut)
 {
+    SmallMessage(player, StringReplace(LANG_STR[10][5], "*", m_str));
     RemoveMutator();
 }
 
@@ -190,7 +200,7 @@ void SetMutatorPosition() "[Mutator] :: Set new position and reset time"
             case (7):
                 m_color[0] = Color.Purple;
                 m_color[1] = Color.White;
-                m_ico = AbilityIconString(Hero.Genji, Button.Jump);
+                m_ico = AbilityIconString(Hero.Soldier76, Button.Ability1);
                 m_str = LANG_STR[2][7];
                 break;
             case (8):
