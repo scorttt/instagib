@@ -1,14 +1,9 @@
 import "../../main.del";
 import ".bmain.del";
 
-globalvar Number S_NEB_RADIUS;
-globalvar Number S_NEB_TIME;
-playervar Vector neb_hit;
-playervar Any[] neb_effects;
+disabled rule: "---------------- TBD ----------------"{}
 
-disabled rule: "---------------- Nebula ----------------"{}
-
-rule: "[Buff] :: Nebula Fire Action"
+rule: "[Buff] :: TBD Fire Action"
 Event.OngoingPlayer
 if (buff_enabled[8])
 if (IsFiringPrimary())

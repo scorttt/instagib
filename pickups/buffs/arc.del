@@ -21,7 +21,7 @@ if (!HasStatus(player, Status.PhasedOut))
     WaitIfTrue(0.05); // brief hold
     Boolean hit = false;
     Vector arc_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * 300, AllLivingPlayers(), player);
-    MinWait();
+    Wait(tickdur);
 
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), arc_hit, color_arr[7], EffectRev.VisibleToPositionRadiusAndColor);
     arc_effects[0] = LastCreatedEntity();
@@ -53,10 +53,10 @@ if (!HasStatus(player, Status.PhasedOut))
         }
 
         Kill(arc_player, player);
-        MinWait();
+        Wait(tickdur);
     }
 
-    MinWait(); 
+    Wait(tickdur);
 
     DestroyEffect(arc_effects);
     hit = false;

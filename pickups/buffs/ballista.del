@@ -3,6 +3,7 @@ import ".bmain.del";
 
 globalvar Number S_BAL_CRATE;
 globalvar Number S_BAL_SIZE;
+globalvar Number S_BAL_MIN_CHRG;
 playervar Number bal_chrg;
 playervar Boolean bal_can_charge;
 playervar Number chrg_rate;
@@ -18,13 +19,13 @@ rule: "[Buff] :: Ballista : Charge"
 Event.OngoingPlayer
 if (buff_enabled[4])
 if (bal_can_charge)
-if (bal_chrg < 100)
-if (bhopping || IsInAir())
+if (bal_chrg < 1)
+// if (bhopping || IsInAir())
 if (IsAlive())
 {
-    chrg_rate = S_BAL_CRATE / SpeedOf() * 5;
+    chrg_rate = bhopping || IsInAir() ? Min(S_BAL_CRATE / SpeedOf() * 5, 90) : 90;
 
-    AddOverTime(bal_chrg, chrg_rate, 0, 100, 0.048);
+    AddOverTime(bal_chrg, chrg_rate, 0, 1, 0.048);
 
     Wait(0.048);
     LoopIfConditionIsTrue();
@@ -32,7 +33,7 @@ if (IsAlive())
 
 rule: "[Buff] :: Ballista : Wallhacks"
 Event.OngoingPlayer
-if (bal_chrg >= 75)
+if (bal_chrg == 1)
 if (!m_enabled[0])
 {
     StopForcingPlayerOutlines(all, player);
@@ -42,6 +43,7 @@ if (!m_enabled[0])
 rule: "[Buff] :: Ballista : Fire"
 Event.OngoingPlayer
 if (buff_enabled[4])
+if (bal_chrg >= S_BAL_MIN_CHRG)
 if (IsAlive())
 if (IsFiringPrimary())
 {
@@ -50,11 +52,11 @@ if (IsFiringPrimary())
     if (!inf_ammo)
         buff_ammo[4]--;
 
-    ApplyImpulse(player, Vector(0, 0.3, 0) + Facing() * -1, Max(bal_chrg / 100 * 40, 15), Relative.ToWorld, ContraryMotion.Cancel);
+    ApplyImpulse(player, Vector(0, 0.3, 0) + Facing() * -1, Max(bal_chrg * 40, 15), Relative.ToWorld, ContraryMotion.Cancel);
 
     Vector eye_pos = EyePosition();
     Vector facing = Facing();
-    Number final_size = Max(bal_chrg / 100 * S_BAL_SIZE, 1); // minimum size
+    Number final_size = bal_chrg * S_BAL_SIZE;
 
     BallistaReset();
 
@@ -74,7 +76,7 @@ if (IsFiringPrimary())
         for (Number j = 0; j < players.Length; j++)
             Kill(players[j], player);
 
-        MinWait(); // delay for each explosion, necessary otherwise the server will lag upon firing and adds delay between each explosion for a total of 3.2 seconds on OW1 (1.6 on ow2)
+        Wait(tickdur); // delay for each explosion, necessary otherwise the server will lag upon firing and adds delay between each explosion for a total of 3.2 seconds on OW1 (1.6 on ow2)
     }
 
     // waits again before allowing the ballista to be charged again

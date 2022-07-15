@@ -37,21 +37,21 @@ if (!HasStatus(player, Status.PhasedOut))
 
     WaitIfTrue(0.05); // brief hold
     Vector vlt_hit = RayCastHitPosition(EyePosition(), EyePosition() + Facing() * vlt_dist, AllLivingPlayers(), player);
-    MinWait();
+    Wait(tickdur);
 
     CreateBeamEffect(all, BeamType.BadBeam, weapon_muzzle(EyePosition(), Facing()), vlt_hit, color_arr[9], EffectRev.VisibleToPositionRadiusAndColor);
     vlt_effects[0] = LastCreatedEntity();
     CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
     vlt_effects[1] = LastCreatedEntity();
-    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 10 + vlt_temp, Reevaluation: EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 50 + vlt_temp, Reevaluation: EffectRev.VisibleToPositionRadiusAndColor);
     vlt_effects[2] = LastCreatedEntity();
     CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, vlt_hit, 100);
     vlt_effects[3] = LastCreatedEntity();
 
     while (buff_enabled[9] && !overheat && IsPrimaryHeld() && IsAlive() && !HasStatus(player, Status.PhasedOut))
     {
-        AddOverTime(vlt_temp, S_VLT_TIME, 0, 100, 0.016);
-        SubtractOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.016);
+        AddOverTime(vlt_temp, S_VLT_TIME, 0, 100, tickdur);
+        SubtractOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, tickdur);
 
         // slow the rate of ammo depletion the longer fire is held
         if (!inf_ammo)
@@ -74,7 +74,7 @@ if (!HasStatus(player, Status.PhasedOut))
         }
 
         Kill(vlt_player, player);
-        MinWait();
+        Wait(tickdur);
 
         if (vlt_temp >= 100)
         {
@@ -87,7 +87,7 @@ if (!HasStatus(player, Status.PhasedOut))
         }
     }
 
-    MinWait();
+    Wait(tickdur);
     DestroyEffect(vlt_effects[0]);
     DestroyEffect(vlt_effects[1]);
     DestroyEffect(vlt_effects[2]);

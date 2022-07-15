@@ -24,7 +24,7 @@ rule: "[Buff] :: Electro : Init"
     WaitUntil(S_ELECTRO_PSPEED != 0, 1); // check to prevent projectile fuckery if i copy workshop code with this file focused
     proj_grav_vec = Vector(0, S_ELECTRO_PGRAV, 0);
     PROJ_SIZE = (0.25 + (S_ELECTRO_PSPEED / 100));
-    T_PDELAY = S_ELECTRO_PDELAY * 4;
+    T_PDELAY = Min(S_ELECTRO_PDELAY * 4, 3);
 }
 
 rule: "[Buff] :: Electro : Action - Primary Fire"
@@ -102,12 +102,14 @@ if (IsAlive())
             PlayEffect(all, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, proj_pos, 45);
             PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 45);
             hit_surface = true;
+            proj_grav_vec = proj_grav_vec * -1; // flip gravity vector after each hit
         }
 
         Wait(tickdur);
     }
 
     hit_surface = false;
+    proj_grav_vec = Vector(0, S_ELECTRO_PGRAV, 0);
     t_airtime = 0;
     airtime = 0;
     Kill(FilteredArray(RemoveFromArray(AllLivingPlayers(), player), DistanceBetween(Curr(), proj_pos) <= S_ELECTRO_PRAD && IsInLineOfSight(Curr(), proj_pos)), player);
@@ -122,6 +124,6 @@ if (IsAlive())
     PlayEffect(all, PlayEffect.EchoStickyBombExplosionSound, Color.White, proj_pos, 100);
     DestroyEffect(effect);
 
-    Wait(0.25);
+    Wait(0.5);
     LoopIfConditionIsTrue();
 }
