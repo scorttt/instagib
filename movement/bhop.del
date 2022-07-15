@@ -70,6 +70,7 @@ rule: "[Bhop] :: Stop chasing"
 Event.OngoingPlayer
 if (bhopping || bhop_speed == S_BHOP_MAX_SPEED) 
 if (HorizontalSpeedOf() < min_speed)
+if (!slamming)
 {
     ResetSpeed();
 }
