@@ -2,6 +2,7 @@ import "../../main.del";
 import ".mmain.del";
 
 playervar Boolean slamming; // if the player is slamming (lasts a bit longer than the slam actually occurs)
+playervar Any[] slammed_players; // array of players who got hit by a slam
 
 rule: "[Mutator] :: Haste : Set Status"
 Event.OngoingPlayer
@@ -35,21 +36,17 @@ if (IsCrouchHeld())
         PlayEffect(all, PlayEffect.RingExplosion, Color.Gray, PositionOf(), 15);
         PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf(), 15);
 
-        Any[] players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(EyePosition(), Curr()) && DistanceBetween(Curr(), PositionOf()) <= 15);
-        for (Number i = 0; i < players.Length; i++)
+        slammed_players = FilteredArray(RemoveFromArray(AllLivingPlayers(), player), IsInLineOfSight(EyePosition(), Curr()) && DistanceBetween(Curr(), PositionOf()) <= 15);
+
+        for (Number i = 0; i < slammed_players.Length; i++)
         {
-            ApplyImpulse(players[i], DirectionTowards(PositionOf(), players[i] + Vector(0, 5, 0)), 17, Relative.ToWorld, ContraryMotion.Incorporate);
+            ApplyImpulse(slammed_players[i], DirectionTowards(PositionOf(), slammed_players[i] + Vector(0, 10, 0)), 20, Relative.ToWorld, ContraryMotion.Incorporate);
+            
+            if (bal_chrg != 1)
+                StartForcingPlayerOutlines(slammed_players[i], player, true, Color.White, OutlineType.Always);
         }
 
-        Wait(0.25);
         slamming = false;
-
-        if (bal_chrg != 1)
-        {
-            StartForcingPlayerOutlines(players, player, true, Color.White, OutlineType.Always);
-            Wait(3);
-            StopForcingPlayerOutlines(players, player);
-        }
     }
     else 
     {

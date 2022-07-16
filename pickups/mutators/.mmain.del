@@ -92,7 +92,7 @@ void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
             switch (i)
             {
                 case (0):
-                    if (bal_chrg < 75)
+                    if (bal_chrg < 1)
                         StopForcingPlayerOutlines(all, player);
                     else 
                         StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
@@ -114,15 +114,20 @@ void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
                 case (5):
                     break;
                 case (6):
-                    if (EntityExists(den_eff))
-                        DestroyEffect(den_eff);
+                    DestroyEffect(den_eff);
                     break;
                 case (7):
+                    if (bal_chrg < 1)
+                        StopForcingPlayerOutlines(all, player);
+                    else 
+                        StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
+
                     max_dodges = S_DODGE_AMT;
                     bhop_mult = 100;
                     bhop_rate = S_BHOP_SPEED_RATE;
                     bhop_speed -= 75;
                     SetMoveSpeed(player, bhop_speed);
+
                     break;
                 case (8):
                     break;
