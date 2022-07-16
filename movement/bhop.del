@@ -84,11 +84,12 @@ if (bhop_speed > bhop_mult)
     ResetSpeed();
 }
 
-rule: "[Bhop] :: Air Drag Reduction (T1mur4TR)"
+rule: "[Bhop] :: Air Drag Reduction"
 Event.OngoingPlayer
 if (bhopping)
 if (IsInAir())
 {
+    # Credit: T1mur4TR
     ApplyImpulse(player, VelocityOf() * Vector(1, 0, 1), 30.792 / 1000 * Max(HorizontalSpeedOf() - 6.5, 0), Relative.ToWorld, ContraryMotion.Incorporate);
 
     // this rule fucks the server load which is why there is a longer wait than usual
