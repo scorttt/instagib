@@ -7,10 +7,7 @@ rule: "[Main] :: General HUD Text"
     CreateHudText(all, null, <"<0>:<1><2>", Floor(MatchTime() / 60 % 60), 
                                 MatchTime() % 60 < 10 ? "0" : "", 
                                 Floor(MatchTime() % 60)>,
-    null, Location.Top, 0.1);
-
-    // spacing
-    CreateHudText(all, null, null, " \n\n\n\n\n\n", Location.Top, 0.3);
+    " \n\n\n\n\n\n\n\n", Location.Top, 0.1);
 
     // help text
     if (s_sec_enabled || s_bhop_enabled || s_dodge_enabled || s_buffs_enabled || FilteredArray(s_spawn_buff, true).Length > 0)
@@ -60,7 +57,15 @@ rule: "[Main] :: General HUD Text"
         LANG_STR[7][4],
         StringReplace(LANG_STR[8][3], "*", InputBindingString(Button.Jump)), Location.Left, 19, Color.Orange, Color.Orange);
 
-        CreateProgressBarHudText(local, local.fuel * 100, null, Location.Top, 0.2, CustomColor(255, 100, 0, 255), Color.White, ProgressBarHudEvaluation.VisibleToValuesAndColor);
+        // jetpack fuel, not a hud text since i would have to adjust ammo text spacing which frequently changes in gameplay
+        CreateProgressBarInWorldText(local, local.fuel * 100, LANG_STR[7][5], 
+        Update(EyePosition(local) + 100 * 
+            // (0 * WorldVectorOf(Right(), local, LocalVector.Rotation) + // X
+            (0 + // X
+            (-2 // Y
+            - 0.200) * DirectionFromAngles(HorizontalAngleFromDirection(Facing(local)), VerticalAngleFromDirection(Facing(local)) - 90) +
+            3 * Facing(local))), 
+        0, Clipping.DoNotClip, CustomColor(255, 100, 0, 255), CustomColor(255, 100, 0, 255), ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
     }
 }
 
@@ -119,7 +124,9 @@ if (s_buffs_enabled)
         // in progress effects
         CreateEffect(all, Effect.GoodAura, color_arr[Buff.Wallbang], buff_pos[Buff.Wallbang], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
         CreateEffect(buff_cd[Buff.Wallbang] != 0 ? all : null, Effect.Sphere, color_arr[Buff.Wallbang], buff_pos[Buff.Wallbang], wallbang_pb * 0.0045, EffectRev.VisibleToPositionAndRadius);
-        CreateProgressBarInWorldText(buff_cd[Buff.Wallbang] != 0 ? all : null, wallbang_pb, null, buff_pos[Buff.Wallbang] + Vector(0, wallbang_pb * 0.0045, 0), 0, Clipping.ClipAgainstSurfaces, color_arr[Buff.Wallbang], Color.White, ProgressBarWorldEvaluation.VisibleToPositionAndValues);
+        CreateProgressBarInWorldText(buff_cd[Buff.Wallbang] != 0 ? all : null, wallbang_pb, null, 
+        buff_pos[Buff.Wallbang] + Vector(0, wallbang_pb * 0.0045, 0), 0, 
+        Clipping.ClipAgainstSurfaces, color_arr[Buff.Wallbang], Color.White, ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
     }
 
     // ricochet
