@@ -478,11 +478,5 @@ rule: "[Main] :: Pickup Init"
                 buff_cd[i] = S_BUFF_CD[i];
             }
         }
-        
-        if (s_enable_m)
-        {
-            SetMutatorPosition();
-            StartMutatorTimer();
-        }
     }
 }

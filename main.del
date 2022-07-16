@@ -78,8 +78,8 @@ rule: "[Main] :: Initial Global"
     S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "Speed gain rate (13.5)", 13.5, 1, 100, 3);
 
     s_jetpack_enabled = WorkshopSettingToggle("Jetpack",                     "Enable Jetpack (On)", true, 1);
-    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (1.5)", 1.5, 0.1, 1000, 2);
-    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Refill Time (5)", 5, 0.1, 1000, 3);
+    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (2.5)", 2.5, 0.1, 1000, 2);
+    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Refill Rate (Higher is Slower) (10)", 10, 0.1, 1000, 3);
 
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
@@ -163,8 +163,7 @@ rule: "[Main] :: Initial Global"
 
     # please do not remove any credit from this list unless you have completely changed the relevant contents
     Number credit;
-    credit = WorkshopSettingCombo("Credit",                               "JP Localization", 0, ["saruyo"], 1);
-    credit = WorkshopSettingCombo("Credit",                               "Air Drag", 0, ["T1mur4TR"], 2);
+    credit = WorkshopSettingCombo("Localization Credit",                               "JP / 日本語", 0, ["saruyo"], 1);
 
     if (!s_buffs_enabled)
     {
@@ -192,12 +191,21 @@ if (all_living.Length >= 1)
     SetMatchTime(S_MATCH_TIME_LIMIT);
     match_started = true;
 
-    if (valid_map && s_buffs_enabled)
+    if (valid_map)
     {
-        for (Number i = 0; i < S_BUFF_CD.Length; i++)
+        if (s_buffs_enabled)
         {
-            buff_i = i;
-            BuffCooldown();
+            for (Number i = 0; i < S_BUFF_CD.Length; i++)
+            {
+                buff_i = i;
+                BuffCooldown();
+            }
+        }
+
+        if (s_enable_m)
+        {
+            SetMutatorPosition();
+            StartMutatorTimer();
         }
     }
 }
@@ -272,7 +280,7 @@ if (has_buff)
 if (first_hp != null)
 {
     if (DistanceBetween(EyePosition(), first_hp) < 300)
-        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[buff_held], first_hp, 0.5);
+        PlayEffect(all, PlayEffect.GoodExplosion, color_arr[buff_held], first_hp, 0.25);
 
     CreateBeamEffect(all, BeamType.BadBeam, gun_pos, first_hp, color_arr[buff_held], EffectRev.None);
     buff_trail = LastCreatedEntity();
