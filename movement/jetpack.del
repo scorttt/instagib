@@ -3,9 +3,12 @@ import "../main.del";
 globalvar Boolean s_jetpack_enabled;
 globalvar Number S_FUEL_DEP;
 globalvar Number S_FUEL_REF;
+playervar Any jp_eff;
 playervar Boolean can_fly;
 playervar Boolean is_flying;
 playervar Number fuel;
+
+disabled rule: "---------------- Jetpack ----------------"{}
 
 rule: "[Jetpack] :: Init"
 Event.OnPlayerJoin
@@ -48,6 +51,8 @@ if (IsAlive())
     SetGravity(player, 153.714);
     SetMoveSpeed(player, 10000);
     ForceThrottle(player, 0, 0, 0, 0, 0, 0);
+    CreateEffect(all, Effect.EchoFocusingBeamSound, Color.White, PositionOf(), 100);
+    jp_eff = LastCreatedEntity();
 
     while (is_flying)
     {
@@ -74,6 +79,7 @@ void StopJetpack() playervar "[Jetpack] :: Stop Sub"
         can_fly = false;
 
     is_flying = false;
+    DestroyEffect(jp_eff);
     StopAccelerating();
     SetGravity(player, 100);
     SetMoveSpeed(player, bhop_speed);
@@ -87,8 +93,8 @@ if (!is_flying)
 {
     while (fuel < 1 && !is_flying)
     {
-        AddOverTime(fuel, S_FUEL_REF, 0, 1, 0.032);
+        AddOverTime(fuel, S_FUEL_REF / (1.75 - fuel), 0, 1, 0.032);
+
         Wait(0.032);
     }
 }
-
