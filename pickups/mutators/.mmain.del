@@ -75,12 +75,10 @@ if (IsAlive())
 
 void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
 {
+    SmallMessage(player, StringReplace(LANG_STR[10][5], "*", m_str));
     PlayEffect(all, PlayEffect.BadPickupEffect, m_color[0], player, 1);
     has_mut = false;
     m_in -= chosen_mut; // remove the chosen mutator from the array
-
-    SetMutatorPosition();
-    StartMutatorTimer();
 
     for (Number i = 0; i < 9; i++) // brute force (and ugly) way to remove the mutator
     {
@@ -136,6 +134,11 @@ void RemoveMutator() playervar "[Mutator] :: Remove Mutator"
     }
 
     m_usr = null;
+
+    MinWait();
+
+    SetMutatorPosition();
+    StartMutatorTimer();
 }
 
 rule: "[Mutator] :: Remove Mutator"
@@ -143,7 +146,6 @@ Event.OngoingPlayer
 if (m_tleft == 0 || IsDead())
 if (has_mut)
 {
-    SmallMessage(player, StringReplace(LANG_STR[10][5], "*", m_str));
     RemoveMutator();
 }
 
