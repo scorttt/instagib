@@ -58,14 +58,21 @@ rule: "[Main] :: General HUD Text"
         StringReplace(LANG_STR[8][3], "*", InputBindingString(Button.Jump)), Location.Left, 19, Color.Orange, Color.Orange);
 
         // jetpack fuel, not a hud text since i would have to adjust ammo text spacing which frequently changes in gameplay
-        CreateProgressBarInWorldText(local, local.fuel * 100, LANG_STR[7][5], 
+        CreateProgressBarInWorldText(local, local.fuel * 100, 
+        LANG_STR[7][5],
         Update(EyePosition(local) + 100 * 
             // (0 * WorldVectorOf(Right(), local, LocalVector.Rotation) + // X
             (0 + // X
             (-2 // Y
             - 0.200) * DirectionFromAngles(HorizontalAngleFromDirection(Facing(local)), VerticalAngleFromDirection(Facing(local)) - 90) +
             3 * Facing(local))), 
-        0, Clipping.DoNotClip, CustomColor(255, 100, 0, 255), CustomColor(255, 100, 0, 255), ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
+        0, Clipping.DoNotClip, 
+        local.fuel > 0.5 
+            ? CustomColor(255, 100, 0, 255) 
+            : CustomColor(255, PingPong(1000, 100), 0, 255), 
+
+        CustomColor(255, 100, 0, 255),
+        ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
     }
 }
 

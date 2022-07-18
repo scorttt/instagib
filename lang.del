@@ -76,7 +76,7 @@ if (S_LANG == 0)
                    "Blaster", 
                    "Slide",
                    "Jetpack",
-                   "Jetpack Fuel"];
+                   "Fuel"];
 
     LANG_STR[8] = ["Holding * while moving will allow you to gain speed", 
                    "Press * to fire a projectile that knocks back players", 
@@ -162,7 +162,7 @@ if (S_LANG == 1)
                    "ブラスター", 
                    "滑走",
                    "ジェットパック",
-                   "ジェットパックの燃料"];
+                   "燃料"];
 
     LANG_STR[8] = ["*",
                    "*", 
