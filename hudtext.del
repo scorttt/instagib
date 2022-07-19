@@ -67,9 +67,9 @@ rule: "[Main] :: General HUD Text"
             - 0.200) * DirectionFromAngles(HorizontalAngleFromDirection(Facing(local)), VerticalAngleFromDirection(Facing(local)) - 90) +
             3 * Facing(local))), 
         0, Clipping.DoNotClip, 
-        local.fuel > 0.5 
-            ? CustomColor(255, 100, 0, 255) 
-            : CustomColor(255, PingPong(1000, 100), 0, 255), 
+        local.is_flying
+            ? CustomColor(255, PingPong(1500, 100), 0, 255)
+            : CustomColor(255, 100, 0, 255), 
 
         CustomColor(255, 100, 0, 255),
         ProgressBarWorldEvaluation.VisibleToPositionValuesAndColor);
