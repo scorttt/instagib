@@ -32,7 +32,7 @@ if (S_LANG == 0)
                    "*: Bullets ricochet off surfaces",
                    "*: Spread shots",
                    "*: Bullets split apart into multiple ricocheting bullets after hitting a surface",
-                   "*: High powered beam that ignores all surfaces",
+                   <"*: High powered beam that ignores all surfaces, requires <0>% charge to fire", Floor(S_BAL_MIN_CHRG * 100)>,
                    "*: Shots can create a chain reaction killing any nearby players from the victims",
                    "*: Explosive shots",
                    "* (Hold): Long range consistent reflective laser",
