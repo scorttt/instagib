@@ -78,8 +78,8 @@ rule: "[Main] :: Initial Global"
     S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "Speed gain rate (13.5)", 13.5, 1, 100, 3);
 
     s_jetpack_enabled = WorkshopSettingToggle("Jetpack",                     "Enable Jetpack (On)", true, 1);
-    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (2.5)", 2.5, 0.1, 1000, 2);
-    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Refill Rate (Higher is Slower) (12)", 12, 0.1, 1000, 3);
+    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (2)", 2.5, 0.1, 1000, 2);
+    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Refill Rate (Higher is Slower) (4.5)", 4.5, 0.1, 1000, 3);
 
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
