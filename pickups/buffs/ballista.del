@@ -4,6 +4,8 @@ import ".bmain.del";
 globalvar Number S_BAL_CRATE;
 globalvar Number S_BAL_SIZE;
 globalvar Number S_BAL_MIN_CHRG;
+globalvar Boolean bal_walls;
+globalvar Player[] bal_wh_players;
 playervar Number bal_chrg;
 playervar Boolean bal_can_charge;
 playervar Number chrg_rate;
@@ -38,6 +40,8 @@ if (!m_enabled[0])
 {
     StopForcingPlayerOutlines(all, player);
     StartForcingPlayerOutlines(all, player, true, color_arr[4], OutlineType.Always);
+    bal_walls = true;
+    bal_wh_players = bal_wh_players + player; // append the player to bal_wh_players
 }
 
 rule: "[Buff] :: Ballista : Fire"
@@ -86,7 +90,11 @@ if (IsFiringPrimary())
 
 void BallistaReset() playervar "[Buff] :: Ballista : Reset"
 {
+    bal_wh_players = bal_wh_players - player; // remove the player from bal_wh_players array
     bal_chrg = 0;
+
+    if (bal_wh_players.Length == 0)
+        bal_walls = false;
 
     if (!m_enabled[0])
         StopForcingPlayerOutlines(all, player);

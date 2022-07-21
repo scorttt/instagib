@@ -29,6 +29,8 @@
           "Movement Speed": 135,
           "No Ammunition Requirement": true,
           "Quick Melee": false,
+          "Combat Roll": false,
+          "Flashbang": false,
           "Secondary Fire": false,
           "Ultimate Ability (Deadeye)": false
         }

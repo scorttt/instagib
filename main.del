@@ -78,8 +78,8 @@ rule: "[Main] :: Initial Global"
     S_BHOP_SPEED_RATE = WorkshopSettingReal("Bunny Hopping",                 "Speed gain rate (13.5)", 13.5, 1, 100, 3);
 
     s_jetpack_enabled = WorkshopSettingToggle("Jetpack",                     "Enable Jetpack (On)", true, 1);
-    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (2)", 2.5, 0.1, 1000, 2);
-    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Refill Rate (Higher is Slower) (4.5)", 4.5, 0.1, 1000, 3);
+    S_FUEL_DEP = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Full Depletion Time (2)", 2, 0.1, 1000, 2);
+    S_FUEL_REF = WorkshopSettingReal("Jetpack",                              "Jetpack Fuel Refill Rate (Higher is Slower) (3.5)", 3.5, 0.1, 1000, 3);
 
     s_buffs_enabled = WorkshopSettingToggle("Buffs",                         "Enable Buffs (On)", true, 1);
     s_rand_buff_pos = WorkshopSettingToggle("Buffs",                         "Randomize Buff Locations (On)", true, 2);
@@ -213,11 +213,9 @@ if (all_living.Length >= 1)
 rule: "[Main] :: Player Join/Init"
 Event.OnPlayerJoin
 {
-    DisallowButton(player, Button.PrimaryFire);
-    DisallowButton(player, Button.SecondaryFire);
-    DisallowButton(player, Button.Ability1);
-    DisallowButton(player, Button.Ability2);
+    DisallowButton(player, Button.PrimaryFire); // TODO: remove this line in ow2
 
+    DisallowButton(player, Button.SecondaryFire);
     SetAbilityResource(player, Button.SecondaryFire, 100);
 
     if (valid_map)
@@ -247,9 +245,9 @@ if (IsAlive())
     fuel = 1;
     dodges = max_dodges;
     // check ballista and seer users and apply outlines to the new player
-    if (FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 1).Length > 0)
-        StartForcingPlayerOutlines(player, FilteredArray(all, Curr().buff_enabled[4] && Curr().bal_chrg >= 1), true, color_arr[4], OutlineType.Always);
-    if (m_usr != null && m_usr.m_enabled[0])
+    if (bal_walls)
+        StartForcingPlayerOutlines(player, bal_wh_players, true, color_arr[4], OutlineType.Always);
+    if (m_usr.m_enabled[0])
         StartForcingPlayerOutlines(player, m_usr, true, m_color[1], OutlineType.Always);
 }
 
