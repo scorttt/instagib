@@ -10,12 +10,6 @@ playervar Number fuel;
 
 disabled rule: "---------------- Jetpack ----------------"{}
 
-rule: "[Jetpack] :: Init"
-Event.OnPlayerJoin
-{
-    fuel = 1;
-}
-
 // super hacky but it works, since jump is already being used by auto hopping this is the only solution i can think of, may need to figure something else out
 rule: "[Jetpack] :: Jump In Mid Air Detection"
 Event.OngoingPlayer
@@ -93,7 +87,7 @@ if (!is_flying)
 {
     while (fuel < 1 && !is_flying)
     {
-        AddOverTime(fuel, S_FUEL_REF / (1.1 - fuel), 0, 1, tickdur);
+        AddOverTime(fuel, S_FUEL_REF / (1.15 - fuel), 0, 1, tickdur);
 
         Wait(tickdur);
     }
