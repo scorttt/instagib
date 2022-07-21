@@ -58,7 +58,7 @@ rule: "[Main] :: General HUD Text"
         StringReplace(LANG_STR[8][3], "*", InputBindingString(Button.Jump)), Location.Left, 19, Color.Orange, Color.Orange);
 
         // jetpack fuel, not a hud text since i would have to adjust ammo text spacing which frequently changes in gameplay
-        CreateProgressBarInWorldText(local, local.fuel * 100, 
+        CreateProgressBarInWorldText(IsAlive(local) ? local : null, local.fuel * 100, 
         LANG_STR[7][5],
         Update(EyePosition(local) + 100 * 
             // (0 * WorldVectorOf(Right(), local, LocalVector.Rotation) + // X
@@ -348,16 +348,16 @@ if (s_buffs_enabled)
 
         // temperature
         CreateProgressBarHudText(local.buff_enabled[9] ? local : null, 
-        local.vlt_temp, !local.overheat ? <"<0>°", Floor(local.vlt_temp)> : LANG_STR[6][3],
+        local.vlt_temp * 100, !local.overheat ? <"<0>°", Floor(local.vlt_temp * 100)> : LANG_STR[6][3],
         Location.Top, 1.2, CustomColor(
-            LinearInterpolate(255, 255, local.vlt_temp / 100), // r
-            LinearInterpolate(100, 0, local.vlt_temp / 100),  // g
-            LinearInterpolate(0, 0, local.vlt_temp / 100),  // b
+            LinearInterpolate(255, 255, local.vlt_temp), // r
+            LinearInterpolate(100, 0, local.vlt_temp),  // g
+            LinearInterpolate(0, 0, local.vlt_temp),  // b
             255), 
             CustomColor(
-            LinearInterpolate(255, 255, local.vlt_temp / 100), // r
-            LinearInterpolate(100, 0, local.vlt_temp / 100),  // g
-            LinearInterpolate(0, 0, local.vlt_temp / 100),  // b
+            LinearInterpolate(255, 255, local.vlt_temp), // r
+            LinearInterpolate(100, 0, local.vlt_temp),  // g
+            LinearInterpolate(0, 0, local.vlt_temp),  // b
             255), ProgressBarHudEvaluation.VisibleToValuesAndColor);
 
         // in progress effects

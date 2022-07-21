@@ -58,7 +58,7 @@ rule: "[Main] :: Initial Global"
 
     match_started = false;
 
-    S_LANG = WorkshopSettingCombo("General",                                 "Language / 言語 / 언어", 0, ["English", "日本語", "한국어"], 0);
+    S_LANG = WorkshopSettingCombo("General",                                 "Default Language / デフォルト言語 / 기본 설정 언어", 0, ["English", "日本語", "한국어"], 0);
     S_GAMEMODE = WorkshopSettingCombo("General",                             "Gamemode", 0, ["Deathmatch", "Team Deathmatch", "4TDM", "Limited TDM", "Freeze Tag TDM", "Keepaway FFA", "Keepaway TDM", "Domination TDM", "Domination 4TDM"], 1);
     S_MATCH_TIME_LIMIT = WorkshopSettingInteger("General",                   "Match Time (Minutes) (20)", 20, 1, 60, 3) * 60;
     S_PICKUP_RAD = WorkshopSettingReal("General",                            "Pickup Collection Radius (1.25)", 1.25, 0.5, 3, 4);
@@ -140,7 +140,7 @@ rule: "[Main] :: Initial Global"
     s_spawn_buff[9] = WorkshopSettingToggle("Volt Buff",                     "Spawn Volt (On)", true, 1);
     S_BUFF_CD[9] = WorkshopSettingInteger("Volt Buff",                       "Volt Spawn Time (165)", 165, 5, 600, 2);
     S_BUFF_AMMO[9] = WorkshopSettingReal("Volt Buff",                        "Volt Ammo (150)", 150, 1, 10000, 3);
-    S_MAX_VLT_SPREAD = WorkshopSettingReal("Volt Buff",                      "Volt Maximum Spread (Lower is Tighter) (20)", 20, 0, 100, 4) / 100;
+    S_MAX_VLT_SPREAD = WorkshopSettingReal("Volt Buff",                      "Volt Maximum Spread (Lower is Tighter) (20)", 20, 0, 100, 4);
     S_MAX_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Maximum Distance (100)", 100, 1, 300, 5);
     S_MIN_VLT_DIST = WorkshopSettingReal("Volt Buff",                        "Volt Minimum Distance (2)", 2, 1, 300, 6);
     S_VLT_TIME = WorkshopSettingReal("Volt Buff",                            "Volt Overheat Time (3)", 3, 0.1, 10, 7);

@@ -7,10 +7,10 @@ globalvar Number S_MAX_VLT_DIST;
 globalvar Number S_MIN_VLT_DIST;
 
 playervar Any[] vlt_effects; // effects
-playervar Number vlt_temp; // increments from 0 - 100 while the player is firing 
+playervar Number vlt_temp; // increments from 0-1 while the player is firing 
 playervar Vector vlt_facing; // facing direction (controls spread)
 playervar Number vlt_dist; // maximum distance of the laser
-playervar Boolean overheat; // if vlt_temp hit 100
+playervar Boolean overheat; // if vlt_temp hit 1
 
 
 disabled rule: "---------------- Volt ----------------"{}
@@ -43,19 +43,19 @@ if (!HasStatus(player, Status.PhasedOut))
     vlt_effects[0] = LastCreatedEntity();
     CreateEffect(all, Effect.WinstonTeslaCannonTargetSound, null, player, 100);
     vlt_effects[1] = LastCreatedEntity();
-    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 50 + vlt_temp, Reevaluation: EffectRev.VisibleToPositionRadiusAndColor);
+    CreateEffect(all, Effect.OrisaHaltTendrilSound, null, player, 50 + (vlt_temp * 100), Reevaluation: EffectRev.VisibleToPositionRadiusAndColor);
     vlt_effects[2] = LastCreatedEntity();
     CreateEffect(hit ? all : null, Effect.WinstonTeslaCannonSound, null, vlt_hit, 100);
     vlt_effects[3] = LastCreatedEntity();
 
     while (buff_enabled[9] && !overheat && IsPrimaryHeld() && IsAlive() && !HasStatus(player, Status.PhasedOut))
     {
-        AddOverTime(vlt_temp, S_VLT_TIME, 0, 100, tickdur);
+        AddOverTime(vlt_temp, S_VLT_TIME, 0, 1, tickdur);
         SubtractOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, tickdur);
 
         // slow the rate of ammo depletion the longer fire is held
         if (!inf_ammo)
-            buff_ammo[9] -= Abs((vlt_temp - 100) * 0.00645);
+            buff_ammo[9] -= Abs((vlt_temp - 1) * 0.00645);
 
         vlt_facing = WorldVectorOf(Vector(TangentFromDegrees(RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD)), 0, 0), player) + 
         DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD));
@@ -76,9 +76,9 @@ if (!HasStatus(player, Status.PhasedOut))
         Kill(vlt_player, player);
         Wait(tickdur);
 
-        if (vlt_temp >= 100)
+        if (vlt_temp >= 1)
         {
-            vlt_temp = 100;
+            vlt_temp = 1;
             overheat = true;
             PlayEffect(player, PlayEffect.BaptisteBioticLauncherExplosionSound, Color.White, player, 100);
             CreateEffect(player, Effect.TorbjornOverloadingSound, Color.White, player, 30);
@@ -120,7 +120,7 @@ if (!IsPrimaryHeld() || overheat)
 
     while (vlt_temp > 0 && !IsPrimaryHeld() || overheat)
     {
-        SubtractOverTime(vlt_temp, S_VLT_TIME, 0, 100, 0.032);
+        SubtractOverTime(vlt_temp, S_VLT_TIME, 0, 1, 0.032);
         AddOverTime(vlt_dist, S_VLT_TIME, S_MIN_VLT_DIST, S_MAX_VLT_DIST, 0.032);
         Wait(0.032);
 
