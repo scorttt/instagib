@@ -32,24 +32,15 @@
   "Heroes": {
     "General": {
       "Enabled Heroes": [
-        "Cassidy",
         "Sojourn"
       ],
-      "Cassidy": {
-        "Damage Dealt": 500,
-        "Damage Received": 500,
-        "Movement Speed": 135,
-        "No Ammunition Requirement": true,
-        "Quick Melee": false,
-        "Secondary Fire": false,
-        "Ultimate Ability (Deadeye)": false
-      },
       "Sojourn": {
         "Damage Dealt": 500,
         "Damage Received": 500,
         "Movement Speed": 135,
         "No Ammunition Requirement": true,
         "Quick Melee": false,
+        "Disruptor Shot": false,
         "Primary Fire": false,
         "Ultimate Ability (Overclock)": false
       }
