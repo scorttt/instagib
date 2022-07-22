@@ -58,6 +58,7 @@ rule: "[Main] :: General HUD Text"
         StringReplace(LANG_STR[8][3], "*", InputBindingString(Button.Jump)), Location.Left, 19, Color.Orange, Color.Orange);
 
         // jetpack fuel, not a hud text since i would have to adjust ammo text spacing which frequently changes in gameplay
+        // this will not show on 21:9 monitors due to an OW bug
         CreateProgressBarInWorldText(IsAlive(local) ? local : null, local.fuel * 100, 
         LANG_STR[7][5],
         Update(EyePosition(local) + 100 * 
