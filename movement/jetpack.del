@@ -45,16 +45,18 @@ if (IsAlive())
     SetGravity(player, 153.714);
     SetMoveSpeed(player, 10000);
     ForceThrottle(player, 0, 0, 0, 0, 0, 0);
+    CreateEffect(all, Effect.BadAura, Color.Orange, PositionOf(), 0.25);
+    jp_eff[0] = LastCreatedEntity();
     CreateEffect(all, Effect.EchoFocusingBeamSound, Color.White, PositionOf(), 100);
-    jp_eff = LastCreatedEntity();
+    jp_eff[1] = LastCreatedEntity();
 
     while (is_flying)
     {
         if (!m_enabled[7])
             SubtractOverTime(fuel, S_FUEL_DEP, 0, 1, tickdur);
 
-        PlayEffect(all, PlayEffect.BadExplosion, Color.Orange, PositionOf(), 0.15);
-        PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf(), 0.25);
+        // PlayEffect(all, PlayEffect.BadExplosion, Color.Orange, PositionOf(), 0.15);
+        // PlayEffect(all, PlayEffect.BadExplosion, Color.Gray, PositionOf(), 0.25);
         Wait(tickdur);
     }
 }
