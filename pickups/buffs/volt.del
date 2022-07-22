@@ -55,7 +55,7 @@ if (!HasStatus(player, Status.PhasedOut))
 
         // slow the rate of ammo depletion the longer fire is held
         if (!inf_ammo)
-            buff_ammo[9] -= Abs((vlt_temp - 1) * 0.00645);
+            buff_ammo[9] -= Abs((vlt_temp - 1) * 0.645);
 
         vlt_facing = WorldVectorOf(Vector(TangentFromDegrees(RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD)), 0, 0), player) + 
         DirectionFromAngles(HorizontalFacingAngleOf(), VerticalFacingAngleOf() + RandomReal(-vlt_temp * S_MAX_VLT_SPREAD, vlt_temp * S_MAX_VLT_SPREAD));
