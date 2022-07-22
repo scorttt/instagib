@@ -3,6 +3,7 @@ globalvar Color[] color_arr; // global array of colors
 globalvar Number[] m_in; // index of the available mutator
 globalvar String[] b_ico; // buff icon array
 globalvar Boolean valid_map; // whether pickups can spawn on a map
+globalvar Number lowest_y; // lowest walkable y coordinate of the map (roughly)
 
 rule: "[Main] :: Pickup Init"
 {
@@ -35,6 +36,7 @@ rule: "[Main] :: Pickup Init"
     {
         case (IsMap(Map.Workshop_Chamber) || IsMap(Map.Workshop_Expanse) || IsMap(Map.Workshop_Expanse_Night) || IsMap(Map.Workshop_Island) || IsMap(Map.Workshop_Island_Night)):
             valid_map = true;
+            lowest_y = 0;
             b_loc = [Vector(-8, 1, 8),
                     Vector(-8, 1, 4),
                     Vector(-8, 1, 0),
@@ -55,6 +57,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Black_Forest) || IsMap(Map.Black_Forest_Winter)):
             valid_map = true;
+            lowest_y = 9;
             b_loc = [Vector(16.79, 12.44, 29.48),
                     Vector(16.18, 12.36, -20.11),
                     Vector(-11.87, 14, 30.67),
@@ -75,6 +78,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Blizzard_World) || IsMap(Map.Blizzard_World_Winter)):
             valid_map = true;
+            lowest_y = -0.40;
             b_loc = [Vector(-30.07, 1.00, 58.22),
                     Vector(-77.28, 5.88, 66.15),
                     Vector(-54.50, 0.61, 110.20),
@@ -95,6 +99,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Castillo)):
             valid_map = true;
+            lowest_y = 32;
             b_loc = [Vector(-106.18, 40.56, 43.20),
                     Vector(-100.35, 40.56, 73.75),
                     Vector(-115.85, 39.57, 60.92),
@@ -115,6 +120,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Chateau_Guillard) || IsMap(Map.Chateau_Guillard_Halloween)):
             valid_map = true;
+            lowest_y = 0;
             b_loc = [Vector(206.21, 10.03, 92.43),
                     Vector(196.33, 17.50, 47.12),
                     Vector(169.25, 6, 80.97),
@@ -135,6 +141,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Dorado)):
             valid_map = true;
+            lowest_y = 7.02;
             b_loc = [Vector(115.66, 8.73, -7.08),
                     Vector(85.30, 13.75, 29.84),
                     Vector(98.04, 19.01, 15.26),
@@ -155,6 +162,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Ecopoint_Antarctica) || IsMap(Map.Ecopoint_Antarctica_Winter)):
             valid_map = true;
+            lowest_y = 3;
             b_loc = [Vector(1.66, 12.63, -25.00),
                     Vector(1.66, 12.63, 25.00),
                     Vector(-19.50, 13.00, 0.00),
@@ -175,6 +183,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Eichenwalde) || IsMap(Map.Eichenwalde_Halloween)):
             valid_map = true;
+            lowest_y = 4.72;
             b_loc = [Vector(55.70, 22.00, -67.84),
                     Vector(58.33, 5.72, -90.39),
                     Vector(76.03, 11.69, -109.66),
@@ -195,6 +204,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Havana)):
             valid_map = true;
+            lowest_y = 4;
             b_loc = [Vector(9.50, 7.00, -79.23),
                     Vector(37.64, 11.00, -94.23),
                     Vector(27.92, 13.00, -61.96),
@@ -215,6 +225,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Hollywood) || IsMap(Map.Hollywood_Halloween)):
             valid_map = true;
+            lowest_y = 1.60;
             b_loc = [Vector(-11.91, 2.73, -74.64),
                     Vector(-4.09, 2.60, -15.87),
                     Vector(20.67, 2.60, -51.82),
@@ -235,6 +246,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Kanezaka)):
             valid_map = true;
+            lowest_y = 4;
             b_loc = [Vector(-0.96, 10, -46.32),
                     Vector(-16.00, 12.15, 16.83),
                     Vector(-29.03, 5.00, 43.08),
@@ -255,6 +267,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Kings_Row) || IsMap(Map.Kings_Row_Winter)):
             valid_map = true;
+            lowest_y = -2.5;
             b_loc = [Vector(-49.46, 1.00, 2.69),
                     Vector(-31.19, 10.00, -13.40),
                     Vector(-93.67, 8.50, -29.38),
@@ -275,6 +288,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Lijiang_Control_Center) || IsMap(Map.Lijiang_Control_Center_Lunar)):
             valid_map = true;
+            lowest_y = 265;
             b_loc = [Vector(-26.80, 268.00, 308.00),
                     Vector(26.80, 268.00, 308.00),
                     Vector(0.00, 271.00, 323.00),
@@ -295,6 +309,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Lijiang_Garden) || IsMap(Map.Lijiang_Garden_Lunar)):
             valid_map = true;
+            lowest_y = 94;
             b_loc = [Vector(46.85, 96.04, 150),
                     Vector(-46.85, 96.04, 150),
                     Vector(-20.61, 97, 134.47),
@@ -315,6 +330,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Malevento)):
             valid_map = true;
+            lowest_y = -3.5;
             b_loc = [Vector(-17.54, 6.00, 15.23),
                     Vector(32.76, 8.49, 21.99),
                     Vector(2.73, -2.51, -34.71),
@@ -336,6 +352,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Necropolis)):
             valid_map = true;
+            lowest_y = -6;
             b_loc = [Vector(4.48, 11.01, 21.75),
                     Vector(4.48, 11.01, -21.75),
                     Vector(-21.05, 13.71, 0),
@@ -356,6 +373,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Paris)):
             valid_map = true;
+            lowest_y = 8.7;
             b_loc = [Vector(-57.19, 14.00, -82.00),
                     Vector(-109.18, 11.00, -60.60),
                     Vector(-85.93, 13.00, -64.09),
@@ -376,6 +394,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Petra)):
             valid_map = true;
+            lowest_y = -13.60;
             b_loc = [Vector(1.99, -10, 23.00),
                     Vector(-29.99, -6.01, 0),
                     Vector(2.00, 2, -8.64),
@@ -396,6 +415,7 @@ rule: "[Main] :: Pickup Init"
             break;
         case (IsMap(Map.Oasis_City_Center)):
             valid_map = true;
+            lowest_y = 0.85;
             b_loc = [Vector(164.76, 5, 226.22),
                     Vector(122.22, 5, 268.75),
                     Vector(154.48, 12.52, 258.48),
@@ -416,6 +436,7 @@ rule: "[Main] :: Pickup Init"
             break; 
         case (IsMap(Map.Oasis_University)):
             valid_map = true;
+            lowest_y = 9;
             b_loc = [Vector(-188, 16, -38),
                     Vector(-188, 16, 38),
                     Vector(-172, 18, 0),
@@ -436,6 +457,7 @@ rule: "[Main] :: Pickup Init"
             break; 
         case (IsMap(Map.Oasis_Gardens)):
             valid_map = true;
+            lowest_y = 2.22;
             b_loc = [Vector(115.06, 8.50, -273.62),
                     Vector(167.40, 8.50, -221.28),
                     Vector(107.79, 5.50, -214.08),
@@ -444,7 +466,8 @@ rule: "[Main] :: Pickup Init"
                     Vector(87.4, 3.50, -248.25),
                     Vector(142, 3.50, -193.60),
                     Vector(141.35, 8.38, -247.59),
-                    Vector(139.44, 6.50, -269.37)];
+                    Vector(139.44, 6.50, -269.37),
+                    Vector(129.92, 16.28, -236.15)];
 
             m_loc = [Vector(126.23, 6.50, -269.37),
                     Vector(82.87, 6.49, -262.63),
